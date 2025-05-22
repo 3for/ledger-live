@@ -200,7 +200,6 @@ function App() {
   useAccountsWithFundsListener(accounts, updateIdentify);
   useFetchCurrencyAll();
   useFetchCurrencyFrom();
-  useListenToHidDevices();
   useAutoDismissPostOnboardingEntryPoint();
 
   return (
