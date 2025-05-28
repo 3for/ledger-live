@@ -959,11 +959,11 @@ importers:
         specifier: workspace:^
         version: link:../../libs/coin-modules/coin-stacks
       '@ledgerhq/device-management-kit':
-        specifier: 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533
-        version: 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1)
+        specifier: 0.0.0-hid-candidate-20250523130730
+        version: 0.0.0-hid-candidate-20250523130730(rxjs@7.8.1)
       '@ledgerhq/device-transport-kit-react-native-hid':
-        specifier: 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533
-        version: 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(@ledgerhq/device-management-kit@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1))(react-native@0.77.2(@babel/core@7.27.1)(@babel/preset-env@7.27.1(@babel/core@7.27.1))(@react-native-community/cli@15.1.0(typescript@5.4.3))(@types/react@18.2.73)(react@18.3.1))(rxjs@7.8.1)
+        specifier: 0.0.0-hid-candidate-20250523130730
+        version: 0.0.0-hid-candidate-20250523130730(@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730(rxjs@7.8.1))(react-native@0.77.2(@babel/core@7.27.1)(@babel/preset-env@7.27.1(@babel/core@7.27.1))(@react-native-community/cli@15.1.0(typescript@5.4.3))(@types/react@18.2.73)(react@18.3.1))(rxjs@7.8.1)
       '@ledgerhq/devices':
         specifier: workspace:*
         version: link:../../libs/ledgerjs/packages/devices
@@ -5193,8 +5193,8 @@ importers:
         specifier: workspace:^
         version: link:../device-core
       '@ledgerhq/device-management-kit':
-        specifier: 0.0.0-io-revamp-20250711135456
-        version: 0.0.0-io-revamp-20250711135456(rxjs@7.8.1)
+        specifier: 0.0.0-hid-candidate-20250523130730
+        version: 0.0.0-hid-candidate-20250523130730(rxjs@7.8.1)
       '@ledgerhq/devices':
         specifier: workspace:*
         version: link:../ledgerjs/packages/devices
@@ -7816,11 +7816,11 @@ importers:
   libs/live-dmk-desktop:
     dependencies:
       '@ledgerhq/device-management-kit':
-        specifier: 0.0.0-io-revamp-20250711135456
-        version: 0.0.0-io-revamp-20250711135456(rxjs@7.8.1)
+        specifier: 0.0.0-hid-candidate-20250523130730
+        version: 0.0.0-hid-candidate-20250523130730(rxjs@7.8.1)
       '@ledgerhq/device-transport-kit-web-hid':
-        specifier: 0.0.0-io-revamp-20250630141416
-        version: 0.0.0-io-revamp-20250630141416(@ledgerhq/device-management-kit@0.0.0-io-revamp-20250711135456(rxjs@7.8.1))(rxjs@7.8.1)
+        specifier: 1.1.0
+        version: 1.1.0(@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730(rxjs@7.8.1))(rxjs@7.8.1)
       '@ledgerhq/hw-transport':
         specifier: workspace:*
         version: link:../ledgerjs/packages/hw-transport
@@ -7880,11 +7880,11 @@ importers:
   libs/live-dmk-mobile:
     dependencies:
       '@ledgerhq/device-management-kit':
-        specifier: 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533
-        version: 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1)
+        specifier: 0.0.0-hid-candidate-20250523130730
+        version: 0.0.0-hid-candidate-20250523130730(rxjs@7.8.1)
       '@ledgerhq/device-transport-kit-react-native-ble':
         specifier: 1.0.0
-        version: 1.0.0(@ledgerhq/device-management-kit@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1))(react-native-ble-plx@3.4.0(react-native@0.77.2(@react-native-community/cli@15.1.0(typescript@5.4.3))(react@18.3.1))(react@18.3.1))(react-native@0.77.2(@react-native-community/cli@15.1.0(typescript@5.4.3))(react@18.3.1))(rxjs@7.8.1)
+        version: 1.0.0(@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730(rxjs@7.8.1))(react-native-ble-plx@3.4.0(react-native@0.77.2(@react-native-community/cli@15.1.0(typescript@5.4.3))(react@18.3.1))(react@18.3.1))(react-native@0.77.2(@react-native-community/cli@15.1.0(typescript@5.4.3))(react@18.3.1))(rxjs@7.8.1)
       '@ledgerhq/devices':
         specifier: workspace:*
         version: link:../ledgerjs/packages/devices
@@ -7905,8 +7905,8 @@ importers:
         version: link:../ledgerjs/packages/types-devices
     devDependencies:
       '@ledgerhq/device-transport-kit-react-native-hid':
-        specifier: 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533
-        version: 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(@ledgerhq/device-management-kit@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1))(react-native@0.77.2(@react-native-community/cli@15.1.0(typescript@5.4.3))(react@18.3.1))(rxjs@7.8.1)
+        specifier: 0.0.0-hid-candidate-20250523130730
+        version: 0.0.0-hid-candidate-20250523130730(@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730(rxjs@7.8.1))(react-native@0.77.2(@react-native-community/cli@15.1.0(typescript@5.4.3))(react@18.3.1))(rxjs@7.8.1)
       '@testing-library/dom':
         specifier: ^9.3.4
         version: 9.3.4
@@ -7978,8 +7978,8 @@ importers:
         version: 5.19.2
     devDependencies:
       '@ledgerhq/device-management-kit':
-        specifier: 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533
-        version: 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1)
+        specifier: 0.0.0-hid-candidate-20250523130730
+        version: 0.0.0-hid-candidate-20250523130730(rxjs@7.8.1)
       '@testing-library/dom':
         specifier: ^9.3.4
         version: 9.3.4
@@ -8168,13 +8168,13 @@ importers:
         version: link:../coin-modules/coin-evm
       '@ledgerhq/context-module':
         specifier: 1.4.0
-        version: 1.4.0(@ledgerhq/device-management-kit@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1))
+        version: 1.4.0(@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730(rxjs@7.8.1))
       '@ledgerhq/device-management-kit':
-        specifier: 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533
-        version: 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1)
+        specifier: 0.0.0-hid-candidate-20250523130730
+        version: 0.0.0-hid-candidate-20250523130730(rxjs@7.8.1)
       '@ledgerhq/device-signer-kit-ethereum':
         specifier: 0.0.0-challenge-nano-s-20250515175634
-        version: 0.0.0-challenge-nano-s-20250515175634(@ledgerhq/context-module@1.4.0(@ledgerhq/device-management-kit@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1)))(@ledgerhq/device-management-kit@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1))
+        version: 0.0.0-challenge-nano-s-20250515175634(@ledgerhq/context-module@1.4.0(@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730(rxjs@7.8.1)))(@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730(rxjs@7.8.1))
       '@ledgerhq/errors':
         specifier: workspace:^
         version: link:../ledgerjs/packages/errors
@@ -14335,13 +14335,13 @@ packages:
   '@ledgerhq/cryptoassets@6.37.0':
     resolution: {integrity: sha512-xwrDKTS9koQBNNzc7CqgV6zfGHvNFWJjlIL0Kc4O4DVWYR2vUdztUHcvwHD1KPjxNYhVnsgIopmtq47fHt3nMg==}
 
-  '@ledgerhq/device-management-kit@0.0.0-io-revamp-20250711135456':
-    resolution: {integrity: sha512-41RZeO9oM+xUIbuEM9nid0tpqiv52knUVbLcqfHzJcTbaZEmRnbvmaFekSx+AuZ3SWlsmo8nC+dnfDD+Fh6inQ==}
+  '@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730':
+    resolution: {integrity: sha512-trQWgJ2fUqGGLpgyO8wD4UakyAx73UkXkYOYT3oHi0Ceb3KFN2acMsn54AnvE8G9EjHySDrOyaiel1L5EbbSIA==}
     peerDependencies:
       rxjs: ^7.8.2
 
-  '@ledgerhq/device-management-kit@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533':
-    resolution: {integrity: sha512-YJTYH9xymfnXUfVA0qTWjkBj0owuZCQlIPsWi4O0+oPRC9YYCdeU6ZGEhbezNWzMW/safrIDL5Y+EH+8nYztRg==}
+  '@ledgerhq/device-management-kit@0.0.0-io-revamp-20250711135456':
+    resolution: {integrity: sha512-41RZeO9oM+xUIbuEM9nid0tpqiv52knUVbLcqfHzJcTbaZEmRnbvmaFekSx+AuZ3SWlsmo8nC+dnfDD+Fh6inQ==}
     peerDependencies:
       rxjs: ^7.8.2
 
@@ -14359,17 +14359,17 @@ packages:
       react-native-ble-plx: 3.4.0
       rxjs: ^7.8.2
 
-  '@ledgerhq/device-transport-kit-react-native-hid@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533':
-    resolution: {integrity: sha512-bZCDAST2F59Js5RLlf3ySYR1KYpMeB8rVpNH8s0AoYOAwMfYJ7N3a0/I3AZdxVHroHTboJXSi+FNRbM9DZd3Aw==}
+  '@ledgerhq/device-transport-kit-react-native-hid@0.0.0-hid-candidate-20250523130730':
+    resolution: {integrity: sha512-4+/0PH5GuNQhNwhFMVDhSkPHA3gpCDZcH0FwV5WPwzyzbXZg3QyB+acNOT3QSQe8zo2HrLA45XfC8I04oLWdJw==}
     peerDependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533
+      '@ledgerhq/device-management-kit': 0.0.0-hid-candidate-20250523130730
       react-native: '>0.74.1'
       rxjs: ^7.8.2
 
-  '@ledgerhq/device-transport-kit-web-hid@0.0.0-io-revamp-20250630141416':
-    resolution: {integrity: sha512-kJqcXbLfBh/Z/5iOWKMSM4hy8EiYhWnl4lAi4YH3ztaMpSkIZxvvVFPK2p5WnsQ9C3Qjls49MrMVl8Xou/ua8A==}
+  '@ledgerhq/device-transport-kit-web-hid@1.1.0':
+    resolution: {integrity: sha512-fDXsaeccDZQlAzzXjMtnl/jh3CUANoZj+qbzQjRSOp0aojOjIU+uh4WajLLQ0Ov46wxkS6Yd8xXw8F3p822ohg==}
     peerDependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-io-revamp-20250630141416
+      '@ledgerhq/device-management-kit': '>=0.6.2'
       rxjs: ^7.8.2
 
   '@ledgerhq/domain-service@1.2.12':
@@ -43470,9 +43470,9 @@ snapshots:
     dependencies:
       commander: 2.20.3
 
-  '@ledgerhq/context-module@1.4.0(@ledgerhq/device-management-kit@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1))':
+  '@ledgerhq/context-module@1.4.0(@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730(rxjs@7.8.1))':
     dependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1)
+      '@ledgerhq/device-management-kit': 0.0.0-hid-candidate-20250523130730(rxjs@7.8.1)
       axios: 1.8.2
       crypto-js: 4.2.0
       ethers: 6.13.4
@@ -43516,6 +43516,24 @@ snapshots:
     dependencies:
       invariant: 2.2.4
 
+  '@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730(rxjs@7.8.1)':
+    dependencies:
+      '@sentry/minimal': 6.19.7
+      axios: 1.8.2
+      inversify: 7.5.1(reflect-metadata@0.2.2)
+      isomorphic-ws: 5.0.0(ws@8.18.0)
+      purify-ts: 2.1.0
+      reflect-metadata: 0.2.2
+      rxjs: 7.8.1
+      semver: 7.7.0
+      url: 0.11.4
+      uuid: 11.0.3
+      ws: 8.18.0
+      xstate: 5.19.2
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   '@ledgerhq/device-management-kit@0.0.0-io-revamp-20250711135456':
     dependencies:
       '@sentry/minimal': 6.19.7
@@ -43534,48 +43552,11 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@ledgerhq/device-management-kit@0.0.0-io-revamp-20250711135456(rxjs@7.8.1)':
+  '@ledgerhq/device-signer-kit-ethereum@0.0.0-challenge-nano-s-20250515175634(@ledgerhq/context-module@1.4.0(@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730(rxjs@7.8.1)))(@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730(rxjs@7.8.1))':
     dependencies:
-      '@sentry/minimal': 6.19.7
-      axios: 1.8.2
-      inversify: 6.2.2(reflect-metadata@0.2.2)
-      inversify-logger-middleware: 3.1.0
-      isomorphic-ws: 5.0.0(ws@8.18.0)
-      purify-ts: 2.1.0
-      reflect-metadata: 0.2.2
-      rxjs: 7.8.1
-      semver: 7.7.0
-      url: 0.11.4
-      uuid: 11.0.3
-      ws: 8.18.0
-      xstate: 5.19.2
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
-  '@ledgerhq/device-management-kit@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1)':
-    dependencies:
-      '@sentry/minimal': 6.19.7
-      axios: 1.8.2
-      inversify: 7.5.1(reflect-metadata@0.2.2)
-      isomorphic-ws: 5.0.0(ws@8.18.0)
-      purify-ts: 2.1.0
-      reflect-metadata: 0.2.2
-      rxjs: 7.8.1
-      semver: 7.7.0
-      url: 0.11.4
-      uuid: 11.0.3
-      ws: 8.18.0
-      xstate: 5.19.2
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
-  '@ledgerhq/device-signer-kit-ethereum@0.0.0-challenge-nano-s-20250515175634(@ledgerhq/context-module@1.4.0(@ledgerhq/device-management-kit@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1)))(@ledgerhq/device-management-kit@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1))':
-    dependencies:
-      '@ledgerhq/context-module': 1.4.0(@ledgerhq/device-management-kit@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1))
-      '@ledgerhq/device-management-kit': 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1)
-      '@ledgerhq/signer-utils': 1.0.5(@ledgerhq/device-management-kit@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1))
+      '@ledgerhq/context-module': 1.4.0(@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730(rxjs@7.8.1))
+      '@ledgerhq/device-management-kit': 0.0.0-hid-candidate-20250523130730(rxjs@7.8.1)
+      '@ledgerhq/signer-utils': 1.0.5(@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730(rxjs@7.8.1))
       ethers: 6.13.4
       inversify: 6.2.2(reflect-metadata@0.2.2)
       inversify-logger-middleware: 3.1.0
@@ -43587,9 +43568,9 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@ledgerhq/device-transport-kit-react-native-ble@1.0.0(@ledgerhq/device-management-kit@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1))(react-native-ble-plx@3.4.0(react-native@0.77.2(@react-native-community/cli@15.1.0(typescript@5.4.3))(react@18.3.1))(react@18.3.1))(react-native@0.77.2(@react-native-community/cli@15.1.0(typescript@5.4.3))(react@18.3.1))(rxjs@7.8.1)':
+  '@ledgerhq/device-transport-kit-react-native-ble@1.0.0(@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730(rxjs@7.8.1))(react-native-ble-plx@3.4.0(react-native@0.77.2(@react-native-community/cli@15.1.0(typescript@5.4.3))(react@18.3.1))(react@18.3.1))(react-native@0.77.2(@react-native-community/cli@15.1.0(typescript@5.4.3))(react@18.3.1))(rxjs@7.8.1)':
     dependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1)
+      '@ledgerhq/device-management-kit': 0.0.0-hid-candidate-20250523130730(rxjs@7.8.1)
       '@sentry/minimal': 6.19.7
       js-base64: 3.7.7
       purify-ts: 2.1.0
@@ -43598,31 +43579,31 @@ snapshots:
       rxjs: 7.8.1
       uuid: 11.0.3
 
-  '@ledgerhq/device-transport-kit-react-native-hid@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(@ledgerhq/device-management-kit@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1))(react-native@0.77.2(@babel/core@7.27.1)(@babel/preset-env@7.27.1(@babel/core@7.27.1))(@react-native-community/cli@15.1.0(typescript@5.4.3))(@types/react@18.2.73)(react@18.3.1))(rxjs@7.8.1)':
+  '@ledgerhq/device-transport-kit-react-native-hid@0.0.0-hid-candidate-20250523130730(@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730(rxjs@7.8.1))(react-native@0.77.2(@babel/core@7.27.1)(@babel/preset-env@7.27.1(@babel/core@7.27.1))(@react-native-community/cli@15.1.0(typescript@5.4.3))(@types/react@18.2.73)(react@18.3.1))(rxjs@7.8.1)':
     dependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1)
+      '@ledgerhq/device-management-kit': 0.0.0-hid-candidate-20250523130730(rxjs@7.8.1)
       '@sentry/minimal': 6.19.7
       purify-ts: 2.1.0
       react-native: 0.77.2(@babel/core@7.27.1)(@babel/preset-env@7.27.1(@babel/core@7.27.1))(@react-native-community/cli@15.1.0(typescript@5.4.3))(@types/react@18.2.73)(react@18.3.1)
       rxjs: 7.8.1
       uuid: 11.0.3
 
-  '@ledgerhq/device-transport-kit-react-native-hid@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(@ledgerhq/device-management-kit@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1))(react-native@0.77.2(@react-native-community/cli@15.1.0(typescript@5.4.3))(react@18.3.1))(rxjs@7.8.1)':
+  '@ledgerhq/device-transport-kit-react-native-hid@0.0.0-hid-candidate-20250523130730(@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730(rxjs@7.8.1))(react-native@0.77.2(@react-native-community/cli@15.1.0(typescript@5.4.3))(react@18.3.1))(rxjs@7.8.1)':
     dependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1)
+      '@ledgerhq/device-management-kit': 0.0.0-hid-candidate-20250523130730(rxjs@7.8.1)
       '@sentry/minimal': 6.19.7
       purify-ts: 2.1.0
       react-native: 0.77.2(@react-native-community/cli@15.1.0(typescript@5.4.3))(react@18.3.1)
       rxjs: 7.8.1
       uuid: 11.0.3
 
-  '@ledgerhq/device-transport-kit-web-hid@0.0.0-io-revamp-20250630141416(@ledgerhq/device-management-kit@0.0.0-io-revamp-20250711135456(rxjs@7.8.1))(rxjs@7.8.1)':
+  '@ledgerhq/device-transport-kit-web-hid@1.1.0(@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730(rxjs@7.8.1))(rxjs@7.8.1)':
     dependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-io-revamp-20250711135456(rxjs@7.8.1)
+      '@ledgerhq/device-management-kit': 0.0.0-hid-candidate-20250523130730(rxjs@7.8.1)
       '@sentry/minimal': 6.19.7
       purify-ts: 2.1.0
       rxjs: 7.8.1
-      uuid: 11.0.3
+      uuid: 11.1.0
 
   '@ledgerhq/domain-service@1.2.12':
     dependencies:
@@ -43694,9 +43675,9 @@ snapshots:
 
   '@ledgerhq/logs@6.12.0': {}
 
-  '@ledgerhq/signer-utils@1.0.5(@ledgerhq/device-management-kit@0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1))':
+  '@ledgerhq/signer-utils@1.0.5(@ledgerhq/device-management-kit@0.0.0-hid-candidate-20250523130730(rxjs@7.8.1))':
     dependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-rn-hid-sync-onboarding-behavior-20250519131533(rxjs@7.8.1)
+      '@ledgerhq/device-management-kit': 0.0.0-hid-candidate-20250523130730(rxjs@7.8.1)
 
   '@ledgerhq/types-live@6.53.1':
     dependencies:
