@@ -19,6 +19,7 @@ import {
   DisconnectedDevice,
 } from "@ledgerhq/errors";
 import {
+  DeviceDeprecationError,
   DeviceNotOnboarded,
   NoSuchAppOnProvider,
   TransactionRefusedOnDevice,
@@ -74,6 +75,10 @@ import NoSuchAppOnProviderErrorComponent from "./NoSuchAppOnProviderErrorCompone
 import Image from "~/renderer/components/Image";
 import Nano from "~/renderer/images/nanoS.v4.svg";
 import { isDisconnectedWhileSendingApduError } from "@ledgerhq/live-dmk-desktop";
+import {
+  DeviceDeprecationScreen,
+  DeviceDeprecationScreens,
+} from "./Screen/DeviceDeprecationScreen";
 
 export const AnimationWrapper = styled.div`
   width: 600px;
@@ -785,6 +790,7 @@ export const renderError = ({
   learnMoreTextKey,
   Icon,
   stretch,
+  isSwap,
 }: {
   error: Error | ErrorConstructor;
   t: TFunction;
@@ -805,7 +811,9 @@ export const renderError = ({
   inlineRetry?: boolean;
   withDescription?: boolean;
   stretch?: boolean;
+  passWarning?: (() => void) | null | undefined;
   Icon?: (props: { color?: string | undefined; size?: number | undefined }) => JSX.Element;
+  isSwap?: boolean;
 }) => {
   let tmpError = error;
   // Redirects from renderError and not from DeviceActionDefaultRendering because renderError
@@ -820,6 +828,17 @@ export const renderError = ({
     if (tmpError.title === "userRefused") {
       tmpError = new TransactionRefusedOnDevice();
     }
+  } else if (error instanceof DeviceDeprecationError) {
+    return (
+      <DeviceDeprecationScreen
+        isSwap={isSwap}
+        productName={error.productName}
+        onContinue={() => {}}
+        screenName={DeviceDeprecationScreens.errorScreen}
+        coinName={""}
+        date={error.date}
+      />
+    );
   } else if (tmpError instanceof NoSuchAppOnProvider) {
     return (
       <NoSuchAppOnProviderErrorComponent
@@ -912,15 +931,18 @@ export const renderError = ({
 export const renderInWrongAppForAccount = ({
   t,
   onRetry,
+  passWarning,
 }: {
   t: TFunction;
   onRetry?: (() => void) | null | undefined;
+  passWarning?: () => void;
 }) =>
   renderError({
     t,
     error: new WrongDeviceForAccount(""),
     withExportLogs: true,
     onRetry,
+    passWarning,
     stretch: true,
   });
 

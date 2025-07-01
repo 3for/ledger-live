@@ -39,6 +39,67 @@ import {
 } from "@ledgerhq/device-management-kit";
 import { ConnectAppDeviceAction } from "@ledgerhq/live-dmk-shared";
 import { ConnectAppEventMapper } from "./connectAppEventMapper";
+import { throwErrorWhenDeviceDeprecated } from "./deviceDeprecation";
+import { DeviceDeprecationError } from "../errors";
+
+/**
+ * Represents the deprecation status of a device.
+ *
+ * @property warningScreenVisible - Whether the generic deprecation warning screen should be shown.
+ * @property clearSigningScreenVisible - Whether the clear signing deprecation warning screen should be shown.
+ * @property errorScreenVisible - Whether the deprecation error screen should be shown (blocking usage).
+ * @property productName - The name of the affected product (e.g., "Nano S").
+ * @property date - The date when the deprecation becomes effective.
+ * @property warningScreenConfig - Optional configuration for the warning screen.
+ * @property clearSigningScreenConfig - Optional configuration for the clear signing screen.
+ * @property errorScreenConfig - Optional configuration for the error screen.
+ * @property onThrowError - Callback function triggered when an error should be thrown.
+ */
+export type DeviceDeprecation = {
+  warningScreenVisible: boolean;
+  clearSigningScreenVisible: boolean;
+  errorScreenVisible: boolean;
+  productName: string;
+  date: Date;
+  warningScreenConfig?: DeviceDeprecationConfig;
+  clearSigningScreenConfig?: DeviceDeprecationConfig;
+  errorScreenConfig?: DeviceDeprecationConfig;
+  onThrowError: () => void;
+};
+
+/**
+ * Configuration defining exceptions to device deprecation restrictions.
+ *
+ * @property tokenExceptions - List of token identifiers exempt from the restriction.
+ * @property deprecatedFlowExceptions - List of flow identifiers (e.g., send, receive) to restrict.
+ */
+export type DeviceDeprecationConfig = {
+  tokenExceptions?: string[];
+  deprecatedFlow?: string[];
+};
+
+/**
+ * Represents the complete deprecation status of a device,
+ *
+ * @property warningScreenVisible - Whether the generic deprecation warning screen should be shown.
+ * @property clearSigningScreenVisible - Whether the clear signing deprecation warning screen should be shown.
+ * @property errorScreenVisible - Whether the deprecation error screen should be shown (blocking usage).
+ * @property productName - The name of the affected product (e.g., "Nano S").
+ * @property date - The date when the deprecation becomes effective.
+ * @property warningScreenConfig - Optional configuration for the warning screen.
+ * @property clearSigningScreenConfig - Optional configuration for the clear signing screen.
+ * @property errorScreenConfig - Optional configuration for the error screen.
+ */
+export type DeviceDeprecationErrorType = {
+  warningScreenVisible: boolean;
+  clearSigningScreenVisible: boolean;
+  errorScreenVisible: boolean;
+  productName: string;
+  date: Date;
+  warningScreenConfig?: DeviceDeprecationConfig;
+  clearSigningScreenConfig?: DeviceDeprecationConfig;
+  errorScreenConfig?: DeviceDeprecationConfig;
+};
 
 export type RequiresDerivation = {
   currencyId: string;
@@ -57,6 +118,7 @@ export type ConnectAppRequest = {
   requireLatestFirmware?: boolean;
   outdatedApp?: AppAndVersion;
   allowPartialDependencies: boolean;
+  passDeprecation?: boolean;
 };
 
 export type AppAndVersion = {
@@ -94,6 +156,11 @@ export type ConnectAppEvent =
       itemProgress: number;
       currentAppOp: AppOp;
       installQueue: string[];
+    }
+  | {
+      type: "deprecation";
+      deprecate: DeviceDeprecation;
+      onContinue: () => void;
     }
   | {
       type: "some-apps-skipped";
@@ -534,36 +601,84 @@ export default function connectAppFactory(
       dependencies,
       requireLatestFirmware,
       allowPartialDependencies = false,
+      passDeprecation = false,
     } = request;
     return withDevice(deviceId)(transport => {
       if (!isDmkTransport(transport)) {
         return cmd(transport, { deviceId, request });
       }
       const { dmk, sessionId } = transport;
-      const deviceAction = new ConnectAppDeviceAction({
-        input: {
-          application: appNameToDependency(appName),
-          dependencies: dependencies ? dependencies.map(name => ({ name })) : [],
-          requireLatestFirmware,
-          allowMissingApplication: allowPartialDependencies,
-          unlockTimeout: 0, // Expect to fail immediately when device is locked
-          requiredDerivation: requiresDerivation
-            ? async () => {
-                const { currencyId, ...derivationRest } = requiresDerivation;
-                const derivation = await getAddress(transport, {
-                  currency: getCryptoCurrencyById(currencyId),
-                  ...derivationRest,
-                });
-                return derivation.address;
-              }
-            : undefined,
-        },
-      });
-      const observable = dmk.executeDeviceAction({
-        sessionId,
-        deviceAction,
-      });
-      return new ConnectAppEventMapper(dmk, sessionId, appName, observable).map();
+      let hasContinued = false;
+      const connectAppFlow = (): Observable<ConnectAppEvent> => {
+        const deviceAction = new ConnectAppDeviceAction({
+          input: {
+            application: appNameToDependency(appName),
+            dependencies: dependencies ? dependencies.map(name => ({ name })) : [],
+            requireLatestFirmware,
+            allowMissingApplication: allowPartialDependencies,
+            unlockTimeout: 0,
+            requiredDerivation: requiresDerivation
+              ? async () => {
+                  const { currencyId, ...derivationRest } = requiresDerivation;
+                  const derivation = await getAddress(transport, {
+                    currency: getCryptoCurrencyById(currencyId),
+                    ...derivationRest,
+                  });
+                  return derivation.address;
+                }
+              : undefined,
+          },
+        });
+
+        const observable = dmk.executeDeviceAction({
+          sessionId,
+          deviceAction,
+        });
+
+        return new ConnectAppEventMapper(dmk, sessionId, appName, observable).map();
+      };
+      try {
+        throwErrorWhenDeviceDeprecated(dmk, sessionId, passDeprecation, appName, dependencies);
+      } catch (error) {
+        return new Observable<ConnectAppEvent>(subscriber => {
+          if (error instanceof DeviceDeprecationError) {
+            const onThrowError = () => {
+              subscriber.error(error);
+            };
+            const continueOnce = () => {
+              if (hasContinued) return;
+              hasContinued = true;
+              connectAppFlow().subscribe(subscriber);
+            };
+            const deprecationEvent: ConnectAppEvent = {
+              type: "deprecation",
+              deprecate: {
+                warningScreenVisible: error.warningScreenVisible,
+                clearSigningScreenVisible: error.clearSigningScreenVisible,
+                errorScreenVisible: error.errorScreenVisible,
+                date: error.date,
+                productName: error.productName,
+                warningScreenConfig: {
+                  tokenExceptions: error.warningScreenConfig?.tokenExceptions || [],
+                  deprecatedFlow: error.warningScreenConfig?.deprecatedFlow || [],
+                },
+                clearSigningScreenConfig: {
+                  tokenExceptions: error.clearSigningScreenConfig?.tokenExceptions || [],
+                  deprecatedFlow: error.clearSigningScreenConfig?.deprecatedFlow || [],
+                },
+                errorScreenConfig: {
+                  tokenExceptions: error.errorScreenConfig?.tokenExceptions || [],
+                  deprecatedFlow: error.errorScreenConfig?.deprecatedFlow || [],
+                },
+                onThrowError: onThrowError,
+              },
+              onContinue: continueOnce,
+            };
+            subscriber.next(deprecationEvent);
+          }
+        });
+      }
+      return connectAppFlow();
     });
   };
 }

@@ -1,4 +1,4 @@
-import React, { Component, useEffect } from "react";
+import React, { Component, useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
 import { Trans, useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
@@ -73,7 +73,7 @@ import {
   InitSwapResult,
 } from "@ledgerhq/live-common/exchange/swap/types";
 import { Transaction, TransactionStatus } from "@ledgerhq/live-common/generated/types";
-import { AppAndVersion } from "@ledgerhq/live-common/hw/connectApp";
+import { AppAndVersion, DeviceDeprecation } from "@ledgerhq/live-common/hw/connectApp";
 import { Device } from "@ledgerhq/types-devices";
 import { LedgerErrorConstructor } from "@ledgerhq/errors/lib/helpers";
 import { TokenCurrency } from "@ledgerhq/types-cryptoassets";
@@ -89,6 +89,10 @@ import { HOOKS_TRACKING_LOCATIONS } from "~/renderer/analytics/hooks/variables";
 import { useTrackSyncFlow } from "~/renderer/analytics/hooks/useTrackSyncFlow";
 import { useTrackGenericDAppTransactionSend } from "~/renderer/analytics/hooks/useTrackGenericDAppTransactionSend";
 import { useTrackTransactionChecksFlow } from "~/renderer/analytics/hooks/useTrackTransactionChecksFlow";
+import {
+  DeviceDeprecationScreen,
+  DeviceDeprecationScreens,
+} from "./Screen/DeviceDeprecationScreen";
 
 export type LedgerError = InstanceType<LedgerErrorConstructor<{ [key: string]: unknown }>>;
 
@@ -156,6 +160,9 @@ type States = PartialNullable<{
   manifestId: string;
   transactionChecksOptInTriggered: boolean;
   transactionChecksOptIn: boolean;
+  deprecateData?: DeviceDeprecation;
+  onContinue?: () => void;
+  displayDeprecateWarning: boolean;
 }>;
 
 type InnerProps<P> = {
@@ -243,6 +250,9 @@ export const DeviceActionDefaultRendering = <R, H extends States, P>({
     signMessageRequested,
     manifestId,
     manifestName,
+    deprecateData,
+    onContinue,
+    displayDeprecateWarning,
   } = hookState;
 
   const dispatch = useDispatch();
@@ -251,6 +261,7 @@ export const DeviceActionDefaultRendering = <R, H extends States, P>({
   const stateSettings = useSelector(settingsSelector);
   const walletState = useSelector(walletSelector);
   const isTrackingEnabled = useSelector(trackingEnabledSelector);
+  const [hasDisplayDeprecateWarning, setDeprecated] = useState(false);
 
   useTrackManagerSectionEvents({
     location: location === HOOKS_TRACKING_LOCATIONS.managerDashboard ? location : undefined,
@@ -335,7 +346,6 @@ export const DeviceActionDefaultRendering = <R, H extends States, P>({
   });
 
   const type = useTheme().colors.palette.type;
-
   const modelId = device ? device.modelId : overridesPreferredDeviceModel || preferredDeviceModel;
 
   useEffect(() => {
@@ -364,7 +374,93 @@ export const DeviceActionDefaultRendering = <R, H extends States, P>({
     }
   }, [dispatch, device, deviceInfo, latestFirmware]);
 
-  if (displayUpgradeWarning && appAndVersion && passWarning) {
+  if (deprecateData && onContinue && request) {
+    const { account } = request as unknown as {
+      account: Account;
+    };
+    const { clearSigningScreenConfig, warningScreenConfig, errorScreenConfig, date, productName } =
+      deprecateData;
+    const flowMapping: Partial<Record<HOOKS_TRACKING_LOCATIONS, string>> = {
+      [HOOKS_TRACKING_LOCATIONS.sendModal]: "send",
+      [HOOKS_TRACKING_LOCATIONS.receiveModal]: "receive",
+      [HOOKS_TRACKING_LOCATIONS.exchange]: "swap",
+    };
+    const currentFlow = (location && flowMapping[location]) || "other";
+    const skippedDeprecations = stateSettings.deprecationDoNotRemind;
+    const currentToken =
+      typeof request === "object" && "tokenCurrency" in request && request.tokenCurrency
+        ? (request.tokenCurrency as TokenCurrency).name
+        : "";
+    const coin: string = currentToken || account.currency.name ? account.currency.name : "";
+    const doSkipDeprecation = (tokenExceptions: string[], deprecatedFlow: string[]) => {
+      return (
+        tokenExceptions.includes(currentToken) ||
+        !deprecatedFlow.includes(currentFlow) ||
+        currentFlow === "other"
+      );
+    };
+    const alreadyDismissed = skippedDeprecations.includes(coin);
+    const skipWarningScreen =
+      doSkipDeprecation(
+        warningScreenConfig?.tokenExceptions || [],
+        warningScreenConfig?.deprecatedFlow || [],
+      ) && !alreadyDismissed;
+    const skipClearSigningScreen = doSkipDeprecation(
+      clearSigningScreenConfig?.tokenExceptions || [],
+      clearSigningScreenConfig?.deprecatedFlow || [],
+    );
+    const skipErrorScreen = doSkipDeprecation(
+      errorScreenConfig?.tokenExceptions || [],
+      errorScreenConfig?.deprecatedFlow || [],
+    );
+
+    const handleContinue = () => {
+      setDeprecated(true);
+      onContinue();
+    };
+    if (deprecateData.errorScreenVisible) {
+      if (skipErrorScreen) {
+        onContinue();
+        return null;
+      } else {
+        deprecateData.onThrowError();
+        return null;
+      }
+    }
+
+    if (!hasDisplayDeprecateWarning) {
+      if (deprecateData.warningScreenVisible && !skipWarningScreen) {
+        return (
+          <DeviceDeprecationScreen
+            coinName={coin}
+            date={date}
+            onContinue={handleContinue}
+            productName={productName}
+            displayClearSigningWarning={
+              deprecateData.clearSigningScreenVisible && !skipClearSigningScreen
+            }
+            isSwap={currentFlow === "swap"}
+            screenName={DeviceDeprecationScreens.warningScreen}
+          />
+        );
+      } else if (deprecateData.clearSigningScreenVisible && !skipClearSigningScreen) {
+        return (
+          <DeviceDeprecationScreen
+            onContinue={handleContinue}
+            productName={productName}
+            isSwap={currentFlow === "swap"}
+            screenName={DeviceDeprecationScreens.clearSigningScreen}
+            coinName={coin}
+            date={date}
+          />
+        );
+      }
+    }
+    onContinue();
+    return null;
+  }
+
+  if (displayDeprecateWarning && displayUpgradeWarning && appAndVersion && passWarning) {
     return renderWarningOutdated({ appName: appAndVersion.name, passWarning });
   }
 
@@ -422,6 +518,7 @@ export const DeviceActionDefaultRendering = <R, H extends States, P>({
           inlineRetry,
           error,
           onRetry: refused ? onRetry : undefined,
+          passWarning,
           info: true,
         });
       }
@@ -579,6 +676,7 @@ export const DeviceActionDefaultRendering = <R, H extends States, P>({
         t,
         error: new EConnResetError(),
         onRetry,
+        passWarning,
         withExportLogs: true,
       });
     }
@@ -604,16 +702,17 @@ export const DeviceActionDefaultRendering = <R, H extends States, P>({
     if ((error as unknown) instanceof UserRefusedDeviceNameChange) {
       withDescription = false;
     }
-
     return renderError({
       t,
       error,
       warning,
       onRetry,
+      passWarning,
       withExportLogs,
       device: device ?? undefined,
       inlineRetry,
       withDescription,
+      isSwap: location === HOOKS_TRACKING_LOCATIONS.exchange,
     });
   }
 

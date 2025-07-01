@@ -64,6 +64,11 @@ import ModalLock from "../ModalLock";
 import ProviderIcon from "../ProviderIcon";
 import { RootStackParamList } from "../RootNavigator/types/RootNavigator";
 import TermsFooter, { TermsProviders } from "../TermsFooter";
+import { DeviceDeprecationError } from "@ledgerhq/live-common/errors";
+import {
+  DeviceDeprecationScreen,
+  DeviceDeprecationScreens,
+} from "./Screen/DeviceDeprecationScreen";
 
 export const Wrapper = styled(Flex).attrs({
   flex: 1,
@@ -661,12 +666,22 @@ export function renderError({
   if (error instanceof LockedDeviceError) {
     return renderLockedDeviceError({ t, onRetry, device });
   }
-
   // TODO Once we have the aligned Error renderings, the CTA list should be determined
   // by the error class, not patched like here.
   let showRetryIfAvailable = true;
   if (error instanceof PeerRemovedPairing) {
     showRetryIfAvailable = false;
+  }
+  if (error instanceof DeviceDeprecationError) {
+    return (
+      <DeviceDeprecationScreen
+        coinName={""}
+        date={error.date}
+        onContinue={() => {}}
+        productName={error.productName}
+        screenName={DeviceDeprecationScreens.errorScreen}
+      />
+    );
   }
 
   return (
