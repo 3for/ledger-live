@@ -207,6 +207,9 @@ const extraProperties = (store: ReduxStore) => {
   const ldmkConnectApp = analyticsFeatureFlagMethod
     ? analyticsFeatureFlagMethod("ldmkConnectApp")
     : { enabled: false };
+  const ldmkSolanaSigner = analyticsFeatureFlagMethod
+    ? analyticsFeatureFlagMethod("ldmkSolanaSigner")
+    : { enabled: false };
 
   const ledgerSyncAttributes = getLedgerSyncAttributes(state);
   const mevProtectionAttributes = getMEVAttributes(state);
@@ -276,6 +279,7 @@ const extraProperties = (store: ReduxStore) => {
     madAttributes,
     isLDMKTransportEnabled: ldmkTransport?.enabled,
     isLDMKConnectAppEnabled: ldmkConnectApp?.enabled,
+    isLDMKSolanaSignerEnabled: ldmkSolanaSigner?.enabled,
   };
 };
 
