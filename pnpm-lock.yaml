@@ -8124,6 +8124,12 @@ importers:
       '@ledgerhq/coin-solana':
         specifier: workspace:^
         version: link:../coin-modules/coin-solana
+      '@ledgerhq/device-management-kit':
+        specifier: 0.0.0-io-revamp-20250711135456
+        version: 0.0.0-io-revamp-20250711135456(rxjs@7.8.2)
+      '@ledgerhq/device-signer-kit-solana':
+        specifier: 1.1.1
+        version: 1.1.1(@ledgerhq/device-management-kit@0.0.0-io-revamp-20250711135456(rxjs@7.8.2))
       '@ledgerhq/devices':
         specifier: workspace:*
         version: link:../ledgerjs/packages/devices
@@ -8145,6 +8151,15 @@ importers:
       '@ledgerhq/ledger-trust-service':
         specifier: workspace:^
         version: link:../ledger-services/trust
+      '@types/bs58':
+        specifier: ^4.0.1
+        version: 4.0.4
+      bs58:
+        specifier: ^4.0.1
+        version: 4.0.1
+      rxjs:
+        specifier: 7.8.2
+        version: 7.8.2
       semver:
         specifier: ^7
         version: 7.7.1
@@ -13865,11 +13880,30 @@ packages:
   '@inversifyjs/common@1.4.0':
     resolution: {integrity: sha512-qfRJ/3iOlCL/VfJq8+4o5X4oA14cZSBbpAmHsYj8EsIit1xDndoOl0xKOyglKtQD4u4gdNVxMHx4RWARk/I4QA==}
 
+  '@inversifyjs/common@1.5.0':
+    resolution: {integrity: sha512-Qj5BELk11AfI2rgZEAaLPmOftmQRLLmoCXgAjmaF0IngQN5vHomVT5ML7DZ3+CA5fgGcEVMcGbUDAun+Rz+oNg==}
+
+  '@inversifyjs/container@1.9.1':
+    resolution: {integrity: sha512-8EhjFoAx1LoD7TpCuP9ptitwc+7kVXEpZB0IeoEsCQb9sWaNYYaBi+7Lommu3/1nYxdMbX2t7AJhQnryT1EEsg==}
+    peerDependencies:
+      reflect-metadata: ~0.2.2
+
   '@inversifyjs/core@1.3.5':
     resolution: {integrity: sha512-B4MFXabhNTAmrfgB+yeD6wd/GIvmvWC6IQ8Rh/j2C3Ix69kmqwz9pr8Jt3E+Nho9aEHOQCZaGmrALgtqRd+oEQ==}
 
+  '@inversifyjs/core@5.2.0':
+    resolution: {integrity: sha512-MMaHGGRjQWT9uAof63sbZyEhRl4XptEAE17DJwrgUcN9LsdIEvecKP3r53pE9VF88PFR41knUKKzagUBvWLHmw==}
+
+  '@inversifyjs/prototype-utils@0.1.0':
+    resolution: {integrity: sha512-lNz1yyajMRDXBHLvJsYYX81FcmeD15e5Qz1zAZ/3zeYTl+u7ZF/GxNRKJzNOloeMPMtuR8BnvzHA1SZxjR+J9w==}
+
   '@inversifyjs/reflect-metadata-utils@0.2.4':
     resolution: {integrity: sha512-u95rV3lKfG+NT2Uy/5vNzoDujos8vN8O18SSA5UyhxsGYd4GLQn/eUsGXfOsfa7m34eKrDelTKRUX1m/BcNX5w==}
+    peerDependencies:
+      reflect-metadata: 0.2.2
+
+  '@inversifyjs/reflect-metadata-utils@1.1.0':
+    resolution: {integrity: sha512-jmuAuC3eL1GnFAYfJGJOMKRDL9q1mgzOyrban6zxfM8Yg1FUHsj25h27bW2G7p8X1Amvhg3MLkaOuogszkrofA==}
     peerDependencies:
       reflect-metadata: 0.2.2
 
@@ -14234,6 +14268,11 @@ packages:
     peerDependencies:
       '@ledgerhq/context-module': ^1.4.0
       '@ledgerhq/device-management-kit': ^0.7.0
+
+  '@ledgerhq/device-signer-kit-solana@1.1.1':
+    resolution: {integrity: sha512-M86HEE4sXyyOgSv5mpy8pZn+ghJBZH0YFgbhu1ZXZC+nfMBz1BnKLYEtqvUPgDAk1mMNXXXowz2QALEAM+P9+Q==}
+    peerDependencies:
+      '@ledgerhq/device-management-kit': 0.7.0
 
   '@ledgerhq/device-transport-kit-react-native-ble@0.0.0-io-revamp-20250630141416':
     resolution: {integrity: sha512-BKNDv8/GL/EoUw+GGfE+9pq4j+ufwz4eetBmFC7CvwFaEMyLAPYdw4yydlrKmrsBMQ93oDGK8h9R2BHBONOTxg==}
@@ -20955,6 +20994,9 @@ packages:
   base-x@4.0.0:
     resolution: {integrity: sha512-FuwxlW4H5kh37X/oW59pwTzzTKRzfrrQwhmyspRM7swOEZcHtDZSCt45U6oKgtuFE+WYPblePMVIPR4RZrh/hw==}
 
+  base-x@5.0.1:
+    resolution: {integrity: sha512-M7uio8Zt++eg3jPj+rHMfCC+IuygQHHCOU+IYsVtik6FWjuYpVt/+MRKcgsAMHh8mMFAwnB+Bs+mTrFiXjMzKg==}
+
   base32.js@0.1.0:
     resolution: {integrity: sha512-n3TkB02ixgBOhTvANakDb4xaMXnYUVkNoRFJjQflcqMQhyEKxEHdj3E6N8t8sUQ0mjH/3/JxzlXuz3ul/J90pQ==}
     engines: {node: '>=0.12.0'}
@@ -21242,6 +21284,9 @@ packages:
 
   bs58@5.0.0:
     resolution: {integrity: sha512-r+ihvQJvahgYT50JD05dyJNKlmmSlMoOGwn1lCcEzanPglg7TxYjioQUYehQ9mAR/+hOSd2jRc/Z2y5UxBymvQ==}
+
+  bs58@6.0.0:
+    resolution: {integrity: sha512-PD0wEnEYg6ijszw/u8s+iI3H17cTymlrwkKhDhPZq+Sokl3AU4htyBFTjAeNAlCCmg0f53g6ih3jATyCKftTfw==}
 
   bs58check@2.1.2:
     resolution: {integrity: sha512-0TS1jicxdU09dwJMNZtVAfzPi6Q6QeN0pM1Fkzrjn+XYHvzMKPU3pHVpva+769iNVSfIYWf7LJ6WR+BuuMf8cA==}
@@ -25663,6 +25708,11 @@ packages:
 
   inversify@6.2.2:
     resolution: {integrity: sha512-KB836KHbZ9WrUnB8ax5MtadOwnqQYa+ZJO3KWbPFgcr4RIEnHM621VaqFZzOZd9+U7ln6upt9n0wJei7x2BNqw==}
+    peerDependencies:
+      reflect-metadata: ~0.2.2
+
+  inversify@7.5.1:
+    resolution: {integrity: sha512-oWWFDU2BXiuqZynGcLDDD4tqiWAeaEUCALlCj0vk/QwHGgZY/tzDFPuTmWMY3jwRmDIHxVDkcj9SL3MFTlCEDw==}
     peerDependencies:
       reflect-metadata: ~0.2.2
 
@@ -42300,6 +42350,15 @@ snapshots:
 
   '@inversifyjs/common@1.4.0': {}
 
+  '@inversifyjs/common@1.5.0': {}
+
+  '@inversifyjs/container@1.9.1(reflect-metadata@0.2.2)':
+    dependencies:
+      '@inversifyjs/common': 1.5.0
+      '@inversifyjs/core': 5.2.0(reflect-metadata@0.2.2)
+      '@inversifyjs/reflect-metadata-utils': 1.1.0(reflect-metadata@0.2.2)
+      reflect-metadata: 0.2.2
+
   '@inversifyjs/core@1.3.5(reflect-metadata@0.2.2)':
     dependencies:
       '@inversifyjs/common': 1.4.0
@@ -42307,7 +42366,23 @@ snapshots:
     transitivePeerDependencies:
       - reflect-metadata
 
+  '@inversifyjs/core@5.2.0(reflect-metadata@0.2.2)':
+    dependencies:
+      '@inversifyjs/common': 1.5.0
+      '@inversifyjs/prototype-utils': 0.1.0
+      '@inversifyjs/reflect-metadata-utils': 1.1.0(reflect-metadata@0.2.2)
+    transitivePeerDependencies:
+      - reflect-metadata
+
+  '@inversifyjs/prototype-utils@0.1.0':
+    dependencies:
+      '@inversifyjs/common': 1.5.0
+
   '@inversifyjs/reflect-metadata-utils@0.2.4(reflect-metadata@0.2.2)':
+    dependencies:
+      reflect-metadata: 0.2.2
+
+  '@inversifyjs/reflect-metadata-utils@1.1.0(reflect-metadata@0.2.2)':
     dependencies:
       reflect-metadata: 0.2.2
 
@@ -43398,6 +43473,25 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
+  '@ledgerhq/device-management-kit@0.0.0-io-revamp-20250711135456(rxjs@7.8.2)':
+    dependencies:
+      '@sentry/minimal': 6.19.7
+      axios: 1.8.2
+      inversify: 6.2.2(reflect-metadata@0.2.2)
+      inversify-logger-middleware: 3.1.0
+      isomorphic-ws: 5.0.0(ws@8.18.0)
+      purify-ts: 2.1.0
+      reflect-metadata: 0.2.2
+      rxjs: 7.8.2
+      semver: 7.7.0
+      url: 0.11.4
+      uuid: 11.0.3
+      ws: 8.18.0
+      xstate: 5.19.2
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   '@ledgerhq/device-signer-kit-ethereum@0.0.0-io-revamp-20250716091938(@ledgerhq/context-module@0.0.0-io-revamp-20250716091938(@ledgerhq/device-management-kit@0.0.0-io-revamp-20250711135456(rxjs@7.8.1)))(@ledgerhq/device-management-kit@0.0.0-io-revamp-20250711135456(rxjs@7.8.1))':
     dependencies:
       '@ledgerhq/context-module': 0.0.0-io-revamp-20250716091938(@ledgerhq/device-management-kit@0.0.0-io-revamp-20250711135456(rxjs@7.8.1))
@@ -43413,6 +43507,16 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
+
+  '@ledgerhq/device-signer-kit-solana@1.1.1(@ledgerhq/device-management-kit@0.0.0-io-revamp-20250711135456(rxjs@7.8.2))':
+    dependencies:
+      '@ledgerhq/device-management-kit': 0.0.0-io-revamp-20250711135456(rxjs@7.8.2)
+      '@ledgerhq/signer-utils': 1.0.5(@ledgerhq/device-management-kit@0.0.0-io-revamp-20250711135456(rxjs@7.8.2))
+      bs58: 6.0.0
+      inversify: 7.5.1(reflect-metadata@0.2.2)
+      purify-ts: 2.1.0
+      reflect-metadata: 0.2.2
+      xstate: 5.19.2
 
   '@ledgerhq/device-transport-kit-react-native-ble@0.0.0-io-revamp-20250630141416(@ledgerhq/device-management-kit@0.0.0-io-revamp-20250711135456(rxjs@7.8.1))(react-native-ble-plx@3.4.0(react-native@0.77.2(@react-native-community/cli@15.1.0(typescript@5.4.3))(react@18.3.1))(react@18.3.1))(react-native@0.77.2(@react-native-community/cli@15.1.0(typescript@5.4.3))(react@18.3.1))(rxjs@7.8.1)':
     dependencies:
@@ -43506,6 +43610,10 @@ snapshots:
   '@ledgerhq/signer-utils@1.0.5(@ledgerhq/device-management-kit@0.0.0-io-revamp-20250711135456(rxjs@7.8.1))':
     dependencies:
       '@ledgerhq/device-management-kit': 0.0.0-io-revamp-20250711135456(rxjs@7.8.1)
+
+  '@ledgerhq/signer-utils@1.0.5(@ledgerhq/device-management-kit@0.0.0-io-revamp-20250711135456(rxjs@7.8.2))':
+    dependencies:
+      '@ledgerhq/device-management-kit': 0.0.0-io-revamp-20250711135456(rxjs@7.8.2)
 
   '@ledgerhq/types-live@6.53.1':
     dependencies:
@@ -50595,7 +50703,7 @@ snapshots:
 
   '@types/bs58@4.0.4':
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 22.10.1
       base-x: 3.0.9
 
   '@types/bs58check@2.1.2':
@@ -53686,6 +53794,8 @@ snapshots:
 
   base-x@4.0.0: {}
 
+  base-x@5.0.1: {}
+
   base32.js@0.1.0: {}
 
   base64-arraybuffer@0.2.0: {}
@@ -54062,6 +54172,10 @@ snapshots:
   bs58@5.0.0:
     dependencies:
       base-x: 4.0.0
+
+  bs58@6.0.0:
+    dependencies:
+      base-x: 5.0.1
 
   bs58check@2.1.2:
     dependencies:
@@ -60002,7 +60116,7 @@ snapshots:
       mute-stream: 0.0.8
       ora: 5.4.1
       run-async: 2.4.1
-      rxjs: 7.8.1
+      rxjs: 7.8.2
       string-width: 4.2.3
       strip-ansi: 6.0.1
       through: 2.3.8
@@ -60035,6 +60149,13 @@ snapshots:
     dependencies:
       '@inversifyjs/common': 1.4.0
       '@inversifyjs/core': 1.3.5(reflect-metadata@0.2.2)
+      reflect-metadata: 0.2.2
+
+  inversify@7.5.1(reflect-metadata@0.2.2):
+    dependencies:
+      '@inversifyjs/common': 1.5.0
+      '@inversifyjs/container': 1.9.1(reflect-metadata@0.2.2)
+      '@inversifyjs/core': 5.2.0(reflect-metadata@0.2.2)
       reflect-metadata: 0.2.2
 
   io-ts@2.0.1(fp-ts@2.1.1):
