@@ -9,12 +9,25 @@ import {
 } from "./mockData";
 import { AddAccountContexts } from "../../Accounts/screens/AddAccount/enums";
 
-const MockUseRoute = useRoute as jest.Mock;
-const MockUseGroupedCurrenciesByProvider = useGroupedCurrenciesByProvider as jest.Mock;
+const MockUseRoute = jest.mocked(useRoute);
+const MockUseGroupedCurrenciesByProvider = jest.mocked(useGroupedCurrenciesByProvider);
 const mockNavigate = jest.fn();
+const mockAddListener = jest.fn(() => jest.fn()); // Return unsubscribe function
+const mockRemoveListener = jest.fn();
+const mockGoBack = jest.fn();
+const mockDispatch = jest.fn();
 
-(useNavigation as jest.Mock).mockReturnValue({
+jest.mocked(useNavigation).mockReturnValue({
   navigate: mockNavigate,
+  addListener: mockAddListener,
+  removeListener: mockRemoveListener,
+  goBack: mockGoBack,
+  dispatch: mockDispatch,
+  isFocused: jest.fn(() => true),
+  canGoBack: jest.fn(() => false),
+  getId: jest.fn(() => "test-navigation-id"),
+  getParent: jest.fn(() => null),
+  getState: jest.fn(() => ({ type: "stack", routes: [], index: 0 })),
 });
 
 jest.mock("../components/NetworkBanner", () => {

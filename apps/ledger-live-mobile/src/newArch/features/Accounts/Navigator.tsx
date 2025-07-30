@@ -43,7 +43,8 @@ export default function Navigator() {
   const exitProcess = useCallback(() => {
     const rootParent = navigation.getParent();
     // this is the only way to go back to the root navigator
-    navigation.replace(rootParent?.getState().routeNames[0] as keyof AddAccountsNavigatorParamList);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    navigation.replace(rootParent?.getState().routeNames[0] as any);
   }, [navigation]);
 
   const onClose = useCallback(() => {
