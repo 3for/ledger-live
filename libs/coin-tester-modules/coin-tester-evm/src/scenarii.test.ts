@@ -7,7 +7,7 @@ import { scenarioScroll } from "./scenarii/scroll";
 import { scenarioBlast } from "./scenarii/blast";
 import { scenarioSonic } from "./scenarii/sonic";
 import { setCryptoAssetsStore as setCryptoAssetsStoreForCoinFramework } from "@ledgerhq/coin-framework/crypto-assets/index";
-import { CryptoAssetsStore } from "@ledgerhq/coin-framework/crypto-assets/type";
+import { CryptoAssetsStore } from "@ledgerhq/types-live/lib/crypto-assets/type";
 import * as legacy from "@ledgerhq/cryptoassets/tokens";
 
 global.console = require("console");

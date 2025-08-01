@@ -10,7 +10,7 @@ import { AccountRaw, TokenAccount } from "@ledgerhq/types-live";
 import { fromAccountRaw } from "@ledgerhq/coin-framework/serialization/account";
 import { CryptoCurrency } from "@ledgerhq/types-cryptoassets";
 import { setCryptoAssetsStore } from "@ledgerhq/coin-framework/crypto-assets/index";
-import { CryptoAssetsStore } from "@ledgerhq/coin-framework/crypto-assets/type";
+import { CryptoAssetsStore } from "@ledgerhq/types-live/lib/crypto-assets/type";
 
 const raw: AccountRaw = {
   id: "js:2:ethereum:0x01:",

@@ -10,7 +10,7 @@ import {
 import { formatCounterValueDay, formatCounterValueHour, parseFormattedDate } from "./helpers";
 import api from "./api";
 import * as cryptoAssets from "@ledgerhq/coin-framework/crypto-assets/index";
-import { CryptoAssetsStore } from "@ledgerhq/coin-framework/crypto-assets/type";
+import { CryptoAssetsStore } from "@ledgerhq/types-live/lib/crypto-assets/type";
 
 setEnv("MOCK", "1");
 setEnv("MOCK_COUNTERVALUES", "1");

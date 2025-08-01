@@ -1,4 +1,4 @@
-import { CryptoAssetsStore } from "./type";
+import { CryptoAssetsStore } from "@ledgerhq/types-live/lib/crypto-assets/type";
 
 let cryptoAssetsStore: CryptoAssetsStore | undefined = undefined;
 
