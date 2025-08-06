@@ -489,6 +489,19 @@ export class Account {
     1,
   );
 
+  static readonly SUI_1 = new Account(
+    Currency.SUI,
+    "Sui 1",
+    "0x61f5ad966ff798e8e7e9c1241785a8ec8dbcde9ae61e3dacefdd692b600b2b58",
+    0,
+  );
+  static readonly SUI_2 = new Account(
+    Currency.SUI,
+    "Sui 2",
+    "0xe4af2c326d2e7cdbe1f14c8c0ab2f0185b7228bf94c975f54a59ee09c60def5d",
+    1,
+  );
+
   static readonly EMPTY = new Account(Currency.BTC, "Empty", "", 0);
 }
 

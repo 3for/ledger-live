@@ -58,6 +58,7 @@ export class Currency {
   static readonly XRP = new Currency("XRP", "XRP", "ripple", AppInfos.RIPPLE);
   static readonly ADA = new Currency("Cardano", "ADA", "cardano", AppInfos.CARDANO);
   static readonly XLM = new Currency("Stellar", "XLM", "stellar", AppInfos.STELLAR);
+  static readonly SUI = new Currency("Sui", "SUI", "sui", AppInfos.SUI);
   static readonly BCH = new Currency("Bitcoin Cash", "BCH", "bitcoin_cash", AppInfos.BITCOIN_CASH);
   static readonly ALGO = new Currency("Algorand", "ALGO", "algorand", AppInfos.ALGORAND);
   static readonly ATOM = new Currency("Cosmos", "ATOM", "cosmos", AppInfos.COSMOS);
