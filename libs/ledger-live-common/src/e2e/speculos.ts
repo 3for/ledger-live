@@ -610,6 +610,10 @@ export async function activateLedgerSync() {
   await pressBoth();
 }
 
+export async function providePublickKey() {
+  await pressRightButton();
+}
+
 export async function activateExpertMode() {
   await pressUntilTextFound(DeviceLabels.EXPERT_MODE);
   await pressBoth();

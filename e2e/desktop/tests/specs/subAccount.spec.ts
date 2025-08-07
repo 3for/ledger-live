@@ -24,6 +24,7 @@ const subAccounts = [
   { account: Account.TRX_USDT, xrayTicket1: "B2CQA-2580", xrayTicket2: "B2CQA-2586" },
   { account: Account.BSC_BUSD_1, xrayTicket1: "B2CQA-2576", xrayTicket2: "B2CQA-2582" },
   { account: Account.POL_DAI_1, xrayTicket1: "B2CQA-2578", xrayTicket2: "B2CQA-2584" },
+  { account: TokenAccount.SUI_USDC_1, xrayTicket1: "B2CQA-2578", xrayTicket2: "B2CQA-2584" },
 ];
 
 const subAccountReceive = [
@@ -34,6 +35,7 @@ const subAccountReceive = [
   { account: Account.BSC_SHIBA, xrayTicket: "B2CQA-2490" },
   { account: Account.POL_DAI_1, xrayTicket: "B2CQA-2493" },
   { account: Account.POL_UNI, xrayTicket: "B2CQA-2494" },
+  { account: TokenAccount.SUI_USDC_1, xrayTicket: "B2CQA-2494" },
 ];
 
 for (const token of subAccounts) {
@@ -93,17 +95,17 @@ for (const token of subAccountReceive) {
         await addTmsLink(getDescription(test.info().annotations, "TMS").split(", "));
 
         await app.layout.goToAccounts();
+
         await app.accounts.navigateToAccountByName(getParentAccountName(token.account));
         await app.account.expectAccountVisibility(getParentAccountName(token.account));
-
         await app.account.clickAddToken();
         await app.receive.selectToken(token.account);
-
         await app.receive.continue();
-
         const displayedAddress = await app.receive.getAddressDisplayed();
         await app.receive.expectValidReceiveAddress(displayedAddress);
-
+        if (token.account.currency === Account.SUI_1.currency) {
+          app.speculos.providePublickKey();
+        }
         await app.speculos.expectValidAddressDevice(token.account, displayedAddress);
         await app.receive.expectApproveLabel();
       },
@@ -142,6 +144,16 @@ const transactionE2E = [
     tx: new Transaction(
       TokenAccount.SOL_GIGA_1,
       TokenAccount.SOL_GIGA_2,
+      "0.5",
+      undefined,
+      "noTag",
+    ),
+    xrayTicket: "B2CQA-3055, B2CQA-3057",
+  },
+  {
+    tx: new Transaction(
+      TokenAccount.SUI_USDC_1,
+      TokenAccount.SUI_USDC_2,
       "0.5",
       undefined,
       "noTag",
