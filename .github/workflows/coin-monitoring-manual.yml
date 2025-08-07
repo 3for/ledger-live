@@ -3,7 +3,7 @@ run-name: Monitor coins by @${{ github.actor }} ${{ inputs.currencies && format(
 permissions:
   contents: read
 on:
-  workflow_dispatch:
+  push:
     inputs:
       currencies:
         description: Currencies to monitor, separated with commas (,)
@@ -14,7 +14,11 @@ jobs:
     runs-on: [ledger-live-medium]
     steps:
       - uses: actions/checkout@v4
-      - uses: LedgerHQ/ledger-live/tools/actions/composites/monitor@develop
+      - name: Setup the toolchain
+        uses: LedgerHQ/ledger-live/tools/actions/composites/setup-caches@develop
+        with:
+          install-proto: true
+      - uses: LedgerHQ/ledger-live/tools/actions/composites/monitor@ci/no-issue-monitor-setup-performance
         id: monitoring
         timeout-minutes: 120
         with:
