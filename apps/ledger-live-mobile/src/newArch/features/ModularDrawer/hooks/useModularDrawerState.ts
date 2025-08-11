@@ -22,7 +22,7 @@ import {
   getCurrentPageName,
   useModularDrawerAnalytics,
 } from "../analytics/useModularDrawerAnalytics";
-import { EVENTS_NAME } from "../analytics";
+import { EVENTS_NAME, MODULAR_DRAWER_PAGE_NAME } from "../analytics";
 import { Keyboard } from "react-native";
 
 type ModularDrawerStateProps = {
@@ -348,9 +348,18 @@ export function useModularDrawerState({
     }
   };
 
-  const onAddNewAccount = useCallback(() => {
-    navigateToDevice(asset as CryptoCurrency);
-  }, [asset, navigateToDevice]);
+  const onAddNewAccount = useCallback(
+    (source: string) => {
+      trackModularDrawerEvent("button_clicked", {
+        page: MODULAR_DRAWER_PAGE_NAME.MODULAR_ACCOUNT_SELECTION,
+        flow,
+        source,
+        button: "add_a_new_account",
+      });
+      navigateToDevice(asset as CryptoCurrency);
+    },
+    [asset, flow, navigateToDevice, trackModularDrawerEvent],
+  );
 
   return {
     // State
