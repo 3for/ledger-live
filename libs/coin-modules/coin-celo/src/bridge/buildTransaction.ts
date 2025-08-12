@@ -5,6 +5,8 @@ import { BigNumber } from "bignumber.js";
 import { getPendingStakingOperationAmounts, getVote } from "../logic";
 import { findSubAccountById } from "@ledgerhq/coin-framework/account/index";
 import { CELO_STABLE_TOKENS, getStableToken } from "../constants";
+import { ethers } from "ethers";
+import ERC20ABI from "../abis/erc20.abi.json";
 
 const buildTransaction = async (account: CeloAccount, transaction: Transaction) => {
   const kit = celoKit();
@@ -137,14 +139,24 @@ const buildTransaction = async (account: CeloAccount, transaction: Transaction) 
       value: value.toFixed(),
     };
 
+    const block = await kit.connection.web3.eth.getBlock("latest");
+    const baseFee = BigInt(block.baseFeePerGas || 10);
+    const priorityFee = BigInt(kit.connection.web3.utils.toWei("1", "gwei"));
+    const maxFeePerGas = baseFee + priorityFee;
+
     // TESTING PURPOSES ONLY. DELETE
-    const tetherContractAddress = "0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e";
-    const token = await kit.contracts.getErc20(tetherContractAddress);
+    // const token = await kit.contracts.getErc20(tetherContractAddress);
+    const contract = new ethers.utils.Interface(ERC20ABI);
+    const data = contract
+      .encodeFunctionData("transfer", [transaction.recipient, transaction.amount.toFixed()])
+      .slice(2);
+
     celoTransaction = {
-      from: account.freshAddress,
-      to: tetherContractAddress,
-      data: token.transfer(transaction.recipient, value.toFixed()).txo.encodeABI(),
-      value: value.toFixed(),
+      ...celoTransaction,
+      // data: token.transfer(transaction.recipient, value.toFixed()).txo.encodeABI(),
+      data,
+      maxFeePerGas: maxFeePerGas.toString(),
+      maxPriorityFeePerGas: priorityFee.toString(),
     };
   }
 

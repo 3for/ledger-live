@@ -6,6 +6,8 @@ import { CeloAccount, Transaction } from "../types";
 import { findSubAccountById } from "@ledgerhq/coin-framework/account/index";
 import { CELO_STABLE_TOKENS } from "../constants";
 import { celoKit } from "../network/sdk";
+import { ethers } from "ethers";
+import ERC20ABI from "../abis/erc20.abi.json";
 
 export const prepareTransaction: AccountBridge<
   Transaction,
@@ -43,17 +45,28 @@ export const prepareTransaction: AccountBridge<
     token = await kit.contracts.getGoldToken();
   }
 
-  let data = token.transfer(transaction.recipient, amount.toFixed()).txo.encodeABI();
+  // let data = token.transfer(transaction.recipient, amount.toFixed()).txo.encodeABI();
 
   // TESTING PURPOSES ONLY. DELETE
-  const tetherContractAddress = "0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e";
-  const _token = await kit.contracts.getErc20(tetherContractAddress);
-  data = _token.transfer(transaction.recipient, amount.toFixed()).txo.encodeABI();
+  // const _token = await kit.contracts.getErc20(tetherContractAddress);
+  // data = _token.transfer(transaction.recipient, amount.toFixed()).txo.encodeABI();
+
+  const contract = new ethers.utils.Interface(ERC20ABI);
+  const data = contract.encodeFunctionData("transfer", [
+    transaction.recipient,
+    transaction.amount.toFixed(),
+  ]);
+
+  const block = await kit.connection.web3.eth.getBlock("latest");
+  const baseFee = BigInt(block.baseFeePerGas || 10);
+  const priorityFee = BigInt(kit.connection.web3.utils.toWei("1", "gwei"));
+  const maxFeePerGas = baseFee + priorityFee;
 
   return {
     ...transaction,
     fees,
-    amount,
+    maxFeePerGas: maxFeePerGas.toString(),
+    maxPriorityFeePerGas: priorityFee.toString(),
     data: Buffer.from(data.slice(2), "hex"),
   };
 };

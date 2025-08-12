@@ -26,7 +26,7 @@ export default class Celo extends Eth {
 
     if (tokenInfo) {
       // celo-spender-app below version 1.2.3 expected unprefixed hex strings only
-      const dataString = `0x${tokenInfo.data.toString("hex")}`;
+      const dataString = `${tokenInfo.data.toString("hex")}`;
       await this.provideERC20TokenInformation(dataString);
     }
   }
