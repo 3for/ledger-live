@@ -1,6 +1,7 @@
 ---
 "@ledgerhq/coin-stellar": minor
 "ledger-live-desktop": minor
+"ledger-live-mobile": minor
 "@ledgerhq/live-common": minor
 ---
 

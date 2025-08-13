@@ -1,5 +1,5 @@
 import { BigNumber } from "bignumber.js";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import type { AccountLike, Account } from "@ledgerhq/types-live";
 import { View, StyleSheet, Linking, TouchableOpacity, SafeAreaView } from "react-native";
 import { Trans } from "react-i18next";
@@ -44,6 +44,7 @@ export default function StellarFeeRow({
   setTransaction,
 }: Props) {
   const { colors } = useTheme();
+  const [customSelected, setCustomSelected] = useState<boolean | null>(null);
   const extraInfoFees = useCallback(() => {
     Linking.openURL(urls.feesMoreInfo);
   }, []);
@@ -54,11 +55,13 @@ export default function StellarFeeRow({
   const suggestedFee = transaction.networkInfo?.fees;
   const fees = transaction.fees;
   const isCustomFee = fees && suggestedFee ? !fees.eq(suggestedFee) : false;
+  const isCustom = customSelected ?? isCustomFee;
 
   const currency = getAccountCurrency(account);
 
-  const onFeeModeChange = (isCustom: boolean) => {
-    if (isCustom) {
+  const onFeeModeChange = (selectCustom: boolean) => {
+    setCustomSelected(selectCustom);
+    if (selectCustom) {
       navigation.navigate(ScreenName.StellarEditCustomFees, {
         ...route.params,
         accountId: account.id,
@@ -135,13 +138,13 @@ export default function StellarFeeRow({
       <SafeAreaView style={styles.feesPickerContainer}>
         <FeeItem
           label={<Trans i18nKey="stellar.suggested" />}
-          isSelected={!isCustomFee}
+          isSelected={!isCustom}
           fee={suggestedFee}
           onSelect={() => onFeeModeChange(false)}
         />
         <FeeItem
           label={<Trans i18nKey="fees.speed.custom" />}
-          isSelected={isCustomFee}
+          isSelected={isCustom}
           fee={isCustomFee ? fees : null}
           onSelect={() => onFeeModeChange(true)}
         />
