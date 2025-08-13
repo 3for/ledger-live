@@ -70,16 +70,25 @@ export function AnnouncementProviderWrapper({ children }: Props) {
   const startDate = useMemo(() => new Date(), []);
   const language = useSelector(languageSelector);
   const currenciesRaw = useSelector(cryptoCurrenciesSelector);
-  const { currencies, tickers } = currenciesRaw.reduce<{ currencies: string[]; tickers: string[] }>(
-    ({ currencies, tickers }, { id, ticker }) => ({
-      currencies: [...currencies, id],
-      tickers: [...tickers, ticker],
-    }),
-    {
-      currencies: [],
-      tickers: [],
-    },
-  );
+      console.log("🔍 Debug: currenciesRaw from selector:", currenciesRaw);
+    const { currencies, tickers } = currenciesRaw.reduce<{ currencies: string[]; tickers: string[] }>(
+      ({ currencies, tickers }, currency) => {
+        // Safety check: skip undefined or malformed currency objects
+        if (!currency || !currency.id || !currency.ticker) {
+          console.warn("⚠️ Skipping malformed currency object:", currency);
+          return { currencies, tickers };
+        }
+        
+        return {
+          currencies: [...currencies, currency.id],
+          tickers: [...tickers, currency.ticker],
+        };
+      },
+      {
+        currencies: [],
+        tickers: [],
+      },
+    );
   const lastSeenDevice = useSelector(lastSeenDeviceSelector);
   const dispatch = useDispatch();
   const osPlatform = getOsPlatform();
