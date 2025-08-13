@@ -1,5 +1,5 @@
 import type { CeloAccount, Transaction } from "../types";
-import { CeloTx } from "@celo/connect";
+import { AbiItem, CeloTx } from "@celo/connect";
 import { celoKit } from "../network/sdk";
 import { BigNumber } from "bignumber.js";
 import { getPendingStakingOperationAmounts, getVote } from "../logic";
@@ -7,6 +7,8 @@ import { findSubAccountById } from "@ledgerhq/coin-framework/account/index";
 import { CELO_STABLE_TOKENS, getStableToken } from "../constants";
 import { ethers } from "ethers";
 import ERC20ABI from "../abis/erc20.abi.json";
+import { createPublicClient, createWalletClient, http, encodeFunctionData } from "viem";
+import { celo } from "viem/chains";
 
 const buildTransaction = async (account: CeloAccount, transaction: Transaction) => {
   const kit = celoKit();
@@ -139,34 +141,117 @@ const buildTransaction = async (account: CeloAccount, transaction: Transaction) 
       value: value.toFixed(),
     };
 
-    const block = await kit.connection.web3.eth.getBlock("latest");
-    const baseFee = BigInt(block.baseFeePerGas || 10);
-    const priorityFee = BigInt(kit.connection.web3.utils.toWei("1", "gwei"));
+    // ############
+
+    // const block = await kit.connection.web3.eth.getBlock("latest");
+    // const baseFee = BigInt(block.baseFeePerGas || 3000000);
+    // const priorityFee = BigInt(kit.connection.web3.utils.toWei("3000000", "gwei"));
+    // const maxFeePerGas = baseFee + priorityFee;
+
+    // // TESTING PURPOSES ONLY. DELETE
+    // const usdtAddress = "0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e";
+    // const token = await kit.contracts.getErc20(usdtAddress);
+    // const data = token
+    //   .transfer(transaction.recipient, transaction.amount.toFixed())
+    //   .txo.encodeABI()
+    //   .slice(2);
+    // const contract = new ethers.utils.Interface(ERC20ABI);
+    // const data = contract
+    //   .encodeFunctionData("transfer", [transaction.recipient, transaction.amount.toFixed()])
+    //   .slice(2);
+
+    // const erc20Abi = [
+    //   {
+    //     constant: false,
+    //     inputs: [
+    //       { name: "_to", type: "address" },
+    //       { name: "_value", type: "uint256" },
+    //     ],
+    //     name: "transfer",
+    //     outputs: [{ name: "", type: "bool" }],
+    //     type: "function",
+    //   },
+    //   {
+    //     constant: true,
+    //     inputs: [],
+    //     name: "decimals",
+    //     outputs: [{ name: "", type: "uint8" }],
+    //     type: "function",
+    //   },
+    // ] as AbiItem[];
+
+    // const usdtContract = new kit.connection.web3.eth.Contract(erc20Abi, usdtAddress);
+    // const recipient = transaction.recipient;
+    // const decimals = await usdtContract.methods.decimals().call();
+    // let data;
+    // if (transaction.amount.gt(0)) {
+    //   const amount = kit.connection.web3.utils
+    //     .toBN(transaction.amount.toString())
+    //     .mul(kit.connection.web3.utils.toBN(10).pow(kit.connection.web3.utils.toBN(decimals)));
+    //   const transfer = usdtContract.methods.transfer(recipient, amount);
+    //   data = transfer.encodeABI();
+    // }
+
+    const client = createPublicClient({
+      transport: http(celo.rpcUrls.default.http[0] as string),
+      chain: celo,
+    });
+
+    const walletClient = createWalletClient({
+      transport: http(celo.rpcUrls.default.http[0] as string),
+      chain: celo,
+    });
+
+    const usdtAbi = [
+      {
+        constant: false,
+        inputs: [
+          { name: "_to", type: "address" },
+          { name: "_value", type: "uint256" },
+        ],
+        name: "transfer",
+        outputs: [{ name: "", type: "bool" }],
+        type: "function",
+      },
+    ];
+
+    // const usdtAddress = "0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e";
+
+    const data = await encodeFunctionData({
+      abi: usdtAbi,
+      functionName: "transfer",
+      args: [transaction.recipient, transaction.amount || BigNumber(1000000)],
+    }).slice(2);
+
+    const block = await client.getBlock({ blockTag: "latest" });
+    const baseFee = block.baseFeePerGas || BigInt(30);
+    const priorityFee = 1_000_000n;
     const maxFeePerGas = baseFee + priorityFee;
 
-    // TESTING PURPOSES ONLY. DELETE
-    // const token = await kit.contracts.getErc20(tetherContractAddress);
-    const contract = new ethers.utils.Interface(ERC20ABI);
-    const data = contract
-      .encodeFunctionData("transfer", [transaction.recipient, transaction.amount.toFixed()])
-      .slice(2);
+    const nonce = await client.getTransactionCount({
+      address: account.freshAddress as `0x${string}`,
+      blockTag: "latest",
+    });
 
     celoTransaction = {
       ...celoTransaction,
       // data: token.transfer(transaction.recipient, value.toFixed()).txo.encodeABI(),
       data,
+      gas: BigNumber(baseFee.toString()).multipliedBy(0.0000015).toNumber(),
       maxFeePerGas: maxFeePerGas.toString(),
       maxPriorityFeePerGas: priorityFee.toString(),
+      chainId: 42220,
+      nonce,
     };
   }
 
-  const gas = await kit.connection.estimateGasWithInflationFactor(celoTransaction);
+  // const gas = await kit.connection.estimateGasWithInflationFactor(celoTransaction);
 
   const tx: CeloTx = {
     ...celoTransaction,
-    gas: celoTransaction.gas ?? gas,
-    chainId: await kit.connection.chainId(),
-    nonce: await kit.connection.nonce(account.freshAddress),
+    // gas: celoTransaction.gas ?? gas,
+    // chainId: await kit.connection.chainId(),
+    // nonce: await kit.connection.nonce(account.freshAddress),
   };
 
   return tx;
