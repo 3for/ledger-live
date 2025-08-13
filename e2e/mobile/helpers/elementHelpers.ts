@@ -177,8 +177,10 @@ export const NativeElementHelpers = {
 };
 
 export const WebElementHelpers = {
-  getWebElementByTestId(id: string, index = 0): WebElement {
-    const base = web.element(by.web.cssSelector(`[data-testid="${id}"]`)) as IndexedWebElement;
+  getWebElementByTestId(id: string, index = 0, testIdAttribute = "data-testid"): WebElement {
+    const base = web.element(
+      by.web.cssSelector(`[${testIdAttribute}="${id}"]`),
+    ) as IndexedWebElement;
     return index > 0 ? base.atIndex(index) : base;
   },
 
@@ -298,5 +300,19 @@ export const WebElementHelpers = {
       return String(raw["result"]);
     }
     return String(raw);
+  },
+
+  async getCurrentWebviewUrl(): Promise<string> {
+    let url = "";
+    try {
+      url = await getWebElementByTag("body").runScript(() => window.location.href);
+    } catch {
+      url = await getWebElementByTag("html").runScript(() => window.location.href);
+    }
+    return String(url);
+  },
+
+  async scrollToWebElement(element: WebElement) {
+    await element.runScript((el: HTMLElement) => el.scrollIntoView({ behavior: "smooth" }));
   },
 };

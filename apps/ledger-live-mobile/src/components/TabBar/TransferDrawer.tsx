@@ -167,7 +167,7 @@ export default function TransferDrawer({ onClose }: Omit<ModalProps, "isRequesti
       Icon: STAKE.icon,
       onPress: () => onNavigate(STAKE.route),
       disabled: STAKE.disabled,
-      testID: "transfer-stake-button",
+      testID: "stake-transfer-button",
     },
     SWAP && {
       eventProperties: {

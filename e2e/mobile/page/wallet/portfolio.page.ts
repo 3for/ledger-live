@@ -1,4 +1,5 @@
 import { openDeeplink } from "../../helpers/commonHelpers";
+// import { device } from "detox";
 
 export default class PortfolioPage {
   baseLink = "portfolio";
@@ -28,6 +29,7 @@ export default class PortfolioPage {
   selectAssetsPageTitle = "select-crypto-header-step1-title";
   baseBigCurrency = "big-currency";
   bigCurrencyRowRegex = new RegExp(`^${this.baseBigCurrency}-row-.*$`);
+  tabBarEarnButton = "tab-bar-earn";
 
   portfolioSettingsButton = async () => getElementById(this.portfolioSettingsButtonId);
   assetItemId = (currencyName: string) => `${this.baseAssetItem}${currencyName}`;
@@ -159,5 +161,14 @@ export default class PortfolioPage {
     await detoxExpect(getElementById(this.selectAssetsPageTitle)).toBeVisible();
     await app.common.expectSearchBarVisible();
     jestExpect(await countElementsById(this.bigCurrencyRowRegex)).toBeGreaterThan(6);
+  }
+
+  @Step("Open Earn tab from navigation bar")
+  async openEarnTab() {
+    await tapById(this.tabBarEarnButton);
+    // await new Promise(resolve => setTimeout(resolve, 1000 * 20));
+    // console.log("================================\n\n");
+    // const xml = await device.generateViewHierarchyXml();
+    // console.log(xml);
   }
 }

@@ -82,4 +82,6 @@ declare global {
   var typeTextByWebTestId: typeof WebElementHelpers.typeTextByWebTestId;
   var getValueByWebTestId: typeof WebElementHelpers.getValueByWebTestId;
   var tapWebElementByElement: typeof WebElementHelpers.tapWebElementByElement;
+  var getCurrentWebviewUrl: typeof WebElementHelpers.getCurrentWebviewUrl;
+  var scrollToWebElement: typeof WebElementHelpers.scrollToWebElement;
 }
