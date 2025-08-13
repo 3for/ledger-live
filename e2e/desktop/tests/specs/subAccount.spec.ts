@@ -150,16 +150,6 @@ const transactionE2E = [
     ),
     xrayTicket: "B2CQA-3055, B2CQA-3057",
   },
-  {
-    tx: new Transaction(
-      TokenAccount.SUI_USDC_1,
-      TokenAccount.SUI_USDC_2,
-      "0.5",
-      undefined,
-      "noTag",
-    ),
-    xrayTicket: "B2CQA-3055, B2CQA-3057",
-  },
 ];
 
 for (const transaction of transactionE2E) {
@@ -454,6 +444,56 @@ test.describe("Send token (subAccount) - valid address & amount input", () => {
   const tokenTransactionValid = new Transaction(
     TokenAccount.ETH_USDT_1,
     TokenAccount.ETH_USDT_2,
+    "1",
+    Fee.MEDIUM,
+  );
+  test.use({
+    userdata: "skip-onboarding",
+    speculosApp: tokenTransactionValid.accountToDebit.currency.speculosApp,
+    cliCommands: [
+      (appjsonPath: string) => {
+        return CLI.liveData({
+          currency: tokenTransactionValid.accountToDebit.currency.speculosApp.name,
+          index: tokenTransactionValid.accountToDebit.index,
+          add: true,
+          appjson: appjsonPath,
+        });
+      },
+    ],
+  });
+
+  test(
+    `Send from ${tokenTransactionValid.accountToDebit.accountName} to ${tokenTransactionValid.accountToCredit.accountName} - valid address & amount input`,
+    {
+      tag: ["@NanoSP", "@LNS", "@NanoX"],
+      annotation: {
+        type: "TMS",
+        description: "B2CQA-2703, B2CQA-475",
+      },
+    },
+    async ({ app }) => {
+      await addTmsLink(getDescription(test.info().annotations, "TMS").split(", "));
+
+      await app.layout.goToAccounts();
+      await app.accounts.navigateToAccountByName(
+        getParentAccountName(tokenTransactionValid.accountToDebit),
+      );
+      await app.account.navigateToTokenInAccount(tokenTransactionValid.accountToDebit);
+      await app.account.clickSend();
+      await app.send.fillRecipient(tokenTransactionValid.accountToCredit.address);
+      await app.send.checkContinueButtonEnable();
+      await app.send.checkInputErrorVisibility("hidden");
+      await app.send.continue();
+      await app.send.fillAmount(tokenTransactionValid.amount);
+      await app.send.checkContinueButtonEnable();
+    },
+  );
+});
+
+test.describe("Send USDC token (subAccount) - valid address & amount input", () => {
+  const tokenTransactionValid = new Transaction(
+    TokenAccount.SUI_USDC_1,
+    TokenAccount.SUI_USDC_2,
     "1",
     Fee.MEDIUM,
   );

@@ -618,7 +618,7 @@ export class TokenAccount extends Account {
   );
 
   static readonly SUI_USDC_1 = new TokenAccount(
-    Currency.SUI,
+    Currency.SUI_USDC,
     "SUI USDC 1",
     Account.SUI_1.address,
     0,
@@ -627,12 +627,21 @@ export class TokenAccount extends Account {
   );
 
   static readonly SUI_USDC_2 = new TokenAccount(
-    Currency.SUI,
+    Currency.SUI_USDC,
     "SUI USDC 2",
-    Account.SUI_1.address,
-    0,
+    Account.SUI_2.address,
+    1,
     TokenType.SUI,
-    Account.SUI_1,
+    Account.SUI_2,
+  );
+
+  static readonly SUI_USDT = new TokenAccount(
+    Currency.SUI_USDT,
+    "SUI USDT",
+    Account.SUI_2.address,
+    1,
+    TokenType.SUI,
+    Account.SUI_2,
   );
 }
 
