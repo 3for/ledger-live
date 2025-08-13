@@ -71,9 +71,6 @@ export type Transaction = {
   recipient: string;
   amount: bigint;
   fee: bigint;
-  networkInfo?: {
-    fees?: bigint;
-  };
 } & Record<string, unknown>; // Field containing dedicated value for each blockchain
 
 /**
