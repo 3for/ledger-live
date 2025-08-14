@@ -1,5 +1,5 @@
 import { BigNumber } from "bignumber.js";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import type { AccountLike, Account } from "@ledgerhq/types-live";
 import { View, StyleSheet, Linking, TouchableOpacity, SafeAreaView } from "react-native";
 import { Trans } from "react-i18next";
@@ -45,16 +45,30 @@ export default function StellarFeeRow({
 }: Props) {
   const { colors } = useTheme();
   const [customSelected, setCustomSelected] = useState<boolean | null>(null);
+  const [estimatedFees, setEstimatedFees] = useState(fees || 0);
   const extraInfoFees = useCallback(() => {
     Linking.openURL(urls.feesMoreInfo);
   }, []);
+
+  const bridge = getAccountBridge(account, parentAccount);
+
+  useEffect(() => {
+    const fetchEstimatedFees = async () => {
+      const preparedTransaction = await bridge.prepareTransaction(account, {
+        ...transaction,
+        fees: null,
+      });
+      setEstimatedFees(preparedTransaction.fees);
+    };
+
+    fetchEstimatedFees();
+  }, [bridge, transaction, account]);
+
   const mainAccount = getMainAccount(account, parentAccount);
   const unit = useMaybeAccountUnit(mainAccount);
   if (transaction.family !== "stellar" || !unit) return null;
-  const bridge = getAccountBridge(account, parentAccount);
-  const suggestedFee = transaction.networkInfo?.fees;
   const fees = transaction.fees;
-  const isCustomFee = fees && suggestedFee ? !fees.eq(suggestedFee) : false;
+  const isCustomFee = fees && estimatedFees ? !fees.eq(estimatedFees) : false;
   const isCustom = customSelected ?? isCustomFee;
 
   const currency = getAccountCurrency(account);
@@ -70,7 +84,7 @@ export default function StellarFeeRow({
     } else {
       setTransaction(
         bridge.updateTransaction(transaction, {
-          fees: suggestedFee,
+          fees: estimatedFees,
         }),
       );
     }
@@ -139,7 +153,7 @@ export default function StellarFeeRow({
         <FeeItem
           label={<Trans i18nKey="stellar.suggested" />}
           isSelected={!isCustom}
-          fee={suggestedFee}
+          fee={estimatedFees}
           onSelect={() => onFeeModeChange(false)}
         />
         <FeeItem
