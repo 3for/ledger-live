@@ -2,7 +2,7 @@ import BigNumber from "bignumber.js";
 import { encodeAccountId, encodeTokenAccountId } from "@ledgerhq/coin-framework/account/index";
 import { Operation } from "@ledgerhq/types-live";
 import { TokenCurrency } from "@ledgerhq/types-cryptoassets";
-import { CryptoAssetsStore } from "@ledgerhq/types-live/lib/crypto-assets/type";
+import type { CryptoAssetsStore } from "@ledgerhq/types-live";
 import {
   etherscanERC1155EventToOperations,
   etherscanERC20EventToOperations,

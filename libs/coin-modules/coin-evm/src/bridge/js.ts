@@ -8,7 +8,7 @@ import {
 import { SignerContext } from "@ledgerhq/coin-framework/signer";
 import type { AccountBridge, Bridge, CurrencyBridge } from "@ledgerhq/types-live";
 import getAddressWrapper from "@ledgerhq/coin-framework/bridge/getAddressWrapper";
-import { CryptoAssetsStoreGetter } from "@ledgerhq/types-live/lib/crypto-assets/type";
+import type { CryptoAssetsStoreGetter } from "@ledgerhq/types-live";
 import type { Transaction as EvmTransaction } from "../types/index";
 import { setCoinConfig, type CoinConfig } from "../config";
 import type { EvmSigner } from "../types/signer";

@@ -1,6 +1,6 @@
 import { LiveConfig } from "@ledgerhq/live-config/LiveConfig";
 import * as legacy from "@ledgerhq/cryptoassets/tokens";
-import { CryptoAssetsStore } from "@ledgerhq/types-live/lib/crypto-assets/type";
+import type { CryptoAssetsStore } from "@ledgerhq/types-live";
 
 const legacyStore: CryptoAssetsStore = {
   findTokenByAddress: legacy.findTokenByAddress,

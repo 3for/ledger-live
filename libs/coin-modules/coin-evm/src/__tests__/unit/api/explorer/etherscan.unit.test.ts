@@ -3,7 +3,7 @@ import axios from "axios";
 import { delay } from "@ledgerhq/live-promise";
 import { CryptoCurrency } from "@ledgerhq/types-cryptoassets";
 import { getCryptoCurrencyById } from "@ledgerhq/cryptoassets/currencies";
-import { CryptoAssetsStore } from "@ledgerhq/types-live/lib/crypto-assets/type";
+import type { CryptoAssetsStore } from "@ledgerhq/types-live";
 import { EtherscanLikeExplorerUsedIncorrectly } from "../../../../errors";
 import * as ETHERSCAN_API from "../../../../network/explorer/etherscan";
 import { makeAccount } from "../../../fixtures/common.fixtures";

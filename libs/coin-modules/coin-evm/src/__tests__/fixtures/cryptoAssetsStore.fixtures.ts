@@ -1,5 +1,5 @@
 import * as legacyTokens from "@ledgerhq/cryptoassets/tokens";
-import { CryptoAssetsStore } from "@ledgerhq/types-live/lib/crypto-assets/type";
+import type { CryptoAssetsStore } from "@ledgerhq/types-live";
 import { setCryptoAssetsStore as setCryptoAssetsStoreForCoinFramework } from "@ledgerhq/coin-framework/crypto-assets/index";
 import { setCryptoAssetsStoreGetter } from "../../cryptoAssetsStore";
 

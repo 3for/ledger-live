@@ -8,7 +8,7 @@ import {
   TokenCurrency,
   Unit,
 } from "@ledgerhq/types-cryptoassets";
-import { CryptoAssetsStore } from "@ledgerhq/types-live/lib/crypto-assets/type";
+import type { CryptoAssetsStore } from "@ledgerhq/types-live";
 import * as RPC_API from "../../network/node/rpc.common";
 import { getCoinConfig } from "../../config";
 import {

@@ -6,7 +6,7 @@ import { delay } from "@ledgerhq/live-promise";
 import { getEnv, setEnv } from "@ledgerhq/live-env";
 import { encodeAccountId } from "@ledgerhq/coin-framework/account/index";
 import { CryptoCurrency } from "@ledgerhq/types-cryptoassets";
-import { CryptoAssetsStore } from "@ledgerhq/types-live/lib/crypto-assets/type";
+import type { CryptoAssetsStore } from "@ledgerhq/types-live";
 import { LedgerExplorerUsedIncorrectly } from "../../../../errors";
 import * as LEDGER_API from "../../../../network/explorer/ledger";
 import {
