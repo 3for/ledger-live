@@ -2,6 +2,7 @@ import { makeLRUCache } from "@ledgerhq/live-network/cache";
 import type { CryptoCurrency } from "@ledgerhq/types-cryptoassets";
 import type { BridgeCacheSystem } from "@ledgerhq/types-live";
 import { getCurrencyBridge } from "./";
+import { LiveConfig } from "@ledgerhq/live-config/LiveConfig";
 
 const defaultCacheStrategy = {
   preloadMaxAge: 5 * 60 * 1000,
@@ -14,6 +15,13 @@ export function makeBridgeCacheSystem({
   getData: (currency: CryptoCurrency) => Promise<unknown | null | undefined>;
 }): BridgeCacheSystem {
   const hydrateCurrency = async (currency: CryptoCurrency) => {
+    if (
+      currency.useCalLazyLoading === true &&
+      LiveConfig.getValueByKey("feature_cal_lazy_loading") === true
+    ) {
+      return;
+    }
+
     const value = await getData(currency);
     const bridge = getCurrencyBridge(currency);
     bridge.hydrate(value, currency);
@@ -26,6 +34,13 @@ export function makeBridgeCacheSystem({
     currency: CryptoCurrency,
     { forceUpdate }: { forceUpdate: boolean } = { forceUpdate: false },
   ) => {
+    if (
+      currency.useCalLazyLoading === true &&
+      LiveConfig.getValueByKey("feature_cal_lazy_loading") === true
+    ) {
+      return;
+    }
+
     const bridge = getCurrencyBridge(currency);
     const { preloadMaxAge } = {
       ...defaultCacheStrategy,

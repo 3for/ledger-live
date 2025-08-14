@@ -1177,6 +1177,7 @@ export const cryptocurrenciesById: Record<CryptoCurrencyId, CryptoCurrency> = {
     ],
     keywords: ["eth", "ethereum"],
     explorerId: "eth",
+    useCalLazyLoading: true,
   },
   ethereum_classic: {
     type: "CryptoCurrency",
