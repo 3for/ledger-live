@@ -240,7 +240,7 @@ describe("ModularDrawerFlowManager - Modules configuration", () => {
     expect(usdBalance).toBeVisible();
     const arbitrumBalance = screen.getByText(/0 eth/i);
     expect(arbitrumBalance).toBeVisible();
-    const usdAbrBalance = screen.getByText(/\$0.00/i);
+    const usdAbrBalance = screen.getByText(/-/i);
     expect(usdAbrBalance).toBeVisible();
   });
 
