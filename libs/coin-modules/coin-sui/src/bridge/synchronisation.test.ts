@@ -4,6 +4,9 @@ import { faker } from "@faker-js/faker";
 import { createFixtureAccount, createFixtureOperation } from "../types/bridge.fixture";
 import { DEFAULT_COIN_TYPE } from "../network/sdk";
 import { getAccountShape } from "./synchronisation";
+import coinConfig from "../config";
+import { getFullnodeUrl } from "@mysten/sui/client";
+import * as networkModule from "../network";
 
 // Mock getTokenById and listTokensForCryptoCurrency
 jest.mock("@ledgerhq/cryptoassets/tokens", () => ({
@@ -20,17 +23,34 @@ jest.mock("@ledgerhq/cryptoassets/tokens", () => ({
   listTokensForCryptoCurrency: () => [{ id: "0x123::sui::TEST" }],
 }));
 
-const mockGetAccountBalances = jest.fn();
-const mockGetOperations = jest.fn();
-jest.mock("../network", () => ({
-  getAccountBalances: () => mockGetAccountBalances(),
-  getOperations: () => mockGetOperations(),
-}));
+jest.mock("../network", () => {
+  const mockGetAccountBalances = jest.fn();
+  const mockGetOperations = jest.fn();
+  const mockGetStakesRaw = jest.fn();
+  return {
+    getAccountBalances: mockGetAccountBalances,
+    getOperations: mockGetOperations,
+    getStakesRaw: mockGetStakesRaw,
+    createTransaction: jest.fn(),
+  };
+});
 
 describe("getAccountShape", () => {
+  const mockGetAccountBalances = networkModule.getAccountBalances as jest.Mock;
+  const mockGetOperations = networkModule.getOperations as jest.Mock;
+  const mockGetStakesRaw = networkModule.getStakesRaw as jest.Mock;
+
   beforeEach(() => {
     mockGetAccountBalances.mockClear();
     mockGetOperations.mockClear();
+    mockGetStakesRaw.mockClear();
+  });
+
+  beforeAll(() => {
+    coinConfig.setCoinConfig(() => ({
+      status: { type: "active" },
+      node: { url: getFullnodeUrl("mainnet") },
+    }));
   });
 
   it("calls getAccountBalances and getOperations", async () => {
@@ -38,6 +58,7 @@ describe("getAccountShape", () => {
     const initialAccount = undefined;
     mockGetAccountBalances.mockResolvedValue([createAccountBalance()]);
     mockGetOperations.mockResolvedValue([]);
+    mockGetStakesRaw.mockResolvedValue([]);
 
     // WHEN
     await getAccountShape(
@@ -63,6 +84,7 @@ describe("getAccountShape", () => {
     const accountBalance = createAccountBalance();
     mockGetAccountBalances.mockResolvedValue([accountBalance]);
     mockGetOperations.mockResolvedValue([]);
+    mockGetStakesRaw.mockResolvedValue([]);
 
     // WHEN
     const shape = await getAccountShape(
@@ -85,8 +107,11 @@ describe("getAccountShape", () => {
       blockHeight: 5,
       operations: [],
       operationsCount: 0,
-      suiResources: {},
+      suiResources: {
+        stakes: [],
+      },
       subAccounts: [],
+      syncHash: undefined,
     });
   });
 
@@ -98,6 +123,7 @@ describe("getAccountShape", () => {
     const accountBalance = createAccountBalance();
     mockGetAccountBalances.mockResolvedValue([accountBalance]);
     mockGetOperations.mockResolvedValue([]);
+    mockGetStakesRaw.mockResolvedValue([]);
 
     // WHEN
     const shape = await getAccountShape(
@@ -128,6 +154,7 @@ describe("getAccountShape", () => {
       createFixtureOperation({ id: faker.string.uuid(), extra }),
     ];
     mockGetOperations.mockResolvedValue(apiOperations);
+    mockGetStakesRaw.mockResolvedValue([]);
 
     // WHEN
     const shape = await getAccountShape(
@@ -154,6 +181,7 @@ describe("getAccountShape", () => {
     const tokenBalance = createAccountBalance({ coinType: "0x123::sui::TEST" });
     mockGetAccountBalances.mockResolvedValue([mainBalance, tokenBalance]);
     mockGetOperations.mockResolvedValue([]);
+    mockGetStakesRaw.mockResolvedValue([]);
 
     // WHEN
     const shape = await getAccountShape(
