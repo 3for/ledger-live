@@ -220,7 +220,7 @@ const buildTransaction = async (account: CeloAccount, transaction: Transaction) 
     const data = await encodeFunctionData({
       abi: usdtAbi,
       functionName: "transfer",
-      args: [transaction.recipient, transaction.amount || BigNumber(1000000)],
+      args: [transaction.recipient, 1000000n],
     }).slice(2);
 
     const block = await client.getBlock({ blockTag: "latest" });

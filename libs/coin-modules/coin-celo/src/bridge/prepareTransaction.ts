@@ -126,7 +126,7 @@ export const prepareTransaction: AccountBridge<
   const data = await encodeFunctionData({
     abi: usdtAbi,
     functionName: "transfer",
-    args: [transaction.recipient, transaction.amount || BigNumber(1000000)],
+    args: [transaction.recipient, 1000000n],
   });
 
   const block = await client.getBlock({ blockTag: "latest" });
