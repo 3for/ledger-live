@@ -218,7 +218,7 @@ const buildTransaction = async (account: CeloAccount, transaction: Transaction) 
     // const usdtAddress = "0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e";
 
     const data = await encodeFunctionData({
-      abi: usdtAbi,
+      abi: ERC20ABI,
       functionName: "transfer",
       args: [transaction.recipient, 1000000n],
     }).slice(2);
@@ -237,7 +237,7 @@ const buildTransaction = async (account: CeloAccount, transaction: Transaction) 
       ...celoTransaction,
       // data: token.transfer(transaction.recipient, value.toFixed()).txo.encodeABI(),
       data,
-      gas: BigNumber(baseFee.toString()).multipliedBy(0.0000015).toNumber(),
+      gas: BigNumber(baseFee.toString()).multipliedBy(0.0000015).toFixed(),
       maxFeePerGas: maxFeePerGas.toString(),
       maxPriorityFeePerGas: priorityFee.toString(),
       chainId: 42220,
