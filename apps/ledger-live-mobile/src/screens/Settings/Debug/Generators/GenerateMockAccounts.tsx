@@ -6,7 +6,7 @@ import { genAccount } from "@ledgerhq/live-common/mock/account";
 import { listSupportedCurrencies } from "@ledgerhq/live-common/currencies/index";
 import { Account } from "@ledgerhq/types-live";
 import SettingsRow from "~/components/SettingsRow";
-import { useReboot } from "~/context/Reboot";
+import { reboot } from "~/actions/appstate";
 import { useDispatch, useSelector } from "react-redux";
 import { accountsSelector } from "~/reducers/accounts";
 import { addAccountsAction } from "@ledgerhq/live-wallet/addAccounts";
@@ -37,7 +37,6 @@ export default function GenerateMockAccountsButton({
   desc: string;
   count: number;
 }) {
-  const reboot = useReboot();
   const dispatch = useDispatch();
   const existingAccounts = useSelector(accountsSelector);
 
@@ -61,7 +60,7 @@ export default function GenerateMockAccountsButton({
               onPress: () => {
                 const action = createMockAccounts(count, existingAccounts);
                 dispatch(action);
-                reboot();
+                dispatch(reboot());
               },
             },
           ],

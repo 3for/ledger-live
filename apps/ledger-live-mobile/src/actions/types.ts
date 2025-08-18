@@ -95,10 +95,6 @@ export type AppStateAddBackgroundEventPayload = {
   event: FwUpdateBackgroundEvent;
 };
 export type AppStateBlockPasswordLockPayload = boolean;
-export type AppStateRebootPayload = {
-  resetData?: boolean;
-  showSplashScreen?: boolean;
-};
 
 export type AppStateUpdateMainNavigatorVisibilityPayload = AppState["isMainNavigatorVisible"];
 export type AppStatePayload =
@@ -106,8 +102,7 @@ export type AppStatePayload =
   | AppStateSetModalLockPayload
   | AppStateAddBackgroundEventPayload
   | AppStateUpdateMainNavigatorVisibilityPayload
-  | AppStateBlockPasswordLockPayload
-  | AppStateRebootPayload;
+  | AppStateBlockPasswordLockPayload;
 
 // === BLE ACTIONS ===
 
