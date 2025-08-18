@@ -45,29 +45,31 @@ export default function StellarFeeRow({
 }: Props) {
   const { colors } = useTheme();
   const [customSelected, setCustomSelected] = useState<boolean | null>(null);
-  const [estimatedFees, setEstimatedFees] = useState(fees || 0);
   const extraInfoFees = useCallback(() => {
     Linking.openURL(urls.feesMoreInfo);
   }, []);
 
   const bridge = getAccountBridge(account, parentAccount);
-
-  useEffect(() => {
-    const fetchEstimatedFees = async () => {
-      const preparedTransaction = await bridge.prepareTransaction(account, {
-        ...transaction,
-        fees: null,
-      });
-      setEstimatedFees(preparedTransaction.fees);
-    };
-
-    fetchEstimatedFees();
-  }, [bridge, transaction, account]);
-
   const mainAccount = getMainAccount(account, parentAccount);
   const unit = useMaybeAccountUnit(mainAccount);
+  const fees = transaction.family === "stellar" ? transaction.fees : null;
+  const [estimatedFees, setEstimatedFees] = useState(fees || null);
+
+  useEffect(() => {
+    if (transaction.family === "stellar" && unit) {
+      const fetchEstimatedFees = async () => {
+        const preparedTransaction = await bridge.prepareTransaction(account as Account, {
+          ...transaction,
+          fees: null,
+        });
+        setEstimatedFees(preparedTransaction.fees);
+      };
+
+      fetchEstimatedFees();
+    }
+  }, [bridge, transaction, account, mainAccount, unit]);
+
   if (transaction.family !== "stellar" || !unit) return null;
-  const fees = transaction.fees;
   const isCustomFee = fees && estimatedFees ? !fees.eq(estimatedFees) : false;
   const isCustom = customSelected ?? isCustomFee;
 
