@@ -1,5 +1,5 @@
 import { BigNumber } from "bignumber.js";
-import type { Transaction, TransactionRaw } from "../types";
+import type { Transaction, TransactionRaw } from "./types";
 import { formatTransactionStatus } from "@ledgerhq/coin-framework/formatters";
 import {
   fromTransactionCommonRaw,
@@ -57,10 +57,10 @@ export const fromTransactionRaw = (tr: TransactionRaw): Transaction => {
       family: networkInfo.family,
       fees: new BigNumber(networkInfo.fees),
     },
-    fees: tr.fees ? new BigNumber(tr.fees) : null,
-    gasLimit: tr.gasLimit ? new BigNumber(tr.gasLimit) : null,
-    storageLimit: tr.storageLimit ? new BigNumber(tr.storageLimit) : null,
-    estimatedFees: tr.estimatedFees ? new BigNumber(tr.estimatedFees) : null,
+    fees: tr.fees != null ? new BigNumber(tr.fees) : null,
+    gasLimit: tr.gasLimit != null ? new BigNumber(tr.gasLimit) : undefined,
+    storageLimit: tr.storageLimit != null ? new BigNumber(tr.storageLimit) : undefined,
+    estimatedFees: tr.estimatedFees != null ? new BigNumber(tr.estimatedFees) : undefined,
     taquitoError: tr.taquitoError,
   };
 };

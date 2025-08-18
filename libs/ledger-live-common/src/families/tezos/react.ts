@@ -1,7 +1,8 @@
 import type { AccountLike } from "@ledgerhq/types-live";
 import { useEffect, useMemo, useState } from "react";
-import { Baker, Delegation } from "@ledgerhq/coin-tezos/types/index";
+import { Baker, Delegation, TezosAccount, StakingPosition } from "@ledgerhq/coin-tezos/types/index";
 import { bakers } from "@ledgerhq/coin-tezos/network/index";
+import tzkt from "@ledgerhq/coin-tezos/network/tzkt";
 
 export function useBakers(whitelistAddresses: string[]): Baker[] {
   const [whitelistedBakers, setWhitelistedBakers] = useState<Baker[]>(() =>
@@ -54,4 +55,48 @@ export function useRandomBaker(bakers: Baker[]): Baker {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bakers.length]);
   return bakers[randomBakerIndex];
+}
+
+// expose staking positions via generic bridge getStakes
+export function useStakingPositions(account: TezosAccount): StakingPosition[] {
+  const [delegation, setDelegation] = useState(() => bakers.getAccountDelegationSync(account));
+
+  // ensure delegation is loaded when needed
+  useEffect(() => {
+    let cancelled = false;
+    bakers.loadAccountDelegation(account).then(async d => {
+      if (cancelled) return;
+      if (d && "address" in d && d.address) {
+        setDelegation(d);
+      } else {
+        // fallback: query tzkt directly in dev if cache is empty
+        try {
+          const info = await tzkt.getAccountByAddress(account.freshAddress);
+          if (info.type === "user" && info.delegate?.address) {
+            setDelegation({ address: info.delegate.address } as any);
+          }
+        } catch {
+          // no behavior
+        }
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [account]);
+
+  return useMemo(() => {
+    const d = delegation;
+    if (!d || !("address" in d) || !d.address) return [];
+    return [
+      {
+        uid: account.freshAddress,
+        address: account.freshAddress,
+        delegate: d.address,
+        state: "active",
+        asset: { type: "native" },
+        amount: BigInt(account.balance.toString()),
+      },
+    ];
+  }, [account, delegation]);
 }

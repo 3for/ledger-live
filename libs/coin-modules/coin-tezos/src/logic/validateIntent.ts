@@ -1,0 +1,144 @@
+import { TransactionIntent, TransactionValidation } from "@ledgerhq/coin-framework/lib/api/types";
+import {
+  InvalidAddress,
+  RecipientRequired,
+  RecommendUndelegation,
+  NotEnoughBalance,
+  NotEnoughBalanceToDelegate,
+  AmountRequired,
+  InvalidAddressBecauseDestinationIsAlsoSource,
+} from "@ledgerhq/errors";
+import { validateAddress, ValidationResult } from "@taquito/utils";
+import api from "../network/tzkt";
+import { estimateFees } from "./estimateFees";
+import { TezosOperationMode } from "../types";
+import { InvalidAddressBecauseAlreadyDelegated } from "../types/errors";
+
+export async function validateIntent(intent: TransactionIntent): Promise<TransactionValidation> {
+  // central place to validate amounts/fees for generic bridge
+  const errors: Record<string, Error> = {};
+  const warnings: Record<string, Error> = {};
+  let estimatedFees: bigint;
+  let amount: bigint;
+  let totalSpent: bigint;
+
+  // basic recipient validation for send
+  if (intent.type === "send") {
+    if (!intent.recipient) {
+      errors.recipient = new RecipientRequired("");
+    } else if (validateAddress(intent.recipient) !== ValidationResult.VALID) {
+      errors.recipient = new InvalidAddress(undefined, { currencyName: "Tezos" });
+    } else if (intent.sender === intent.recipient) {
+      errors.recipient = new InvalidAddressBecauseDestinationIsAlsoSource();
+    }
+  }
+
+  // for generic expectations: empty amount should trigger AmountRequired
+  if (intent.type === "send" && intent.amount === 0n && !intent.useAllAmount) {
+    errors.amount = new AmountRequired();
+  }
+
+  // reject negative amounts explicitly
+  if (intent.type === "send" && intent.amount < 0n) {
+    errors.amount = new NotEnoughBalance();
+  }
+
+  if (
+    errors.recipient ||
+    errors.amount instanceof AmountRequired ||
+    errors.amount instanceof NotEnoughBalance
+  ) {
+    return { errors, warnings, estimatedFees: 0n, amount: 0n, totalSpent: 0n };
+  }
+
+  try {
+    // send max not allowed on delegated accounts (must undelegate acc first)
+    const senderInfo = await api.getAccountByAddress(intent.sender);
+    if (senderInfo.type !== "user") throw new Error("unexpected account type");
+
+    if (intent.type === "send" && intent.useAllAmount) {
+      if (senderInfo.type === "user" && senderInfo.delegate?.address) {
+        errors.amount = new RecommendUndelegation();
+        return { errors, warnings, estimatedFees: 0n, amount: 0n, totalSpent: 0n };
+      }
+    }
+
+    const estimation = await estimateFees({
+      account: {
+        address: intent.sender,
+        revealed: senderInfo.revealed,
+        balance: BigInt(senderInfo.balance),
+        // try intent public key first and fallback to tzkt public key
+        xpub: intent.senderPublicKey ?? senderInfo.publicKey,
+      },
+      transaction: {
+        // reuse the same mapping as craft, keeping generic intent at the api boundary
+        mode: (intent.type === "stake"
+          ? "delegate"
+          : intent.type === "unstake"
+            ? "undelegate"
+            : intent.type) as TezosOperationMode,
+        recipient: intent.recipient,
+        amount: intent.amount,
+        // important for send max: legacy estimator needs this flag to pre-estimate fees
+        useAllAmount: !!intent.useAllAmount,
+      },
+    });
+    estimatedFees = estimation.estimatedFees;
+
+    // Map Taquito specific errors
+    if (estimation.taquitoError) {
+      const id = estimation.taquitoError;
+      if (id.endsWith("balance_too_low") || id.endsWith("subtraction_underflow")) {
+        // generic low balance mapping
+        if (intent.type === "send") {
+          errors.amount = new NotEnoughBalance();
+        } else if (intent.type === "stake") {
+          errors.amount = new NotEnoughBalanceToDelegate();
+        } else {
+          // undelegate or others: not enough to pay fees
+          errors.amount = new NotEnoughBalance();
+        }
+      } else if (id.endsWith("delegate.unchanged")) {
+        if (intent.type === "stake") {
+          errors.recipient = new InvalidAddressBecauseAlreadyDelegated();
+        }
+      } else if (!errors.amount) {
+        errors.amount = new Error(id);
+      }
+    }
+
+    if (intent.type === "stake" || intent.type === "unstake") {
+      amount = BigInt(senderInfo.type === "user" ? senderInfo.balance : 0);
+      totalSpent = estimatedFees;
+    } else if (intent.type === "send" && intent.useAllAmount) {
+      // send max: amount = balance - fees (clamped to >= 0)
+      if (senderInfo.type === "user") {
+        const bal = BigInt(senderInfo.balance);
+        amount = bal > estimatedFees ? bal - estimatedFees : 0n;
+        totalSpent = amount + estimatedFees;
+      } else {
+        amount = 0n;
+        totalSpent = 0n;
+      }
+    } else {
+      amount = intent.amount;
+      totalSpent = amount + estimatedFees;
+    }
+
+    // basic sanity check on balance coverage
+    if (senderInfo.type === "user") {
+      const accountBalance = BigInt(senderInfo.balance);
+      if (totalSpent > accountBalance) {
+        errors.amount = new NotEnoughBalance();
+      }
+    }
+  } catch (e) {
+    errors.estimation = e as Error;
+    estimatedFees = 0n;
+    amount = intent.amount;
+    totalSpent = intent.amount;
+  }
+
+  return { errors, warnings, estimatedFees, amount, totalSpent };
+}

@@ -6,6 +6,8 @@ import { AccountLike, Account } from "@ledgerhq/types-live";
 import { getMainAccount } from "@ledgerhq/live-common/account/index";
 import { getCurrencyColor } from "@ledgerhq/live-common/currencies/index";
 import { isAccountDelegating } from "@ledgerhq/live-common/families/tezos/staking";
+import { useStakingPositions } from "@ledgerhq/live-common/families/tezos/react";
+import type { TezosAccount } from "@ledgerhq/live-common/families/tezos/types";
 import { Text } from "@ledgerhq/native-ui";
 import { NavigatorName, ScreenName } from "~/const";
 import IlluStaking from "./IlluStaking";
@@ -61,7 +63,9 @@ export default function TezosAccountHeader({ account, parentAccount, parentRoute
   const mainAccount = getMainAccount(account, parentAccount);
   const backgroundColor = getCurrencyColor(mainAccount.currency);
 
-  if (isAccountDelegating(account) || account.type !== "Account") return null;
+  const stakingPositions = useStakingPositions(account as TezosAccount);
+  if (isAccountDelegating(account) || stakingPositions.length > 0 || account.type !== "Account")
+    return null;
   return (
     <View style={[styles.banner, { backgroundColor }]}>
       <Text fontWeight={"semiBold"} style={styles.title} color="white">

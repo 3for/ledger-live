@@ -57,7 +57,7 @@ function convertOperation(
   address: string,
   operation: APITransactionType | APIDelegationType | APIRevealType,
 ): Operation {
-  const { hash, sender, type, id } = operation;
+  const { hash, sender, id } = operation;
 
   let targetAddress = undefined;
   if (isAPITransactionType(operation)) {
@@ -83,7 +83,32 @@ function convertOperation(
     BigInt(operation.bakerFee ?? 0) +
     BigInt(operation.allocationFee ?? 0);
 
-  return {
+  let normalizedType: Operation["type"];
+
+  if (isAPITransactionType(operation)) {
+    const isOut = sender?.address === address;
+    const isIn = targetAddress === address;
+    if ((isOut && isIn) || amount === 0n) {
+      normalizedType = "FEES" as Operation["type"];
+    } else {
+      normalizedType = (isOut ? "OUT" : isIn ? "IN" : "OUT") as Operation["type"];
+    }
+  } else if (isAPIDelegationType(operation)) {
+    // map delegation operations to DELEGATE/UNDELEGATE for Generic Bridge
+    normalizedType = operation.newDelegate?.address
+      ? ("DELEGATE" as Operation["type"])
+      : ("UNDELEGATE" as Operation["type"]);
+  } else if (isAPIRevealType(operation)) {
+    normalizedType = "REVEAL" as Operation["type"];
+  } else {
+    // fallback for unknown types
+    normalizedType = "OUT" as Operation["type"];
+  }
+
+  // Tezos uses "applied" for every sucess operation (something else=failed )
+  const hasFailed = operation.status && operation.status !== "applied";
+
+  const coreOp: Operation = {
     id: `${hash ?? ""}-${id}`,
     asset: { type: "native" },
     tx: {
@@ -98,7 +123,7 @@ function convertOperation(
       },
       date: new Date(operation.timestamp),
     },
-    type: type,
+    type: normalizedType,
     value: amount,
     senders: senders,
     recipients: recipients,
@@ -106,6 +131,26 @@ function convertOperation(
       counter: operation.counter,
       gasLimit: operation.gasLimit,
       storageLimit: operation.storageLimit,
+      status: hasFailed ? "failed" : operation.status,
     },
   };
+
+  if (isAPIDelegationType(operation)) {
+    coreOp.details = {
+      ...coreOp.details,
+      ledgerOpType: operation.newDelegate?.address ? "DELEGATE" : "UNDELEGATE",
+    };
+  } else if (isAPIRevealType(operation)) {
+    coreOp.details = {
+      ...coreOp.details,
+      ledgerOpType: "REVEAL",
+    };
+  } else if (normalizedType === "FEES") {
+    coreOp.details = {
+      ...coreOp.details,
+      ledgerOpType: "FEES",
+    };
+  }
+
+  return coreOp;
 }

@@ -21,11 +21,17 @@ import {
   lastBlock,
   listOperations,
   rawEncode,
+  validateIntent,
 } from "../logic";
 import api from "../network/tzkt";
 import type { TezosApi, TezosFeeEstimation } from "./types";
 import { FeeEstimation, TransactionIntent } from "@ledgerhq/coin-framework/api/types";
 import { TezosOperationMode } from "../types";
+import { RecommendUndelegation } from "@ledgerhq/errors";
+import { DerivationType } from "@taquito/ledger-signer";
+import { b58cencode, Prefix, prefix } from "@taquito/utils";
+import { compressPublicKey } from "@taquito/ledger-signer/dist/lib/utils";
+import { DEFAULT_FEE } from "@taquito/taquito";
 
 export function createApi(config: TezosConfig): TezosApi {
   coinConfig.setCoinConfig(() => ({ ...config, status: { type: "active" } }));
@@ -38,14 +44,18 @@ export function createApi(config: TezosConfig): TezosApi {
     getBalance: balance,
     lastBlock,
     listOperations: operations,
+    getStakes: stakes,
+    validateIntent,
+    // required by signer to compute next valid sequence/counter
+    getSequence: async (address: string) => {
+      const accountInfo = await api.getAccountByAddress(address);
+      return accountInfo.type === "user" ? accountInfo.counter + 1 : 0;
+    },
     getBlock(_height): Promise<Block> {
       throw new Error("getBlock is not supported");
     },
     getBlockInfo(_height: number): Promise<BlockInfo> {
       throw new Error("getBlockInfo is not supported");
-    },
-    getStakes(_address: string, _cursor?: Cursor): Promise<Page<Stake>> {
-      throw new Error("getStakes is not supported");
     },
     getRewards(_address: string, _cursor?: Cursor): Promise<Page<Reward>> {
       throw new Error("getRewards is not supported");
@@ -53,16 +63,54 @@ export function createApi(config: TezosConfig): TezosApi {
   };
 }
 
-function isTezosTransactionType(type: string): type is "send" | "delegate" | "undelegate" {
-  return ["send", "delegate", "undelegate"].includes(type);
+function isTezosTransactionType(
+  type: string,
+): type is "send" | "delegate" | "undelegate" | "stake" | "unstake" {
+  return ["send", "delegate", "undelegate", "stake", "unstake"].includes(type);
+}
+
+async function stakes(address: string, _cursor?: Cursor): Promise<Page<Stake>> {
+  // tezos exposes a single staking position via delegation when a delegate is set
+  const accountInfo = await api.getAccountByAddress(address);
+  if (accountInfo.type !== "user") return { items: [] };
+  if (!accountInfo.delegate?.address) return { items: [] };
+  return {
+    items: [
+      {
+        uid: address,
+        address,
+        delegate: accountInfo.delegate.address,
+        state: "active",
+        asset: { type: "native" },
+        amount: BigInt(accountInfo.balance ?? 0),
+      },
+    ],
+  };
 }
 
 async function balance(address: string): Promise<Balance[]> {
   const value = await getBalance(address);
+  const accountInfo = await api.getAccountByAddress(address);
+  // tzkt returns `type: "empty"` for untouched accounts; legacy logic returns -1 in that case
+  // the generic bridge expects non-negative balances
+  const normalized = value < 0n ? 0n : value;
+  // include stake information so ui can reflect delegation on account page
+  const stake: Stake | undefined =
+    accountInfo.type === "user" && accountInfo.delegate?.address
+      ? {
+          uid: address,
+          address,
+          delegate: accountInfo.delegate.address,
+          state: "active",
+          asset: { type: "native" },
+          amount: BigInt(accountInfo.balance ?? 0),
+        }
+      : undefined;
   return [
     {
-      value,
+      value: normalized,
       asset: { type: "native" },
+      stake,
     },
   ];
 }
@@ -82,45 +130,124 @@ async function craft(
     storageLimit: fees.parameters?.storageLimit?.toString(),
   }));
 
-  const { contents } = await craftTransaction(
-    { address: transactionIntent.sender },
-    {
-      type: transactionIntent.type,
-      recipient: transactionIntent.recipient,
-      amount: transactionIntent.amount,
-      fee,
-    },
-  );
+  // map generic staking intents to deal with tezos operation modes (delegate/undelegate)
+  const mappedType =
+    transactionIntent.type === "stake"
+      ? "delegate"
+      : transactionIntent.type === "unstake"
+        ? "undelegate"
+        : (transactionIntent.type as "send" | "delegate" | "undelegate");
+
+  // guard: send max is incompatible with delegated accounts
+  if (mappedType === "send" && transactionIntent.useAllAmount) {
+    const senderInfo = await api.getAccountByAddress(transactionIntent.sender);
+    if (senderInfo.type === "user" && senderInfo.delegate?.address) {
+      throw new RecommendUndelegation();
+    }
+  }
+
+  // compute amount to use in forge
+  let amountToUse = transactionIntent.amount;
+  if (mappedType === "send" && transactionIntent.useAllAmount) {
+    const senderInfo = await api.getAccountByAddress(transactionIntent.sender);
+    if (senderInfo.type === "user") {
+      const bal = BigInt(senderInfo.balance);
+      const feeBI = BigInt(fee.fees || "0");
+      amountToUse = bal > feeBI ? bal - feeBI : 0n;
+    } else {
+      amountToUse = 0n;
+    }
+  }
+
+  const accountForCraft = {
+    address: transactionIntent.sender,
+    // craftTransaction expects the current counter, it will increment internally per content
+    counter:
+      typeof transactionIntent.sequence === "number" ? transactionIntent.sequence - 1 : undefined,
+  };
+  const senderApiAcc = await api.getAccountByAddress(transactionIntent.sender);
+  const needsReveal = senderApiAcc.type === "user" ? senderApiAcc.revealed === false : false;
+  const totalFeeBI = BigInt(fee.fees || "0");
+  const txFeeBI = needsReveal
+    ? totalFeeBI > BigInt(DEFAULT_FEE.REVEAL)
+      ? totalFeeBI - BigInt(DEFAULT_FEE.REVEAL)
+      : 0n
+    : totalFeeBI;
+
+  const txForCraft = {
+    type: mappedType,
+    recipient: transactionIntent.recipient,
+    amount: amountToUse,
+    fee: { ...fee, fees: txFeeBI.toString() },
+  } as const;
+  const publicKeyForCraft =
+    needsReveal && transactionIntent.senderPublicKey
+      ? (() => {
+          let pk = transactionIntent.senderPublicKey;
+          const isBase58 =
+            pk.startsWith("edpk") ||
+            pk.startsWith("sppk") ||
+            pk.startsWith("p2pk") ||
+            pk.startsWith("BLpk");
+          if (!isBase58) {
+            pk = b58cencode(
+              compressPublicKey(Buffer.from(pk, "hex"), DerivationType.ED25519),
+              prefix[Prefix.EDPK],
+            );
+          }
+          return { publicKey: pk, publicKeyHash: transactionIntent.sender };
+        })()
+      : undefined;
+  const { contents } = await craftTransaction(accountForCraft, txForCraft, publicKeyForCraft);
   return rawEncode(contents);
 }
 
 async function estimate(transactionIntent: TransactionIntent): Promise<TezosFeeEstimation> {
+  // avoid taquito error when estimating a 0-amount transfer during input
+  if (
+    transactionIntent.type === "send" &&
+    transactionIntent.amount === 0n &&
+    !transactionIntent.useAllAmount
+  ) {
+    return { value: 0n } as TezosFeeEstimation;
+  }
   const senderAccountInfo = await api.getAccountByAddress(transactionIntent.sender);
-  if (senderAccountInfo.type !== "user") throw new Error("unexpected account type");
+  if (senderAccountInfo.type !== "user") {
+    return {
+      value: 0n,
+      parameters: {
+        fees: 0n,
+        gasLimit: 0n,
+        storageLimit: 0n,
+      } as any,
+    } as TezosFeeEstimation;
+  }
 
   const {
     estimatedFees: value,
     gasLimit,
     storageLimit,
-    taquitoError,
   } = await estimateFees({
     account: {
       address: transactionIntent.sender,
       revealed: senderAccountInfo.revealed,
       balance: BigInt(senderAccountInfo.balance),
-      // NOTE: previously we checked for .sender.xpub
+      // try intent public key first and fallback to tzkt public key
       xpub: transactionIntent.senderPublicKey ?? senderAccountInfo.publicKey,
     },
     transaction: {
-      mode: transactionIntent.type as TezosOperationMode,
+      // reuse the same mapping as craft, keeping generic intent at the api boundary
+      mode: (transactionIntent.type === "stake"
+        ? "delegate"
+        : transactionIntent.type === "unstake"
+          ? "undelegate"
+          : transactionIntent.type) as TezosOperationMode,
       recipient: transactionIntent.recipient,
       amount: transactionIntent.amount,
+      // important for send max: legacy estimator needs this flag to pre-estimate fees
+      useAllAmount: !!transactionIntent.useAllAmount,
     },
   });
-
-  if (taquitoError !== undefined) {
-    throw new Error(`Fees estimation failed: ${taquitoError}`);
-  }
 
   return {
     value,
@@ -188,5 +315,12 @@ async function operations(
   address: string,
   pagination: Pagination = { minHeight: 0 },
 ): Promise<[Operation[], string]> {
-  return operationsFromHeight(address, pagination.minHeight);
+  const [ops, next] = await operationsFromHeight(address, pagination.minHeight);
+  // Keep failed operations only if they were sent by this address (=don't keep received failures)
+  const filtered = ops.filter(op => {
+    const isFailed = op?.details?.status === "failed";
+    const isSender = (op.senders || []).includes(address);
+    return !isFailed || isSender;
+  });
+  return [filtered, next];
 }
