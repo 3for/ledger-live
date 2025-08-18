@@ -22,6 +22,7 @@ import EarnLiveAppNavigator from "./EarnLiveAppNavigator";
 import { getStakeLabelLocaleBased } from "~/helpers/getStakeLabelLocaleBased";
 import { useRebornFlow } from "LLM/features/Reborn/hooks/useRebornFlow";
 import { UnmountOnBlur } from "./utils/UnmountOnBlur";
+import { KeepMountedOnParentRoutes } from "./utils/KeepMountedOnParentRoutes";
 
 const Tab = createBottomTabNavigator<MainNavigatorParamList>();
 
@@ -91,7 +92,11 @@ export default function MainNavigator() {
       <Tab.Screen
         name={NavigatorName.Portfolio}
         component={PortfolioNavigator}
-        layout={unmountOnBlur}
+        layout={({ children }) => (
+          <KeepMountedOnParentRoutes parentRouteNames={[ScreenName.OperationDetails]}>
+            {children}
+          </KeepMountedOnParentRoutes>
+        )}
         options={{
           headerShown: false,
           tabBarIcon: props => <PortfolioTabIcon {...props} />,
