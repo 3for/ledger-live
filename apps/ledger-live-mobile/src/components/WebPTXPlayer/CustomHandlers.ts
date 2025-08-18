@@ -76,7 +76,9 @@ export function useCustomExchangeHandlers({
 
       if (pendingPromises.length > 0) {
         activePromises.current.forEach(({ reject }, key) => {
-          reject(new Error("Operation cancelled by navigation"));
+          const error = new Error(key);
+          error.name = "OperationCancelledByNavigation";
+          reject(error);
           activePromises.current.delete(key);
         });
       }
