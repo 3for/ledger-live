@@ -94,7 +94,6 @@ export const genericSignOperation =
           const draftTransaction = {
             recipient: transaction.recipient,
             amount: transaction.amount ?? 0,
-            fees: fees,
             useAllAmount: !!transaction.useAllAmount,
             assetReference: transaction?.["assetReference"] || "",
             assetOwner: transaction?.["assetOwner"] || "",
@@ -102,6 +101,7 @@ export const genericSignOperation =
           };
           const { amount } = await getAlpacaApi(network, kind).validateIntent(
             transactionToIntent(account, draftTransaction),
+            { value: fees },
           );
           transaction.amount = new BigNumber(amount.toString());
         }
@@ -109,7 +109,7 @@ export const genericSignOperation =
           const derivationPath = account.freshAddressPath;
           const { publicKey } = (await signer.getAddress(derivationPath)) as Result;
 
-          let transactionIntent = transactionToIntent(account, { ...transaction, fees });
+          let transactionIntent = transactionToIntent(account, { ...transaction });
           transactionIntent.senderPublicKey = publicKey;
 
           // Enrich with memo and asset information
@@ -124,6 +124,7 @@ export const genericSignOperation =
           /* Craft unsigned blob via Alpaca */
           const unsigned: string = await getAlpacaApi(network, kind).craftTransaction(
             transactionIntent,
+            { value: fees },
           );
 
           /* Notify UI that the device is now showing the tx */

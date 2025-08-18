@@ -298,7 +298,6 @@ export type TransactionIntent<MemoType extends Memo = MemoNotSupported> = {
   expiration?: number;
   recipient: string;
   amount: bigint;
-  fees?: bigint | null | undefined; // Optional, depending on the API
   useAllAmount?: boolean;
   asset: AssetInfo;
   sequence?: number;
@@ -352,7 +351,10 @@ export type AccountInfo = {
 export type AlpacaApi<MemoType extends Memo = MemoNotSupported> = {
   broadcast: (tx: string, broadcastConfig?: BroadcastConfig) => Promise<string>;
   combine: (tx: string, signature: string, pubkey?: string) => string | Promise<string>;
-  estimateFees: (transactionIntent: TransactionIntent<MemoType>) => Promise<FeeEstimation>;
+  estimateFees: (
+    transactionIntent: TransactionIntent<MemoType>,
+    customFees?: FeeEstimation,
+  ) => Promise<FeeEstimation>;
   craftTransaction: (
     transactionIntent: TransactionIntent<MemoType>,
     customFees?: FeeEstimation,
@@ -416,6 +418,7 @@ export type ChainSpecificRules = {
 export type BridgeApi<MemoType extends Memo = MemoNotSupported> = {
   validateIntent: (
     transactionIntent: TransactionIntent<MemoType>,
+    customFees?: FeeEstimation,
   ) => Promise<TransactionValidation>;
   getSequence: (address: string) => Promise<number>;
   getChainSpecificRules?: () => ChainSpecificRules;

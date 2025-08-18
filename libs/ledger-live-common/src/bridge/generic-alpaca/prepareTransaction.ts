@@ -2,6 +2,7 @@ import { Account, AccountBridge, TransactionCommon } from "@ledgerhq/types-live"
 import { getAlpacaApi } from "./alpaca";
 import { transactionToIntent } from "./utils";
 import BigNumber from "bignumber.js";
+import { FeeEstimation } from "@ledgerhq/coin-framework/api/types";
 
 function bnEq(a: BigNumber | null | undefined, b: BigNumber | null | undefined): boolean {
   return !a && !b ? true : !a || !b ? false : a.eq(b);
@@ -24,8 +25,8 @@ export function genericPrepareTransaction(
     const fees = await getAlpacaApi(network, kind).estimateFees(
       transactionToIntent(account, {
         ...transaction,
-        fees: transaction.fees ? BigInt(transaction.fees.toString()) : 0n,
       }),
+      { value: transaction.fees ? BigInt(transaction.fees.toString()) : 0n },
     );
 
     if (!bnEq(transaction.fees, new BigNumber(fees.value.toString()))) {

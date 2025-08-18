@@ -19,13 +19,14 @@ export function genericEstimateMaxSpendable(
       ...transaction,
       amount: mainAccount.spendableBalance,
       useAllAmount: true,
-      fees: transaction?.fees ? BigInt(transaction.fees.toString()) : 0n,
     };
     const fees = await getAlpacaApi(network, kind).estimateFees(
       transactionToIntent(mainAccount, draftTransaction),
+      { value: transaction?.fees ? BigInt(transaction.fees.toString()) : 0n },
     );
     const { amount } = await getAlpacaApi(network, kind).validateIntent(
       transactionToIntent(account, { ...draftTransaction }),
+      { value: transaction?.fees ? BigInt(transaction.fees.toString()) : 0n },
     );
     if (network === "stellar") {
       return amount > 0 ? new BigNumber(amount.toString()) : new BigNumber(0);
