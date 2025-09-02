@@ -179,6 +179,45 @@ describe("evm-tools", () => {
         });
       });
 
+      describe("sortlphabetically", () => {
+        it("should order the array keys by alphabetical order", () => {
+          const obj = {
+            EIP712Domain: [
+              { name: "version", type: "string" },
+              { name: "chainId", type: "uint256" },
+              { name: "name", type: "string" },
+              { name: "verifyingContract", type: "address" },
+            ],
+            Transfer: [
+              { name: "value_recv", type: "uint256" },
+              { name: "with", type: "address" },
+              { name: "token_send", type: "address" },
+              { name: "value_send", type: "uint256" },
+              { name: "token_recv", type: "address" },
+              { name: "expires", type: "uint64" },
+            ],
+          };
+          const expectedObj = {
+            EIP712Domain: [
+              { name: "chainId", type: "uint256" },
+              { name: "name", type: "string" },
+              { name: "verifyingContract", type: "address" },
+              { name: "version", type: "string" },
+            ],
+            Transfer: [
+              { name: "expires", type: "uint64" },
+              { name: "token_recv", type: "address" },
+              { name: "token_send", type: "address" },
+              { name: "value_recv", type: "uint256" },
+              { name: "value_send", type: "uint256" },
+              { name: "with", type: "address" },
+            ],
+          };
+
+          expect(sortObjectAlphabetically(obj)).toEqual(expectedObj);
+        });
+      });
+
       describe("getFiltersForMessage", () => {
         it("should find the filters for a message from dynamic CAL", async () => {
           (axios.get as jest.Mock).mockReturnValueOnce({

@@ -22,17 +22,20 @@ export function isEIP712Message(message: unknown): message is EIP712Message {
 
 export const sortObjectAlphabetically = (obj: Record<string, unknown>): Record<string, unknown> => {
   const keys = Object.keys(obj).sort();
-
   return keys.reduce((acc, curr) => {
     const value = (() => {
       if (Array.isArray(obj[curr])) {
-        return (obj[curr] as unknown[]).map(field =>
-          sortObjectAlphabetically(field as Record<string, unknown>),
-        );
+        return (obj[curr] as unknown[])
+          .map(field => sortObjectAlphabetically(field as Record<string, unknown>))
+          .sort((a, b) => {
+            if (a && b && typeof a === "object" && typeof b === "object") {
+              return String((a as any).name).localeCompare(String((b as any).name));
+            }
+            return 0;
+          });
       }
       return obj[curr];
     })();
-
     (acc as Record<string, unknown>)[curr] = value;
     return acc;
   }, {});
