@@ -27,10 +27,14 @@
   "types": "lib/Trx.d.ts",
   "license": "Apache-2.0",
   "dependencies": {
-    "@ledgerhq/hw-transport": "workspace:^"
+    "@ledgerhq/hw-transport": "workspace:^",
+    "@ledgerhq/cryptoassets-evm-signatures": "workspace:^",
+    "@ledgerhq/logs": "workspace:^"
   },
   "devDependencies": {
     "@ledgerhq/hw-transport-mocker": "workspace:^",
+    "@ethersproject/constants": "^5.7.0",
+    "crypto-js": "4.2.0",
     "@types/jest": "^29.5.10",
     "@types/node": "^22.10.10",
     "documentation": "14.0.2",
