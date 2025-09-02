@@ -1,4 +1,3 @@
-
 export type LoadConfig = {
   // Backend service responsible for signed NFT APDUS
   nftExplorerBaseURL?: string | null;

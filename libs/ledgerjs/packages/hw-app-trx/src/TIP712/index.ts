@@ -409,19 +409,18 @@ async function sendFilteringInfo(
         );
       }
 
+      enum PROVIDE_TOKEN_INFOS_APDU_FIELDS {
+        CLA = 0xe0,
+        INS = 0xca,
+        P1 = 0x00,
+        P2 = 0x00,
+      }
       const isTokenAddress = format === "token";
       if (isTokenAddress && coinRef !== undefined) {
         const { token, deviceTokenIndex } = coinRefsTokensMap[coinRef];
         if (deviceTokenIndex === undefined) {
           const payload = await byContractAddressAndChainId(token, chainId, erc20SignaturesBlob);
           if (payload) {
-            enum PROVIDE_TOKEN_INFOS_APDU_FIELDS {
-              CLA = 0xe0,
-              INS = 0x0a,
-              P1 = 0x00,
-              P2 = 0x00,
-            }
-
             const response = await transport.send(
               PROVIDE_TOKEN_INFOS_APDU_FIELDS.CLA,
               PROVIDE_TOKEN_INFOS_APDU_FIELDS.INS,
@@ -444,7 +443,7 @@ async function sendFilteringInfo(
         const payload = await byContractAddressAndChainId(token, chainId, erc20SignaturesBlob);
 
         if (payload) {
-          await transport.send(0xe0, 0x0a, 0x00, 0x00, payload.data);
+          await transport.send(0xe0, PROVIDE_TOKEN_INFOS_APDU_FIELDS.INS, 0x00, 0x00, payload.data);
           coinRefsTokensMap[255].deviceTokenIndex = 255;
         }
       }
