@@ -9585,10 +9585,19 @@ importers:
 
   libs/ledgerjs/packages/hw-app-trx:
     dependencies:
+      '@ledgerhq/cryptoassets-evm-signatures':
+        specifier: workspace:^
+        version: link:../cryptoassets-evm-signatures
       '@ledgerhq/hw-transport':
         specifier: workspace:*
         version: link:../hw-transport
+      '@ledgerhq/logs':
+        specifier: workspace:^
+        version: link:../logs
     devDependencies:
+      '@ethersproject/constants':
+        specifier: ^5.7.0
+        version: 5.7.0
       '@ledgerhq/hw-transport-mocker':
         specifier: workspace:^
         version: link:../hw-transport-mocker
