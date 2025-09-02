@@ -17,7 +17,9 @@
 // FIXME drop:
 import { splitPath, foreach, decodeVarint } from "./utils";
 import type Transport from "@ledgerhq/hw-transport";
-import { signTIP712HashedMessage } from "./TIP712";
+import { signTIP712HashedMessage, signTIP712Message } from "./TIP712";
+import { LoadConfig } from "./services/types";
+import type { TIP712Message } from "./TIP712/types";
 
 const remapTransactionRelatedErrors = e => {
   if (e && e.statusCode === 0x6a80) {
@@ -48,9 +50,15 @@ const CHUNK_SIZE = 250;
 
 export default class Trx {
   transport: Transport;
+  loadConfig: LoadConfig;
 
-  constructor(transport: Transport, scrambleKey = "TRX") {
+  setLoadConfig(loadConfig: LoadConfig): void {
+    this.loadConfig = loadConfig;
+  }
+
+  constructor(transport: Transport, scrambleKey = "TRX", loadConfig: LoadConfig = {}) {
     this.transport = transport;
+    this.loadConfig = loadConfig;
     transport.decorateAppAPIMethods(
       this,
       [
@@ -59,7 +67,9 @@ export default class Trx {
         "signTransaction",
         "signTransactionHash",
         "signPersonalMessage",
+        "signPersonalMessageFullDisplay",
         "signTIP712HashedMessage",
+        "signTIP712Message",
         "getAppConfiguration",
       ],
       scrambleKey,
@@ -380,6 +390,45 @@ export default class Trx {
    */
   signTIP712HashedMessage(path: string, domainSeparatorHex: string, hashStructMessageHex: string) {
     return signTIP712HashedMessage(this.transport, path, domainSeparatorHex, hashStructMessageHex);
+  }
+
+  /**
+   * Sign an TIP-721 formatted message following the specification here:
+   * https://github.com/LedgerHQ/app-ethereum/blob/develop/doc/ethapp.asc#sign-eth-eip-712
+   * ⚠️ This method is not compatible with nano S (LNS). Make sure to use a try/catch to fallback on the signEIP712HashedMessage method ⚠️
+   @example
+   tronApp.signTIP721Message("44'/195'/0'/0/0", {
+      domain: {
+        chainId: 1151668124,
+        name: "Da Domain",
+        verifyingContract: "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC",
+        version: "1"
+      },
+      types: {
+        "EIP712Domain": [
+              { name: "name", type: "string" },
+              { name: "version", type: "string" },
+              { name: "chainId", type: "uint256" },
+              { name: "verifyingContract", type: "address" }
+          ],
+        "Test": [
+          { name: "contents", type: "string" }
+        ]
+      },
+      primaryType: "Test",
+      message: {contents: "Hello, Bob!"},
+    })
+   *
+   * @param {String} path derivationPath
+   * @param {Object} jsonMessage message to sign
+   * @param {Boolean} fullImplem use the legacy implementation
+   */
+  signTIP712Message(
+    path: string,
+    typedMessage: TIP712Message,
+    fullImplem = false,
+  ) {
+    return signTIP712Message(this.transport, path, typedMessage, fullImplem, this.loadConfig);
   }
 
   /**
