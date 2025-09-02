@@ -423,11 +423,7 @@ export default class Trx {
    * @param {Object} jsonMessage message to sign
    * @param {Boolean} fullImplem use the legacy implementation
    */
-  signTIP712Message(
-    path: string,
-    typedMessage: TIP712Message,
-    fullImplem = false,
-  ) {
+  signTIP712Message(path: string, typedMessage: TIP712Message, fullImplem = false) {
     return signTIP712Message(this.transport, path, typedMessage, fullImplem, this.loadConfig);
   }
 

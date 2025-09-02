@@ -61,7 +61,6 @@ export type CALServiceTIP712Response = {
   };
 }[];
 
-
 export type StructDefData = Required<
   | {
       structType: "name";

@@ -9,7 +9,6 @@ const asContractAddress = (addr: string) => {
   return a.startsWith("0x") ? a : "0x" + a;
 };
 
-
 export const findERC20SignaturesInfo = async (
   userLoadConfig: LoadConfig,
   chainId: number,
