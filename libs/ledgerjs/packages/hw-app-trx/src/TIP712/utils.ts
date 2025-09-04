@@ -167,9 +167,9 @@ const getValue = (
  * Using a path as a string, returns the value(s) of a json key without worrying about depth or arrays
  * (e.g: 'to.wallets.[]' => ["0x123", "0x456"])
  */
-export const getValueFromPath = (path: string, tip721Message: TIP712Message): string | string[] => {
+export const getValueFromPath = (path: string, tip712Message: TIP712Message): string | string[] => {
   const splittedPath = path.split(".");
-  const { message } = tip721Message;
+  const { message } = tip712Message;
 
   let value: any = message;
   for (let i = 0; i <= splittedPath.length - 1; i++) {
