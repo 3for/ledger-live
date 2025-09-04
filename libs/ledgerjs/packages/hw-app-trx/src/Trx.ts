@@ -405,8 +405,8 @@ export default class Trx {
 
   /**
    * Sign an TIP-712 formatted message following the specification here:
-   * https://github.com/LedgerHQ/app-ethereum/blob/develop/doc/ethapp.asc#sign-eth-eip-712
-   * ⚠️ This method is not compatible with nano S (LNS). Make sure to use a try/catch to fallback on the signEIP712HashedMessage method ⚠️
+   * https://github.com/tronprotocol/tips/blob/master/tip-712.md
+   * ⚠️ This method is not compatible with nano S (LNS). Make sure to use a try/catch to fallback on the signTIP712HashedMessage method ⚠️
    @example
    tronApp.signTIP712Message("44'/195'/0'/0/0", {
       domain: {
