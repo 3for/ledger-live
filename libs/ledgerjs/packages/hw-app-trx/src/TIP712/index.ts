@@ -74,8 +74,8 @@ type MakeRecursiveFieldStructImplemParams = {
  * Factory to create the recursive function that will pass on each
  * field level and APDUs to describe its struct implementation
  *
- * @param {Eth["sendStructImplem"]} sendStructImplem
- * @param {EIP712MessageTypes} types
+ * @param {Trx["sendStructImplem"]} sendStructImplem
+ * @param {TIP712MessageTypes} types
  * @returns {void}
  */
 const makeRecursiveFieldStructImplem = ({
@@ -434,7 +434,7 @@ async function sendFilteringInfo(
       }
 
       // For some messages like a Permit has no token address in its message, only the amount is provided.
-      // In those cases, we'll need to provide the verifying contract contained in the EIP712 domain
+      // In those cases, we'll need to provide the verifying contract contained in the TIP712 domain
       // The verifying contract is refrerenced by the coinRef 255 (0xff) in CAL and in the device
       // independently of the token index returned by the app after a providerERC20TokenInfo
       const shouldUseVerifyingContract = format === "amount" && coinRef === 255;
@@ -496,7 +496,7 @@ async function sendFilteringInfo(
  * @ignore for the README
  *
  * Sign an TIP-712 formatted message following the specification here:
- * https://github.com/LedgerHQ/app-ethereum/blob/develop/doc/ethapp.asc#sign-eth-eip-712
+ * https://github.com/tronprotocol/tips/blob/master/tip-712.md
  * @example
   tronApp.signTIP712Message("44'/195'/0'/0/0", {
     domain: {

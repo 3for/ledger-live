@@ -38,7 +38,7 @@ export const getSchemaHashForMessage = (message: TIP712Message): string => {
 };
 
 /**
- * Tries to find the proper filters for a given EIP712 message
+ * Tries to find the proper filters for a given TIP712 message
  * in the CAL
  *
  * @param {TIP712Message} message
@@ -124,7 +124,7 @@ export const getCoinRefTokensMap = (
   }
 
   // For some messages like a Permit has no token address in its message, only the amount is provided.
-  // In those cases, we'll need to provide the verifying contract contained in the EIP712 domain
+  // In those cases, we'll need to provide the verifying contract contained in the TIP712 domain
   // The verifying contract is refrerenced by the coinRef 255 (0xff) in CAL and in the device
   // independently of the token index returned by the app after a providerERC20TokenInfo
   const shouldUseVerifyingContract = filters.fields.some(
@@ -327,7 +327,7 @@ enum TIP712_ARRAY_TYPE_VALUE {
 /**
  * @ignore for the README
  *
- * Helper to create the buffer to describe an EIP712 types' entry structure
+ * Helper to create the buffer to describe an TIP712 types' entry structure
  *
  * @param {TIP712MessageTypesEntry} entry
  * @returns {Buffer}
