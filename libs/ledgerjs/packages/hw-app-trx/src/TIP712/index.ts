@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-duplicate-enum-values */
 import Transport from "@ledgerhq/hw-transport";
 import { hexBuffer, splitPath } from "../utils";
 import type {
@@ -531,6 +532,7 @@ export const signTIP712Message = async (
   typedMessage: TIP712Message,
   fullImplem = false,
   loadConfig: LoadConfig,
+  withoutFilters = false,
 ): Promise<string> => {
   enum APDU_FIELDS {
     CLA = 0xe0,
@@ -546,7 +548,9 @@ export const signTIP712Message = async (
 
   const shouldUseV1Filters = false;
   const shouldUseDiscardedFields = true;
-  const filters = await getFiltersForMessage(typedMessage, shouldUseV1Filters, calServiceURL);
+  const filters = !withoutFilters
+    ? await getFiltersForMessage(typedMessage, shouldUseV1Filters, calServiceURL)
+    : undefined;
   const coinRefsTokensMap = getCoinRefTokensMap(filters, shouldUseV1Filters, typedMessage);
 
   const typeEntries = Object.entries(types) as [
