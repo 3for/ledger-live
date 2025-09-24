@@ -10,7 +10,7 @@ const getFilePath = (type: "apdu" | "message", filename: string): string => {
     case "apdu":
       return path.resolve(`./tests/fixtures/apdus/${filename}.apdus`);
     case "message":
-      return path.resolve(`./tests/fixtures/messages/${filename}.json`);
+      return path.resolve(`./tests/fixtures/messages/${filename}-data.json`);
   }
 };
 
