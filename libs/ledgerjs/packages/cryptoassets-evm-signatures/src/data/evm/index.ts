@@ -59,6 +59,7 @@ import linea_signatures from "./59144/erc20-signatures.json";
 import blast_signatures from "./81457/erc20-signatures.json";
 import scroll_signatures from "./534352/erc20-signatures.json";
 import neon_evm_signatures from "./245022934/erc20-signatures.json";
+import tron_signatures from "./1151668124/erc20-signatures.json";
 
 export const tokens = {
   1: ethereum_tokens as ERC20Token[],
@@ -102,6 +103,7 @@ export const signatures = {
   81457: blast_signatures,
   534352: scroll_signatures,
   245022934: neon_evm_signatures,
+  1151668124: tron_signatures,
 };
 
 export const hashes = {
