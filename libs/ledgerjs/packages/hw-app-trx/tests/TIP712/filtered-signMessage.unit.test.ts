@@ -17,8 +17,8 @@ const getFilePath = (type: "apdu" | "message", filename: string): string => {
 jest.mock("../../src/TIP712/tip712", () => v2);
 jest.mock("@ledgerhq/cryptoassets-evm-signatures/data/evm/index", () => ({
   signatures: {
-    1: "AAAAZwRVU0RDoLhpkcYhizbB0Z1KLp6wzjYG60gAAAAGAAAAATBEAiBT0S5lTL5ipustFl3sP7dsPLF2QWaAyaXg3iWQsLnNigIgUEdqFpFVhGEAxiwzjHZ5FC0GD/VU92W8nBjTHrsy42AAAABoBFdFVEjAKqo5siP+jQoOXE8n6tkIPHVswgAAABIAAAABMEUCIQDGNSQY0A9zJrjwtmxxxdCfMG4OzgBJPLqeqOoXe0pI7QIgZGYxocaD2s6sFSA355FC7owyjNN8g6eOy4BeE44/Ovc=",
-    137: "AAAAZwRVU0RDJ5G8ofLeRmHtiKMMmaepRJqoQXQAAAAGAAAAiTBEAiBjxSGrC/C4mPSUtg6cVMGpgokwZmVNpdnc0rkfhL2c1gIgD+CqcDL9MWCffzbolbi1oWATL/5P3F1YWPvrLGaLG00AAABnBFdFVEh86yP9a8Ct1Z5irCVXgnDP8bn2GQAAABIAAACJMEQCIFBR0vbDO+KtsBq864UEM6P8+6U9jtZ80MCzRJi9MCpsAiAiSy+Re8z4tNPMwJh778qv04NadWUdQK8kfzY2EkC+WgAAAGkGV01BVElDDVALHY6O8x4hyZ0duaZETTrfEnAAAAASAAAAiTBEAiAzUzhabCGosL5APk2DKlMgGkrJxI8WmHeZ0xNKbrSHGQIgQIeT1ugsoIZD7J/5HZf6WmJ9yG/CRdvi88LrccoM9Bc=",
+    1151668124:
+      "AAAAZwRVU0RDoLhpkcYhizbB0Z1KLp6wzjYG60gAAAAGRKUPnDBEAiAIWz/ey1U9VsE2YoaNFpBg2BAsJYtdpejXLnchcMmqigIgeiJCS3JffAcdSseApOpd+KUQaj1g2N2cBwFUOoSTLqEAAABoBFdFVEh86yP9a8Ct1Z5irCVXgnDP8bn2GQAAABJEpQ+cMEUCIETSV05QNUQvardKpAnUteYCp4ujKOrrh+rF+z0N6/btAiEA9rDSNGSvMWxGC12GmgXPU9uUjvX/T+lo/b4Dwh0tiM0AAABpBFdFVEjAKqo5siP+jQoOXE8n6tkIPHVswgAAABJEpQ+cMEYCIQDbLNAWiikH6lIUY+QcDIQJL0aGZXGPYnHhkz3grhksLgIhALc8PMzDLSRFrFfNJBeMiuHOw+iCyI1VJKhRqf/8w+A+AAAAaQRVU0RDJ5G8ofLeRmHtiKMMmaepRJqoQXQAAAAGRKUPnDBGAiEAl0VDzoM13T2J44RRleOXMpBXzr5OKeMnsj1jxoCMwsgCIQDmeNY4R+0j8HHw0z+KSk0ah2W2zHiTjQ8vSKBuj0ENIQAAAGoGV01BVElDDVALHY6O8x4hyZ0duaZETTrfEnAAAAASRKUPnDBFAiEAlxQha6vDbPw1GLaxE0iWDiAwiG4rs5p0hnLntIPvnsgCIAtrJS6+MxDs1YzD0mUyQxlUhWrFr69Q2JGidsAqI3/G",
   },
 }));
 nock.disableNetConnect();
@@ -35,7 +35,7 @@ describe("TIP712", () => {
       const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message);
 
       expect(result).toEqual(
-        "cae163eef24a9ca43879307d7adbfed4102d65920dcf074cb2290e4d70f2a7e004d4442eb37501f22d065dc9399d82440f8f38258e626e9b168deac3d29eeb6e00",
+        "a85d3b016d033beb9c9f5b47139053a27c71a7052c467419cc3684af18ef4a9e673a9d33a98db8d513ae1de429627a026068187bf92f935c50194c60e4a3dcfe01",
       );
     });
 
@@ -49,7 +49,7 @@ describe("TIP712", () => {
       const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message);
 
       expect(result).toEqual(
-        "14aeba202e808892b8b41346ea48215173ff72333b4fa519b3776507354645a42875fc4c5b2bf890c1ed73b04e3a1a6cfe3d97f3ddd363bb9ad62e2ffe64815b00",
+        "64805db522cda98d51482f3cdf8c6d7daba5b76407263c2e44c8bc22fe652acb20e5b92a4dbd1917e4a6183deab1d65bf6ecec04c5cb3ea6d92872697249afc800",
       );
     });
 
@@ -63,7 +63,7 @@ describe("TIP712", () => {
       const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message);
 
       expect(result).toEqual(
-        "8d3cc12185d93d0fa9be87fd4015dd5c6ed860cd54e834c0d53abbe45b9bba337568b47bacb4af6a80583ed70d61bf08f9d52462b6a24f30624cc33e9dffcd3500",
+        "8514144c8086a4158a44fd048c84730126d70eda67769d919bae251919a9df6948a7aaef0e05d5d77cf98211a0fcbe2ddc75120df0ded3997c88419d94f1772301",
       );
     });
 
@@ -77,7 +77,7 @@ describe("TIP712", () => {
       const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message);
 
       expect(result).toEqual(
-        "9282c1ceb7b86801c17aed19a750d771ae6d064f1c6e0796b2e7ac5f8b29ade526916e236cb2bae5c7475b2f206089034dd3520dc1bca7486ca7aca3511e6fe301",
+        "c317ec900a9fa6e6492abcf37fc22c2e1321c61bf6b8c5212e633c29ffd0f43e568a687152244c5a3038dd45800bb5f5315885a1d8cb5732ad728eb0d422fe3701",
       );
     });
 
@@ -91,7 +91,7 @@ describe("TIP712", () => {
       const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message);
 
       expect(result).toEqual(
-        "72c335c292b5593dadaed7c5a826cd355d8b8080c31fca5788f1ed64eed2336b719093c83744fa485f36d0309cad0d3221307102f352718ef5ebd85f1f9e68ba00",
+        "049018071e276dcc4c33325053806c7a0999fad6ac4fc7bfd57f3439dc8da6ca128809af1e51c651b38196d21dfd00f3e98f69b8169b74bf4c1bf9d1f00f0d1201",
       );
     });
 
@@ -119,7 +119,7 @@ describe("TIP712", () => {
       const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message);
 
       expect(result).toEqual(
-        "8b490eb60afabb7224790036dddbf1ab9e6eabc1a28a45ff16055e11eee29d852cc60cc634bbb2615041b0f56e9b66c4736915bd0cb6ab46cd00752e73b49b0b00",
+        "f8f96d3b7881cf7c6f34a25646e50ae77ddfceace7230a89eaba7ba9d7521cdf06b0fe4694307c111ee7ae5f16f0ca22310ded3da800dee75be6e89f42c07f0f01",
       );
     });
 
@@ -133,7 +133,7 @@ describe("TIP712", () => {
       const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message);
 
       expect(result).toEqual(
-        "fec8b82001230fa8c8e809fe390463c4e6150c1fe205150b8d1411abdedae01375071f74f3d493aeb5246f1e5cf956e226519a0336d69c0db91055e463fe2b4601",
+        "0019f4eced0097e84d78a6e234d69ee1f0f2648e55d643d78e2cffd51b40aced084c85269398e3d1383f3606882dba18f5675023d405847eff90faec51ecd50e00",
       );
     });
 
@@ -147,7 +147,7 @@ describe("TIP712", () => {
       const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message);
 
       expect(result).toEqual(
-        "0f6707a7c997ef97c9442c489df117a0e274036a9ca6f23bae0d51ff5dd36fdb59b56b1b2726f68d187b2aa5ba68d16071f69af52f84f83b3adf8f5853ea78af00",
+        "7ecfb3545d494e76fa8adcb72901a1a85f60a8b6f9290f6f8b72eda2b1c3d2f54e1e59e39529337871fae7305d9f1e39ea1f9efa26a7be6642d2ea098f6cf86000",
       );
     });
 
@@ -161,7 +161,7 @@ describe("TIP712", () => {
       const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message);
 
       expect(result).toEqual(
-        "db49a16079d210ac543d2f15015ce91b0b77b32e144ec71fb1b9159d38148cbb0f5451b0412458bb3181301acb9418716b7d32f097f046cbf503867cefe8381300",
+        "b927993dc9310fede16f89e439d8be222f3d6cd3bef4610910a2ce3ea3ccca3e595de36771c2ba1ae8f8c00baac4cc414e1929622c91b4e60892b66309726f0c01",
       );
     });
 
@@ -175,7 +175,7 @@ describe("TIP712", () => {
       const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message);
 
       expect(result).toEqual(
-        "b16cb6981349ddb88a869aea4a4e3633794457cfecadd4a29e152ea284c5fafd792a2c7be51a9f5d5c6411fa6f4b5cf4582b6add95c07a842349e79d995bfc7101",
+        "841f3eb8828381b7234ce57d82f9bc5e6688f950ead94670cb6d9da1c92d11481ae654dbc3d4996cb00de241d854ec84d5b81f558b5779184c5fc7912048893d00",
       );
     });
 
@@ -189,7 +189,7 @@ describe("TIP712", () => {
       const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message);
 
       expect(result).toEqual(
-        "97007e9d4b0a5ca1af8290516b3d30ffdfa178f0aa77b991182c972595a12c3e3bee63e69cc1af6f1b75e228be3737c6a43b2145b324f4269209e81455d8f91c00",
+        "857bbae72082d0128d0a5b4d02e2a3121d83f11a9740ea20b98699d27cb8f8dd7b819efa14660da4bd0a3123eccd709ad370f1e54737ec48467aadc9ebc0a0c501",
       );
     });
 
@@ -217,7 +217,7 @@ describe("TIP712", () => {
       const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message);
 
       expect(result).toEqual(
-        "6911b84ff5820dc12ea1568762be1beab9e7517c380285a13643ae1cbfa11a39000aa57216a5a2b7dc57effd4b1002a3027ea35b69a0a9a735c347acaaf3a32401",
+        "0b10470d4f630197cfd803e94140c4fe3570c50f93217c6df6e197766c87ee8741b3e8ad278b87e6c2a6db87705ffb155a2a403564eccbeb3202e2a949a602eb00",
       );
     });
 
@@ -261,7 +261,7 @@ describe("TIP712", () => {
       const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message);
 
       expect(result).toEqual(
-        "5945f8c733edf1d5b567f86e40e8d253dcd1407e80d41740fd5061f48ce415990dc67b63e3abcf18524dca2d86985e51af0ad8854859d65e79b24a4b03f4f4d601",
+        "a5a6b76a5c96ae931c4bdd011d40e834f3c19b4078177c113b38e6acb93840eb7422cb8973e26f8dfe9cefe679aedf5d240375ea2b89e01ae75dcb9b23a5f8c901",
       );
     });
 
@@ -277,7 +277,7 @@ describe("TIP712", () => {
       const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message);
 
       expect(result).toEqual(
-        "420e59f280c328f0491ccece62314a89aa38cad6ef9042d437efadf45728956c2ea292747c346b9560dec28ab8ac39c01e8695a4ae7647d43841a4370193f84c00",
+        "8a1f1cb42d309e304b02e492907f49de0f3bbfda350ff85edddd184f1270b92e5edc459f5da0163af7330244122cec940d4ce20febc4ad8353e53dc061aaece500",
       );
     });
 
@@ -293,7 +293,7 @@ describe("TIP712", () => {
       const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message);
 
       expect(result).toEqual(
-        "f94218b6059c20ecf76332d844977effa40e3207ddd5ea4c26cf277f216960476ac4d94671cb22c9ebd7d78ba293cfd3c9ba818528ab00bd907197fe434239f601",
+        "b238e43daf0cd3af3bc9dcf0386d3cad1e33a8f7959a43d4e99fe5a46b978fa43864c50f9bafb561ed5fa3396a4fdaf3e99fb5493e1242f5c0a6470ecd4af67000",
       );
     });
 
@@ -309,7 +309,7 @@ describe("TIP712", () => {
       const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message);
 
       expect(result).toEqual(
-        "f08c6243c3317819be9d774f2f356576628bb2e1d6cf551f30365de4c9b3816a1a3cb231fd6c18c7cb96d367442aaec16c2b69fa2dc0e66a4b26400a7f40d5b300",
+        "193b5608541e5d4d751c48c3a13ee9b97bd399f61b640eab142e456aff5f97a2666bb8446a15d5ece1ae50f112e1b369f7ba63c953139a34d23fe041891354cf01",
       );
     });
     it("should sign correctly the 1-empty-array-1-level.json sample message", async () => {
@@ -327,7 +327,7 @@ describe("TIP712", () => {
       const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message);
 
       expect(result).toEqual(
-        "7c9217f7b3f60dc4ff30eb10a7f9bdd437ffb608373459b66c638075d35e8a1212830f295da7b49362b92816029b3605006a1f8b11fe9b1ccf47610de47e17bb01",
+        "e657d5d3419e0c29901d149c91331967f24fd326526164be3a61ff9f92e9a979516ed54623caac29c097e7319b2ad99384bf543651051a9414b4aca16c7c3bae00",
       );
     });
 
@@ -346,7 +346,7 @@ describe("TIP712", () => {
       const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message);
 
       expect(result).toEqual(
-        "863d473b15005215f4db06229638eece4e1a5c1473e6bad2dcea440639d8bfdd765db0b3a712b35ff319fc8d6b48124f7c463fa37e2ae4bc6440c84878e5ff4001",
+        "e60100c407e2020a9de681c3caa80fd927bea2a29cfb18a8acab5992b5c85b7e309c06c868282dd501394aaaf31aa004bf128d85068c0694ff38710ab32c8e1600",
       );
     });
   });
