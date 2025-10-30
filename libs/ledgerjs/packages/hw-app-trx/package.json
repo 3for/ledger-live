@@ -28,8 +28,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@ledgerhq/hw-transport": "workspace:*",
-    "@ledgerhq/cryptoassets-evm-signatures": "workspace:*",
-    "@ledgerhq/logs": "workspace:*"
+    "@ledgerhq/cryptoassets-evm-signatures": "workspace:^",
+    "@ledgerhq/logs": "workspace:^"
   },
   "devDependencies": {
     "@ledgerhq/hw-transport-mocker": "workspace:^",
