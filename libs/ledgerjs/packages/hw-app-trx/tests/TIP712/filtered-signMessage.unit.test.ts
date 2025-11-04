@@ -14,8 +14,8 @@ const getFilePath = (type: "apdu" | "message", filename: string): string => {
   }
 };
 
-jest.mock("../../src/TIP712/tip712", () => v2);
-jest.mock("@ledgerhq/cryptoassets-evm-signatures/data/evm/index", () => ({
+jest.mock("@ledgerhq/cryptoassets/data/tip712", () => v2);
+jest.mock("@ledgerhq/cryptoassets/data/trc20-signatures", () => ({
   signatures: {
     1151668124:
       "AAAAZwRVU0RDoLhpkcYhizbB0Z1KLp6wzjYG60gAAAAGRKUPnDBEAiAIWz/ey1U9VsE2YoaNFpBg2BAsJYtdpejXLnchcMmqigIgeiJCS3JffAcdSseApOpd+KUQaj1g2N2cBwFUOoSTLqEAAABoBFdFVEh86yP9a8Ct1Z5irCVXgnDP8bn2GQAAABJEpQ+cMEUCIETSV05QNUQvardKpAnUteYCp4ujKOrrh+rF+z0N6/btAiEA9rDSNGSvMWxGC12GmgXPU9uUjvX/T+lo/b4Dwh0tiM0AAABpBFdFVEjAKqo5siP+jQoOXE8n6tkIPHVswgAAABJEpQ+cMEYCIQDbLNAWiikH6lIUY+QcDIQJL0aGZXGPYnHhkz3grhksLgIhALc8PMzDLSRFrFfNJBeMiuHOw+iCyI1VJKhRqf/8w+A+AAAAaQRVU0RDJ5G8ofLeRmHtiKMMmaepRJqoQXQAAAAGRKUPnDBGAiEAl0VDzoM13T2J44RRleOXMpBXzr5OKeMnsj1jxoCMwsgCIQDmeNY4R+0j8HHw0z+KSk0ah2W2zHiTjQ8vSKBuj0ENIQAAAGoGV01BVElDDVALHY6O8x4hyZ0duaZETTrfEnAAAAASRKUPnDBFAiEAlxQha6vDbPw1GLaxE0iWDiAwiG4rs5p0hnLntIPvnsgCIAtrJS6+MxDs1YzD0mUyQxlUhWrFr69Q2JGidsAqI3/G",
