@@ -9585,14 +9585,14 @@ importers:
 
   libs/ledgerjs/packages/hw-app-trx:
     dependencies:
-      '@ledgerhq/cryptoassets-evm-signatures':
-        specifier: workspace:*
-        version: link:../cryptoassets-evm-signatures
+      '@ledgerhq/cryptoassets':
+        specifier: workspace:^
+        version: link:../cryptoassets
       '@ledgerhq/hw-transport':
         specifier: workspace:*
         version: link:../hw-transport
       '@ledgerhq/logs':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../logs
     devDependencies:
       '@ethersproject/constants':
@@ -9613,12 +9613,18 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 24.12.0
+      crypto-js:
+        specifier: 4.2.0
+        version: 4.2.0
       documentation:
         specifier: 14.0.2
         version: 14.0.2
       jest:
         specifier: 'catalog:'
         version: 30.2.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.11)(@types/node@24.12.0)(source-map-support@0.5.21)(typescript@6.0.2))
+      nock:
+        specifier: ^13.0.5
+        version: 13.5.4
       rimraf:
         specifier: ^4.4.1
         version: 4.4.1

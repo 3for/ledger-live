@@ -8,7 +8,7 @@ import {
   TIP712MessageTypesEntry,
   FilteringInfoShowField,
 } from "./types";
-import TIP712CAL from "./tip712";
+import TIP712CAL from "@ledgerhq/cryptoassets/data/tip712";
 import { AddressZero } from "@ethersproject/constants";
 import Transport from "@ledgerhq/hw-transport";
 
