@@ -83,7 +83,7 @@ export type FilteringInfoShowField = {
   sig: string;
   filtersCount?: never;
   chainId: number;
-  erc20SignaturesBlob: string | null | undefined;
+  trc20SignaturesBlob: string | null | undefined;
   format: "raw" | "token" | "amount" | "datetime" | undefined;
   coinRef: number | undefined;
   shouldUseV1Filters: boolean | undefined;
@@ -93,7 +93,7 @@ export type FilteringInfoShowField = {
       token: string;
       // Index of the token in the nano app memory
       // returned as a prefix by the APDU of
-      // provideErc20TokenInformation
+      // provideTrc20TokenInformation
       deviceTokenIndex?: number;
     }
   >;

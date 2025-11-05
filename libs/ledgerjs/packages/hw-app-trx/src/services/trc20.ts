@@ -9,19 +9,19 @@ const asContractAddress = (addr: string) => {
   return a.startsWith("0x") ? a : "0x" + a;
 };
 
-export const findERC20SignaturesInfo = async (
+export const findTRC20SignaturesInfo = async (
   userLoadConfig: LoadConfig,
   chainId: number,
 ): Promise<string | null> => {
   const { cryptoassetsBaseURL } = getLoadConfig(userLoadConfig);
   if (!cryptoassetsBaseURL) return null;
 
-  const url = `${cryptoassetsBaseURL}/evm/${chainId}/erc20-signatures.json`;
+  const url = `${cryptoassetsBaseURL}/tvm/${chainId}/trc20-signatures.json`;
   const blob = await axios
     .get<string>(url)
     .then(({ data }) => {
       if (!data || typeof data !== "string") {
-        throw new Error(`ERC20 signatures for chainId ${chainId} file is malformed ${url}`);
+        throw new Error(`TRC20 signatures for chainId ${chainId} file is malformed ${url}`);
       }
       return data;
     })
@@ -39,12 +39,12 @@ export const findERC20SignaturesInfo = async (
 export const byContractAddressAndChainId = (
   contract: string,
   chainId: number,
-  erc20SignaturesBlob?: string | null,
+  trc20SignaturesBlob?: string | null,
 ): ReturnType<API["byContractAndChainId"]> => {
   // If we are able to fetch data from s3 bucket that contains dynamic CAL
-  if (erc20SignaturesBlob) {
+  if (trc20SignaturesBlob) {
     try {
-      return parse(erc20SignaturesBlob).byContractAndChainId(asContractAddress(contract), chainId);
+      return parse(trc20SignaturesBlob).byContractAndChainId(asContractAddress(contract), chainId);
     } catch (e) {
       return get(chainId)?.byContractAndChainId(asContractAddress(contract), chainId);
     }
@@ -67,8 +67,8 @@ export type API = {
   list: () => TokenInfo[];
 };
 
-const parse = (erc20SignaturesBlob: string): API => {
-  const buf = Buffer.from(erc20SignaturesBlob, "base64");
+const parse = (trc20SignaturesBlob: string): API => {
+  const buf = Buffer.from(trc20SignaturesBlob, "base64");
   const map = {};
   const entries: TokenInfo[] = [];
   let i = 0;
@@ -109,7 +109,7 @@ const parse = (erc20SignaturesBlob: string): API => {
   };
 };
 
-// this internal get() will lazy load and cache the data from the erc20 data blob
+// this internal get() will lazy load and cache the data from the trc20 data blob
 const get: (chainId: number) => API | null = (() => {
   const cache: Record<number, API> = {};
   return chainId => {

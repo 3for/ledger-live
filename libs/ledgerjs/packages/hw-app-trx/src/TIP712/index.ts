@@ -13,7 +13,7 @@ import type {
   MessageFilters,
 } from "./types";
 import { LoadConfig } from "../services/types";
-import { byContractAddressAndChainId, findERC20SignaturesInfo } from "../services/trc20";
+import { byContractAddressAndChainId, findTRC20SignaturesInfo } from "../services/trc20";
 import { getLoadConfig } from "../services/loadConfig";
 import {
   getFiltersForMessage,
@@ -61,7 +61,7 @@ type MakeRecursiveFieldStructImplemParams = {
   transport: Transport;
   loadConfig: LoadConfig;
   chainId: number;
-  erc20SignaturesBlob: string | null | undefined;
+  trc20SignaturesBlob: string | null | undefined;
   types: TIP712MessageTypes;
   filters: MessageFilters | undefined;
   shouldUseV1Filters: boolean;
@@ -83,7 +83,7 @@ const makeRecursiveFieldStructImplem = ({
   transport,
   loadConfig,
   chainId,
-  erc20SignaturesBlob,
+  trc20SignaturesBlob,
   types,
   filters,
   shouldUseV1Filters,
@@ -131,7 +131,7 @@ const makeRecursiveFieldStructImplem = ({
               format: entryFilter.format,
               coinRef: entryFilter.coin_ref,
               chainId,
-              erc20SignaturesBlob,
+              trc20SignaturesBlob,
               shouldUseV1Filters,
               coinRefsTokensMap,
               isDiscarded: true,
@@ -166,7 +166,7 @@ const makeRecursiveFieldStructImplem = ({
           format: filter.format,
           coinRef: filter.coin_ref,
           chainId,
-          erc20SignaturesBlob,
+          trc20SignaturesBlob,
           shouldUseV1Filters,
           coinRefsTokensMap,
           isDiscarded: false,
@@ -394,7 +394,7 @@ async function sendFilteringInfo(
         chainId,
         coinRefsTokensMap,
         shouldUseV1Filters,
-        erc20SignaturesBlob,
+        trc20SignaturesBlob,
         isDiscarded,
       } = data as FilteringInfoShowField;
       const { displayNameBuffer, sigBuffer } = getFilterDisplayNameAndSigBuffers(displayName, sig);
@@ -420,7 +420,7 @@ async function sendFilteringInfo(
       if (isTokenAddress && coinRef !== undefined) {
         const { token, deviceTokenIndex } = coinRefsTokensMap[coinRef];
         if (deviceTokenIndex === undefined) {
-          const payload = await byContractAddressAndChainId(token, chainId, erc20SignaturesBlob);
+          const payload = await byContractAddressAndChainId(token, chainId, trc20SignaturesBlob);
           if (payload) {
             const response = await transport.send(
               PROVIDE_TOKEN_INFOS_APDU_FIELDS.CLA,
@@ -437,11 +437,11 @@ async function sendFilteringInfo(
       // For some messages like a Permit has no token address in its message, only the amount is provided.
       // In those cases, we'll need to provide the verifying contract contained in the TIP712 domain
       // The verifying contract is refrerenced by the coinRef 255 (0xff) in CAL and in the device
-      // independently of the token index returned by the app after a providerERC20TokenInfo
+      // independently of the token index returned by the app after a provideTRC20TokenInfo
       const shouldUseVerifyingContract = format === "amount" && coinRef === 255;
       if (shouldUseVerifyingContract) {
         const { token } = coinRefsTokensMap[255];
-        const payload = await byContractAddressAndChainId(token, chainId, erc20SignaturesBlob);
+        const payload = await byContractAddressAndChainId(token, chainId, trc20SignaturesBlob);
 
         if (payload) {
           await transport.send(0xe0, PROVIDE_TOKEN_INFOS_APDU_FIELDS.INS, 0x00, 0x00, payload.data);
@@ -577,8 +577,8 @@ export const signTIP712Message = async (
     await sendFilteringInfo(transport, "activate", loadConfig);
   }
 
-  const erc20SignaturesBlob = !shouldUseV1Filters
-    ? await findERC20SignaturesInfo(loadConfig, domain.chainId || 0)
+  const trc20SignaturesBlob = !shouldUseV1Filters
+    ? await findTRC20SignaturesInfo(loadConfig, domain.chainId || 0)
     : undefined;
 
   // Create the recursion that should pass on each entry
@@ -587,7 +587,7 @@ export const signTIP712Message = async (
     transport,
     loadConfig,
     chainId: domain.chainId || 0,
-    erc20SignaturesBlob,
+    trc20SignaturesBlob,
     types,
     filters,
     shouldUseV1Filters,

@@ -685,12 +685,12 @@ describe("TIP712", () => {
       it("should return the app and version", async () => {
         const transport = {
           send: () =>
-            Promise.resolve(Buffer.from("0108457468657265756d06312e31312e3101009000", "hex")),
+            Promise.resolve(Buffer.from("010454726f6e05302e372e3301009000", "hex")),
         } as any;
 
         expect(await getAppAndVersion(transport)).toEqual({
-          name: "Ethereum",
-          version: "1.11.1",
+          name: "Tron",
+          version: "0.7.3",
         });
       });
     });

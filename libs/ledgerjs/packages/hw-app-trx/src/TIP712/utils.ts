@@ -89,7 +89,7 @@ export const getFiltersForMessage = async (
 /**
  * @ignore for the README
  *
- * Creates a map for each token provided with a `provideERC20TokenInfo` APDU
+ * Creates a map for each token provided with a `provideTRC20TokenInfo` APDU
  * in order to keep track of their index in the memory of the device
  *
  * @param {MessageFilters | undefined} filters
@@ -123,7 +123,7 @@ export const getCoinRefTokensMap = (
   // For some messages like a Permit has no token address in its message, only the amount is provided.
   // In those cases, we'll need to provide the verifying contract contained in the TIP712 domain
   // The verifying contract is refrerenced by the coinRef 255 (0xff) in CAL and in the device
-  // independently of the token index returned by the app after a providerERC20TokenInfo
+  // independently of the token index returned by the app after a provideTRC20TokenInfo
   const shouldUseVerifyingContract = filters.fields.some(
     filter => filter.format === "amount" && filter.coin_ref === 255,
   );
