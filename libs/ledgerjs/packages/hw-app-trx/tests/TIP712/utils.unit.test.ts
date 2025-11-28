@@ -390,6 +390,12 @@ describe("TIP712", () => {
           ).toEqual("183c938611642ae18790db0a1efc21dfe009aa1c");
         });
 
+        test("should return eth format address 183c938611642ae18790db0A1eFC21Dfe009aA1c", () => {
+          expect(
+            TIP712_TYPE_ENCODERS.ADDRESS("TCBMnaLUbWZe7QgYYHWMWd3LUhGiiQKRgq").toString("hex"),
+          ).toEqual("183c938611642ae18790db0a1efc21dfe009aa1c");
+        });
+
         test("should return 03d7be9a073d7ed9ac0ccb2558d7f7c6a43d3c0aa993e00f2c03424fff0a80f3", () => {
           expect(
             TIP712_TYPE_ENCODERS.ADDRESS(
@@ -684,8 +690,7 @@ describe("TIP712", () => {
     describe("getAppAndVersion", () => {
       it("should return the app and version", async () => {
         const transport = {
-          send: () =>
-            Promise.resolve(Buffer.from("010454726f6e05302e372e3301009000", "hex")),
+          send: () => Promise.resolve(Buffer.from("010454726f6e05302e372e3301009000", "hex")),
         } as any;
 
         expect(await getAppAndVersion(transport)).toEqual({

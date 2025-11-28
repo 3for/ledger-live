@@ -11,6 +11,7 @@ import {
 import TIP712CAL from "@ledgerhq/cryptoassets/data/tip712";
 import { AddressZero } from "@ethersproject/constants";
 import Transport from "@ledgerhq/hw-transport";
+import TronWeb from "tronweb";
 
 export const sortObjectAlphabetically = (obj: Record<string, unknown>): Record<string, unknown> => {
   const keys = Object.keys(obj).sort();
@@ -261,6 +262,10 @@ export const TIP712_TYPE_PROPERTIES: Record<
     key: size => (typeof size !== "undefined" ? 6 : 7),
     size: size => (typeof size !== "undefined" ? Number(size) : null),
   },
+  TRCTOKEN: {
+    key: () => 8,
+    size: () => null,
+  },
 };
 
 /**
@@ -462,6 +467,21 @@ export function hexBuffer(str: string): Buffer {
   return Buffer.from(padHexString(strWithoutPrefix), "hex");
 }
 
+export function isHex(string: string): string is string {
+  return (
+    typeof string === "string" && !isNaN(parseInt(string, 16)) && /^(0x|)[a-fA-F0-9]+$/.test(string)
+  );
+}
+
+function getAddress(address: string): Buffer {
+  if (isHex(address)) return hexBuffer(address);
+  const TRON_ADDRESS_PREFIX_REGEX = /^(41)/;
+  const tron2EthAddress = TronWeb.utils.address
+    .toHex(address)
+    .replace(TRON_ADDRESS_PREFIX_REGEX, "0x");
+  return hexBuffer(tron2EthAddress);
+}
+
 /**
  * @ignore for the README
  *
@@ -504,7 +524,9 @@ export const TIP712_TYPE_ENCODERS = {
 
   ADDRESS(value: string | null): Buffer {
     // Only sending the first 10 bytes (why ?)
-    return hexBuffer(value ?? "").slice(0, 20);
+    //return hexBuffer(value ?? "").slice(0, 20);
+    // Change to support Tron format address
+    return getAddress(value ?? "").slice(0, 20);
   },
 
   STRING(value: string | null): Buffer {
@@ -515,6 +537,10 @@ export const TIP712_TYPE_ENCODERS = {
     const failSafeValue = value ?? "";
     // Why slice again ?
     return hexBuffer(failSafeValue).slice(0, size ?? (failSafeValue?.length - 2) / 2);
+  },
+
+  TRCTOKEN(value: string): Buffer {
+    return this.INT(value, 256);
   },
 };
 

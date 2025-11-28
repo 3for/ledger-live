@@ -7046,6 +7046,9 @@ importers:
       '@ledgerhq/logs':
         specifier: workspace:^
         version: link:../logs
+      tronweb:
+        specifier: ^6.1.0
+        version: 6.1.0
     devDependencies:
       '@ethersproject/constants':
         specifier: ^5.7.0
@@ -11493,6 +11496,10 @@ packages:
 
   '@babel/runtime-corejs3@7.28.4':
     resolution: {integrity: sha512-h7iEYiW4HebClDEhtvFObtPmIvrd1SSfpI9EhOeKk4CtIK/ngBWFpuhCzhdmRKtg71ylcue+9I6dv54XYO1epQ==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/runtime@7.26.10':
+    resolution: {integrity: sha512-2WJMeRQPHKSPemqk/awGrAiuFfzBmOIPXKizAsVhWH9YJqLZ0H+HS4c8loHGgW6utJ3E/ejXQUsiGaQy2NZ9Fw==}
     engines: {node: '>=6.9.0'}
 
   '@babel/runtime@7.27.1':
@@ -24700,6 +24707,10 @@ packages:
     resolution: {integrity: sha512-21YtnZVg4/zKkCQPjrDj38B1r4nQvTZLopUGMLQ1ePU2zV/joCfDC3t3iKQjWRzjjjbzR+mdAIoikeBRNkdllA==}
     engines: {node: '>=14.0.0'}
 
+  ethers@6.13.5:
+    resolution: {integrity: sha512-+knKNieu5EKRThQJWwqaJ10a6HE9sSehGeqWN65//wE7j47ZpFhKAnHB/JJFibwwg61I/koxaPsXbXpD/skNOQ==}
+    engines: {node: '>=14.0.0'}
+
   ethers@6.14.1:
     resolution: {integrity: sha512-JnFiPFi3sK2Z6y7jZ3qrafDMwiXmU+6cNZ0M+kPq+mTy9skqEzwqAdFW3nb/em2xjlIVXX6Lz8ID6i3LmS4+fQ==}
     engines: {node: '>=14.0.0'}
@@ -25988,6 +25999,9 @@ packages:
   google-logging-utils@0.0.2:
     resolution: {integrity: sha512-NEgUnEcBiP5HrPzufUkBzJOD/Sxsco3rLNo1F1TNf7ieU8ryUzBhqba8r756CjLX7rn3fHl6iLEwPYuqpoKgQQ==}
     engines: {node: '>=14'}
+
+  google-protobuf@3.21.4:
+    resolution: {integrity: sha512-MnG7N936zcKTco4Jd2PX2U96Kf9PxygAPKBug+74LHzmHXmceN16MmRcdgZv+DGef/S9YvQAfRsNCn4cjf9yyQ==}
 
   gopd@1.2.0:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
@@ -34071,6 +34085,9 @@ packages:
   tronweb@5.3.2:
     resolution: {integrity: sha512-iPcIjMCxb6H7FXMntAj47F3L+7jSideyQ7ZOvRj9MeZBh46SHevMrDDR57HzakUa/tT8VvlPFHtqFK4hzTLkXw==}
 
+  tronweb@6.1.0:
+    resolution: {integrity: sha512-ANEr2YneA2frXTpsxDR21yk2cJLIvOdPe7dg7gu96TyqfVbS9eCrguNuN+qCUZOC/zW3n6R880bBDbEWKZiWzA==}
+
   trough@1.0.5:
     resolution: {integrity: sha512-rvuRbTarPXmMb79SmzEp8aqXNKcK+y0XaB298IXueQ8I2PsrATcPBCSPyK/dDNa2iWOhKlfNnOjdAOTBU/nkFA==}
 
@@ -39043,6 +39060,10 @@ snapshots:
     dependencies:
       core-js-pure: 3.46.0
 
+  '@babel/runtime@7.26.10':
+    dependencies:
+      regenerator-runtime: 0.14.1
+
   '@babel/runtime@7.27.1': {}
 
   '@babel/runtime@7.28.4': {}
@@ -42444,7 +42465,7 @@ snapshots:
   '@grpc/grpc-js@1.9.15':
     dependencies:
       '@grpc/proto-loader': 0.7.15
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
 
   '@grpc/proto-loader@0.6.13':
     dependencies:
@@ -42721,7 +42742,7 @@ snapshots:
   '@jest/console@27.5.1':
     dependencies:
       '@jest/types': 27.5.1
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       chalk: 4.1.2
       jest-message-util: 27.5.1
       jest-util: 27.5.1
@@ -42752,7 +42773,7 @@ snapshots:
       '@jest/test-result': 27.5.1
       '@jest/transform': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       emittery: 0.8.1
@@ -43223,14 +43244,14 @@ snapshots:
     dependencies:
       '@jest/fake-timers': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       jest-mock: 27.5.1
 
   '@jest/environment@28.1.3':
     dependencies:
       '@jest/fake-timers': 28.1.3
       '@jest/types': 28.1.3
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       jest-mock: 28.1.3
 
   '@jest/environment@29.7.0':
@@ -43268,7 +43289,7 @@ snapshots:
     dependencies:
       '@jest/types': 27.5.1
       '@sinonjs/fake-timers': 8.1.0
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       jest-message-util: 27.5.1
       jest-mock: 27.5.1
       jest-util: 27.5.1
@@ -43277,7 +43298,7 @@ snapshots:
     dependencies:
       '@jest/types': 28.1.3
       '@sinonjs/fake-timers': 9.1.2
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       jest-message-util: 28.1.3
       jest-mock: 28.1.3
       jest-util: 28.1.3
@@ -43323,7 +43344,7 @@ snapshots:
       '@jest/test-result': 27.5.1
       '@jest/transform': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       chalk: 4.1.2
       collect-v8-coverage: 1.0.3
       exit: 0.1.2
@@ -43571,7 +43592,7 @@ snapshots:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       '@types/yargs': 15.0.19
       chalk: 4.1.2
 
@@ -47243,7 +47264,7 @@ snapshots:
   '@scure/bip32@1.1.5':
     dependencies:
       '@noble/hashes': 1.2.0
-      '@noble/secp256k1': 1.7.1
+      '@noble/secp256k1': 1.7.2
       '@scure/base': 1.1.9
 
   '@scure/bip32@1.4.0':
@@ -51524,7 +51545,7 @@ snapshots:
 
   '@types/accepts@1.3.7':
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
 
   '@types/adm-zip@0.5.7':
     dependencies:
@@ -51636,7 +51657,7 @@ snapshots:
 
   '@types/connect@3.4.36':
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
 
   '@types/connect@3.4.38':
     dependencies:
@@ -51651,7 +51672,7 @@ snapshots:
       '@types/connect': 3.4.38
       '@types/express': 4.17.21
       '@types/keygrip': 1.0.6
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
 
   '@types/cors@2.8.17':
     dependencies:
@@ -51663,7 +51684,7 @@ snapshots:
 
   '@types/cross-spawn@6.0.6':
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
 
   '@types/crypto-js@4.2.2': {}
 
@@ -51859,11 +51880,11 @@ snapshots:
   '@types/glob@7.2.0':
     dependencies:
       '@types/minimatch': 6.0.0
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
 
   '@types/graceful-fs@4.1.9':
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
 
   '@types/hammerjs@2.0.46': {}
 
@@ -51945,7 +51966,7 @@ snapshots:
   '@types/jsonwebtoken@9.0.10':
     dependencies:
       '@types/ms': 2.1.0
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
 
   '@types/keygrip@1.0.6': {}
 
@@ -51966,7 +51987,7 @@ snapshots:
       '@types/http-errors': 2.0.5
       '@types/keygrip': 1.0.6
       '@types/koa-compose': 3.2.9
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
 
   '@types/koa__router@12.0.3':
     dependencies:
@@ -52019,15 +52040,15 @@ snapshots:
 
   '@types/mute-stream@0.0.4':
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
 
   '@types/mysql@2.15.22':
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
 
   '@types/node-fetch@2.6.13':
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       form-data: 4.0.4
 
   '@types/node-forge@1.3.14':
@@ -52084,7 +52105,7 @@ snapshots:
 
   '@types/pbkdf2@3.1.2':
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
 
   '@types/pg-pool@2.0.4':
     dependencies:
@@ -52092,7 +52113,7 @@ snapshots:
 
   '@types/pg@8.6.1':
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       pg-protocol: 1.10.3
       pg-types: 2.2.0
 
@@ -52262,13 +52283,13 @@ snapshots:
   '@types/request@2.48.13':
     dependencies:
       '@types/caseless': 0.12.5
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       '@types/tough-cookie': 4.0.5
       form-data: 2.5.5
 
   '@types/resolve@1.17.1':
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
 
   '@types/resolve@1.20.2': {}
 
@@ -59185,6 +59206,19 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
+  ethers@6.13.5:
+    dependencies:
+      '@adraffy/ens-normalize': 1.10.1
+      '@noble/curves': 1.2.0
+      '@noble/hashes': 1.3.2
+      '@types/node': 22.7.5
+      aes-js: 4.0.0-beta.5
+      tslib: 2.6.2
+      ws: 8.17.1
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   ethers@6.14.1:
     dependencies:
       '@adraffy/ens-normalize': 1.10.1
@@ -60871,6 +60905,8 @@ snapshots:
 
   google-logging-utils@0.0.2: {}
 
+  google-protobuf@3.21.4: {}
+
   gopd@1.2.0: {}
 
   got@11.8.5:
@@ -62260,7 +62296,7 @@ snapshots:
       '@jest/environment': 27.5.1
       '@jest/test-result': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       chalk: 4.1.2
       co: 4.6.0
       dedent: 0.7.0
@@ -62286,7 +62322,7 @@ snapshots:
       '@jest/expect': 28.1.3
       '@jest/test-result': 28.1.3
       '@jest/types': 28.1.3
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       chalk: 4.1.2
       co: 4.6.0
       dedent: 0.7.0
@@ -63379,7 +63415,7 @@ snapshots:
       '@jest/environment': 27.5.1
       '@jest/fake-timers': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       jest-mock: 27.5.1
       jest-util: 27.5.1
       jsdom: 16.7.0
@@ -63409,7 +63445,7 @@ snapshots:
       '@jest/environment': 27.5.1
       '@jest/fake-timers': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       jest-mock: 27.5.1
       jest-util: 27.5.1
 
@@ -63418,7 +63454,7 @@ snapshots:
       '@jest/environment': 28.1.3
       '@jest/fake-timers': 28.1.3
       '@jest/types': 28.1.3
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       jest-mock: 28.1.3
       jest-util: 28.1.3
 
@@ -63452,7 +63488,7 @@ snapshots:
     dependencies:
       '@jest/types': 27.5.1
       '@types/graceful-fs': 4.1.9
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       anymatch: 3.1.3
       fb-watchman: 2.0.2
       graceful-fs: 4.2.11
@@ -63527,7 +63563,7 @@ snapshots:
       '@jest/source-map': 27.5.1
       '@jest/test-result': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       chalk: 4.1.2
       co: 4.6.0
       expect: 27.5.1
@@ -63661,7 +63697,7 @@ snapshots:
   jest-mock@28.1.3:
     dependencies:
       '@jest/types': 28.1.3
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
 
   jest-mock@29.7.0:
     dependencies:
@@ -63762,7 +63798,7 @@ snapshots:
       '@jest/test-result': 27.5.1
       '@jest/transform': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       chalk: 4.1.2
       emittery: 0.8.1
       graceful-fs: 4.2.11
@@ -63925,7 +63961,7 @@ snapshots:
 
   jest-serializer@27.5.1:
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       graceful-fs: 4.2.11
 
   jest-snapshot@27.5.1:
@@ -64019,7 +64055,7 @@ snapshots:
   jest-util@27.5.1:
     dependencies:
       '@jest/types': 27.5.1
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -64085,7 +64121,7 @@ snapshots:
     dependencies:
       '@jest/test-result': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       jest-util: 27.5.1
@@ -64115,7 +64151,7 @@ snapshots:
 
   jest-worker@26.6.2:
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       merge-stream: 2.0.0
       supports-color: 7.2.0
 
@@ -64135,7 +64171,7 @@ snapshots:
 
   jest-worker@28.1.3:
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -68807,7 +68843,7 @@ snapshots:
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
       '@types/long': 4.0.2
-      '@types/node': 22.10.10
+      '@types/node': 20.19.24
       long: 4.0.0
 
   protobufjs@6.11.4:
@@ -73004,6 +73040,30 @@ snapshots:
       lodash: 4.17.21
       querystring-es3: 0.2.1
       semver: 5.7.2
+      validator: 13.15.20
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  tronweb@6.1.0:
+    dependencies:
+      '@babel/runtime': 7.26.10
+      '@ethersproject/bignumber': 5.8.0
+      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/keccak256': 5.8.0
+      '@ethersproject/logger': 5.8.0
+      '@ethersproject/properties': 5.8.0
+      '@ethersproject/strings': 5.8.0
+      '@noble/hashes': 1.8.0
+      '@noble/secp256k1': 3.0.0
+      aes-js: 3.1.2
+      axios: 1.12.2
+      bignumber.js: 9.1.2
+      ethereum-cryptography: 2.2.1
+      ethers: 6.13.5
+      eventemitter3: 5.0.1
+      google-protobuf: 3.21.4
+      semver: 7.7.1
       validator: 13.15.20
     transitivePeerDependencies:
       - bufferutil
