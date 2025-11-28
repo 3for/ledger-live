@@ -29,7 +29,8 @@
   "dependencies": {
     "@ledgerhq/hw-transport": "workspace:*",
     "@ledgerhq/cryptoassets": "workspace:^",
-    "@ledgerhq/logs": "workspace:^"
+    "@ledgerhq/logs": "workspace:^",
+    "tronweb": "^6.1.0"
   },
   "devDependencies": {
     "@ledgerhq/hw-transport-mocker": "workspace:^",
