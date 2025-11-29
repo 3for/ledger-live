@@ -302,5 +302,19 @@ describe("TIP712", () => {
         "193b5608541e5d4d751c48c3a13ee9b97bd399f61b640eab142e456aff5f97a2666bb8446a15d5ece1ae50f112e1b369f7ba63c953139a34d23fe041891354cf01",
       );
     });
+
+    it("should sign correctly the 19-trctoken.json sample message", async () => {
+      const apdusBuffer = await fs.readFile(getFilePath("apdu", "19"), "utf-8");
+      const message = await fs.readFile(getFilePath("message", "19-trctoken"), "utf-8").then(JSON.parse);
+
+      const transport = await openTransportReplayer(RecordStore.fromString(apdusBuffer));
+
+      const appTron = new Trx(transport);
+      const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message, false, true);
+
+      expect(result).toEqual(
+        "711b4be0d1053da2e00b9c84fed7001ac23e251067c89ca04151c83f283a1fea2a66bbbbc36c7e815be21bbaaef4bb3810042139ba23a26a5158018908c7e60601",
+      );
+    });
   });
 });
