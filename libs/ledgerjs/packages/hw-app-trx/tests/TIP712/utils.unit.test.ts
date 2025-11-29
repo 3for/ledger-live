@@ -396,6 +396,40 @@ describe("TIP712", () => {
           ).toEqual("183c938611642ae18790db0a1efc21dfe009aa1c");
         });
 
+        test("should return empty address for empty input", () => {
+          expect(
+            TIP712_TYPE_ENCODERS.ADDRESS("").toString("hex"),
+          ).toEqual("");
+        });
+
+        test("should return empty address for null input", () => {
+          expect(
+            TIP712_TYPE_ENCODERS.ADDRESS(null).toString("hex"),
+          ).toEqual("");
+        });
+
+        test("should return invalid address for wrong ETH address", () => {
+          expect(
+            TIP712_TYPE_ENCODERS.ADDRESS("0x183c938611642ae18790db0A1eFC21Dfe009").toString(
+              "hex",
+            ),
+          ).toEqual("183c938611642ae18790db0a1efc21dfe009");
+        });
+
+        test("should return 01", () => {
+          expect(
+            TIP712_TYPE_ENCODERS.ADDRESS("1").toString(
+              "hex",
+            ),
+          ).toEqual("01");
+        });
+
+        test("should return empty address for wrong TRON address", () => {
+          expect(
+            TIP712_TYPE_ENCODERS.ADDRESS("TCBMnaLUbWZe7QgYYHWMWd3LUhGiiQK").toString("hex"),
+          ).toEqual("");
+        });
+
         test("should return 03d7be9a073d7ed9ac0ccb2558d7f7c6a43d3c0aa993e00f2c03424fff0a80f3", () => {
           expect(
             TIP712_TYPE_ENCODERS.ADDRESS(

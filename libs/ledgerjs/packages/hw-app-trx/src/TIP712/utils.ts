@@ -52,7 +52,9 @@ export const getFiltersForMessage = async (
 ): Promise<MessageFilters | undefined> => {
   const schemaHash = getSchemaHashForMessage(message);
 
-  const verifyingContract = message.domain?.verifyingContract?.toLowerCase() || AddressZero;
+  //const verifyingContract = message.domain?.verifyingContract?.toLowerCase() || AddressZero;
+  // `normalizeAddress` to get Ethereum hex format address (0x-prefixed)
+  const verifyingContract = normalizeAddress(message.domain?.verifyingContract) || AddressZero;
   try {
     if (calServiceURL) {
       const { data } = await axios.get<CALServiceTIP712Response>(`${calServiceURL}/v1/dapps`, {
@@ -129,6 +131,7 @@ export const getCoinRefTokensMap = (
     filter => filter.format === "amount" && filter.coin_ref === 255,
   );
   if (shouldUseVerifyingContract && message.domain.verifyingContract) {
+    // Here, the verifyingContract is no more a valid ETH address
     coinRefsTokensMap[255] = { token: message.domain.verifyingContract };
   }
 
@@ -467,19 +470,50 @@ export function hexBuffer(str: string): Buffer {
   return Buffer.from(padHexString(strWithoutPrefix), "hex");
 }
 
-export function isHex(string: string): string is string {
-  return (
-    typeof string === "string" && !isNaN(parseInt(string, 16)) && /^(0x|)[a-fA-F0-9]+$/.test(string)
-  );
+// Check if the address is a TRON Base58Check address (starts with 'T', length = 34)
+function isTronBase58(addr) {
+  return typeof addr === "string" && /^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(addr);
+}
+
+// Detect if the address is a valid Ethereum hex address (0x + 40 hex chars)
+function isValidEthereumAddress(addr) {
+  return typeof addr === "string" && /^0x[a-fA-F0-9]{40}$/.test(addr);
+}
+
+// Normalize input address to Ethereum hex format (0x-prefixed)
+// Supports both TRON and Ethereum formats
+function normalizeAddress(addr) {
+  if (!addr) return null;
+
+  // TRON → Ethereum format (Base58Check → hex)
+  if (isTronBase58(addr)) {
+    const TRON_ADDRESS_PREFIX_REGEX = /^(41)/;
+    const tron2EthAddress = TronWeb.utils.address
+      .toHex(addr) // Return hex address ("41xxxx")
+      .replace(TRON_ADDRESS_PREFIX_REGEX, "0x");
+    return tron2EthAddress.toLowerCase();
+  }
+
+  // Valid Ethereum address → lowercase
+  if (isValidEthereumAddress(addr)) {
+    return addr.toLowerCase();
+  }
+
+  return null; // invalid address
 }
 
 function getAddress(address: string): Buffer {
-  if (isHex(address)) return hexBuffer(address);
-  const TRON_ADDRESS_PREFIX_REGEX = /^(41)/;
-  const tron2EthAddress = TronWeb.utils.address
-    .toHex(address)
-    .replace(TRON_ADDRESS_PREFIX_REGEX, "0x");
-  return hexBuffer(tron2EthAddress);
+  // Valid TRON address
+  if (isTronBase58(address)) {
+    const TRON_ADDRESS_PREFIX_REGEX = /^(41)/;
+    const tron2EthAddress = TronWeb.utils.address
+      .toHex(address)
+      .replace(TRON_ADDRESS_PREFIX_REGEX, "0x");
+    return hexBuffer(tron2EthAddress);
+  }
+  // Relax validation, for `coin_ref: 255` test case
+  // DO NOT need to be a valid ETH address
+  return hexBuffer(address);
 }
 
 /**
