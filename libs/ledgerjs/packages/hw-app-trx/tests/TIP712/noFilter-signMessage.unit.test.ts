@@ -316,5 +316,19 @@ describe("TIP712", () => {
         "711b4be0d1053da2e00b9c84fed7001ac23e251067c89ca04151c83f283a1fea2a66bbbbc36c7e815be21bbaaef4bb3810042139ba23a26a5158018908c7e60601",
       );
     });
+
+    it("should sign correctly the 20-trctoken-new.json sample message for a newly deployed contract, noting that `block.chainid` is only 4 bytes", async () => {
+      const apdusBuffer = await fs.readFile(getFilePath("apdu", "20"), "utf-8");
+      const message = await fs.readFile(getFilePath("message", "20-trctoken-new"), "utf-8").then(JSON.parse);
+
+      const transport = await openTransportReplayer(RecordStore.fromString(apdusBuffer));
+
+      const appTron = new Trx(transport);
+      const result = await appTron.signTIP712Message("44'/195'/0'/0/0", message, false, true);
+
+      expect(result).toEqual(
+        "9941ba1cda3fd64aeacbf717c5eccdc7995943dedad862e893d50ab50a184952746ed7b713de946bba9a6ee8dbeb860317b06ccd4ffac31f7b67af0609bfbfbb01",
+      );
+    });
   });
 });
