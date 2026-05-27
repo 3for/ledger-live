@@ -408,11 +408,14 @@ describe("TIP712", () => {
           ).toEqual("");
         });
 
-        test("should return invalid address for wrong ETH address", () => {
+        test("should pass through a hex shorter than 20 bytes without padding or throwing", () => {
+          // Contract: when the input is neither a valid TRON Base58 nor a 20-byte
+          // ETH hex (e.g. coin_ref=255 verifyingContract, or caller-provided custom
+          // bytes), the encoder forwards whatever bytes were given. It does not
+          // pad to 20 bytes and does not throw. The downstream device APDU carries
+          // the explicit length so the device sees the exact byte count.
           expect(
-            TIP712_TYPE_ENCODERS.ADDRESS("0x183c938611642ae18790db0A1eFC21Dfe009").toString(
-              "hex",
-            ),
+            TIP712_TYPE_ENCODERS.ADDRESS("0x183c938611642ae18790db0A1eFC21Dfe009").toString("hex"),
           ).toEqual("183c938611642ae18790db0a1efc21dfe009");
         });
 
