@@ -64,8 +64,6 @@ type MakeRecursiveFieldStructImplemParams = {
   trc20SignaturesBlob: string | null | undefined;
   types: TIP712MessageTypes;
   filters: MessageFilters | undefined;
-  shouldUseV1Filters: boolean;
-  shouldUseDiscardedFields: boolean;
   coinRefsTokensMap: Record<number, { token: string; coinRefMemorySlot?: number }>;
 };
 
@@ -86,8 +84,6 @@ const makeRecursiveFieldStructImplem = ({
   trc20SignaturesBlob,
   types,
   filters,
-  shouldUseV1Filters,
-  shouldUseDiscardedFields,
   coinRefsTokensMap,
 }: MakeRecursiveFieldStructImplemParams): ((
   destructedType: ReturnType<typeof destructTypeFromString>,
@@ -120,7 +116,7 @@ const makeRecursiveFieldStructImplem = ({
       if (!data.length) {
         // If the array is empty and a filter exists, we need to let the app know that the filter can be discarded
         const entryFilters = filters?.fields.filter(f => f.path.startsWith(entryPath));
-        if (entryFilters && shouldUseDiscardedFields) {
+        if (entryFilters) {
           for (const entryFilter of entryFilters) {
             await sendFilteringInfo(transport, "discardField", loadConfig, {
               path: entryFilter.path,
@@ -132,7 +128,6 @@ const makeRecursiveFieldStructImplem = ({
               coinRef: entryFilter.coin_ref,
               chainId,
               trc20SignaturesBlob,
-              shouldUseV1Filters,
               coinRefsTokensMap,
               isDiscarded: true,
             });
@@ -167,7 +162,6 @@ const makeRecursiveFieldStructImplem = ({
           coinRef: filter.coin_ref,
           chainId,
           trc20SignaturesBlob,
-          shouldUseV1Filters,
           coinRefsTokensMap,
           isDiscarded: false,
         });
@@ -353,7 +347,6 @@ async function sendFilteringInfo(
     P1_discarded = 0x01,
     P2_activate = 0x00,
     P2_discarded = 0x01,
-    P2_show_field = 0xff, // for v1 of filters
     P2_message_info = 0x0f,
     P2_datetime = 0xfc,
     P2_amount_join_token = 0xfd,
@@ -393,22 +386,10 @@ async function sendFilteringInfo(
         coinRef,
         chainId,
         coinRefsTokensMap,
-        shouldUseV1Filters,
         trc20SignaturesBlob,
         isDiscarded,
       } = data as FilteringInfoShowField;
       const { displayNameBuffer, sigBuffer } = getFilterDisplayNameAndSigBuffers(displayName, sig);
-
-      if (shouldUseV1Filters) {
-        const payload = Buffer.concat([displayNameBuffer, sigBuffer]);
-        return transport.send(
-          APDU_FIELDS.CLA,
-          APDU_FIELDS.INS,
-          APDU_FIELDS.P1_standard,
-          APDU_FIELDS.P2_show_field,
-          payload,
-        );
-      }
 
       enum PROVIDE_TOKEN_INFOS_APDU_FIELDS {
         CLA = 0xe0,
@@ -532,7 +513,6 @@ export const signTIP712Message = async (
   typedMessage: TIP712Message,
   fullImplem = false,
   loadConfig: LoadConfig,
-  withoutFilters = false,
 ): Promise<string> => {
   enum APDU_FIELDS {
     CLA = 0xe0,
@@ -546,12 +526,8 @@ export const signTIP712Message = async (
   // Types are sorted by alphabetical order in order to get the same schema hash no matter the JSON format
   const types = sortObjectAlphabetically(unsortedTypes) as TIP712MessageTypes;
 
-  const shouldUseV1Filters = false;
-  const shouldUseDiscardedFields = true;
-  const filters = !withoutFilters
-    ? await getFiltersForMessage(typedMessage, shouldUseV1Filters, calServiceURL)
-    : undefined;
-  const coinRefsTokensMap = getCoinRefTokensMap(filters, shouldUseV1Filters, typedMessage);
+  const filters = await getFiltersForMessage(typedMessage, calServiceURL);
+  const coinRefsTokensMap = getCoinRefTokensMap(filters, typedMessage);
 
   const typeEntries = Object.entries(types) as [
     keyof TIP712MessageTypes,
@@ -577,9 +553,7 @@ export const signTIP712Message = async (
     await sendFilteringInfo(transport, "activate", loadConfig);
   }
 
-  const trc20SignaturesBlob = !shouldUseV1Filters
-    ? await findTRC20SignaturesInfo(loadConfig, domain.chainId || 0)
-    : undefined;
+  const trc20SignaturesBlob = await findTRC20SignaturesInfo(loadConfig, domain.chainId || 0);
 
   // Create the recursion that should pass on each entry
   // of the domain fields and primaryType fields
@@ -590,8 +564,6 @@ export const signTIP712Message = async (
     trc20SignaturesBlob,
     types,
     filters,
-    shouldUseV1Filters,
-    shouldUseDiscardedFields,
     coinRefsTokensMap,
   });
 

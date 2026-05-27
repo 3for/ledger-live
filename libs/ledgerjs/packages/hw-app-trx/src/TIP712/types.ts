@@ -23,14 +23,6 @@ export type TIP712Message = {
   message: Record<string, unknown>;
 };
 
-export type FieldFiltersV1 = {
-  label: string;
-  path: string;
-  signature: string;
-  format?: never;
-  coin_ref?: never;
-};
-
 export type FieldFiltersV2 = {
   format: "raw" | "token" | "amount" | "datetime";
   label: string;
@@ -52,7 +44,7 @@ export type MessageFilters = {
     label: string;
     signature: string;
   };
-  fields: FieldFiltersV1[] | FieldFiltersV2[];
+  fields: FieldFiltersV2[];
 };
 
 export type CALServiceTIP712Response = {
@@ -86,7 +78,6 @@ export type FilteringInfoShowField = {
   trc20SignaturesBlob: string | null | undefined;
   format: "raw" | "token" | "amount" | "datetime" | undefined;
   coinRef: number | undefined;
-  shouldUseV1Filters: boolean | undefined;
   coinRefsTokensMap: Record<
     number,
     {

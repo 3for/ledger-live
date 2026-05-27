@@ -47,7 +47,6 @@ export const getSchemaHashForMessage = (message: TIP712Message): string => {
  */
 export const getFiltersForMessage = async (
   message: TIP712Message,
-  shouldUseV1Filters?: boolean,
   calServiceURL?: string | null,
 ): Promise<MessageFilters | undefined> => {
   const schemaHash = getSchemaHashForMessage(message);
@@ -60,7 +59,7 @@ export const getFiltersForMessage = async (
       const { data } = await axios.get<CALServiceTIP712Response>(`${calServiceURL}/v1/dapps`, {
         params: {
           output: "tip712_signatures",
-          tip712_signatures_version: shouldUseV1Filters ? "v1" : "v2",
+          tip712_signatures_version: "v2",
           chain_id: message.domain?.chainId || 0,
           contracts: verifyingContract,
         },
@@ -96,17 +95,15 @@ export const getFiltersForMessage = async (
  * in order to keep track of their index in the memory of the device
  *
  * @param {MessageFilters | undefined} filters
- * @param {boolean} shouldUseV1Filters
  * @param {TIP712Message} message
  * @returns {Record<number, { token: string; coinRefMemorySlot?: number }>}
  */
 export const getCoinRefTokensMap = (
   filters: MessageFilters | undefined,
-  shouldUseV1Filters: boolean,
   message: TIP712Message,
 ): Record<number, { token: string; coinRefMemorySlot?: number }> => {
   const coinRefsTokensMap: Record<number, { token: string; coinRefMemorySlot?: number }> = {};
-  if (shouldUseV1Filters || !filters) return coinRefsTokensMap;
+  if (!filters) return coinRefsTokensMap;
 
   const tokenFilters = filters.fields
     .filter(({ format }) => format === "token")

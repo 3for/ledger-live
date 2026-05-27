@@ -560,7 +560,7 @@ describe("TIP712", () => {
           },
         } as any;
 
-        expect(getCoinRefTokensMap(filters, false, message)).toEqual({
+        expect(getCoinRefTokensMap(filters, message)).toEqual({
           0: { token: "0x01" },
           1: { token: "0x03" },
         });
@@ -596,12 +596,12 @@ describe("TIP712", () => {
           },
         } as any;
 
-        expect(getCoinRefTokensMap(filters, false, message)).toEqual({
+        expect(getCoinRefTokensMap(filters, message)).toEqual({
           255: { token: "0x01" },
         });
       });
 
-      it("should create return an empty map for filters v1", () => {
+      it("should throw when a token filter resolves to an array of tokens", () => {
         const filters = {
           fields: [
             {
@@ -628,37 +628,7 @@ describe("TIP712", () => {
           },
         } as any;
 
-        expect(getCoinRefTokensMap(filters, true, message)).toEqual({});
-      });
-
-      it("should create return an empty map for filters v1", () => {
-        const filters = {
-          fields: [
-            {
-              coin_ref: 0,
-              format: "token",
-              label: "Token allowance",
-              path: "details.token.[]",
-              signature:
-                "304402203b28bb137a21a6f08903489c6b158fd54280367d6bb72f87bf3e2f287a92440f02207ecc609b12b363cd0e8cbef7079776dfb363cef2fc11da39750598ee4cda4877",
-            },
-            {
-              format: "raw",
-              label: "Approve to spender",
-              path: "spender",
-              signature:
-                "30450221008eecd0e1f432daf722fd00c54038a4cd4d96624cc117ddfb12c7ed10a59b260d02203d34c811a5918c2654e301a071b624088aa9a0813f19dbfa1c803f3dcec64557",
-            },
-          ],
-        } as any;
-        const message = {
-          message: {
-            details: { token: ["0x01", "0x02"] },
-            spender: "0x05",
-          },
-        } as any;
-
-        expect(() => getCoinRefTokensMap(filters, false, message)).toThrow(
+        expect(() => getCoinRefTokensMap(filters, message)).toThrow(
           "Array of tokens is not supported with a single coin ref",
         );
       });
@@ -714,7 +684,7 @@ describe("TIP712", () => {
           },
         } as any;
 
-        expect(getCoinRefTokensMap(filters, false, message)).toEqual({
+        expect(getCoinRefTokensMap(filters, message)).toEqual({
           0: { token: "0x01" },
           1: { token: "0x03" },
         });
