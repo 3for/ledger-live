@@ -228,10 +228,17 @@ describe("TIP712", () => {
       const resultShorthand = await tronShort.signTIP712Message(
         "44'/195'/0'/0/0",
         messageShorthand,
+        false,
+        true,
       );
       const transportFull = await openTransportReplayer(RecordStore.fromString(apdusBuffer));
       const tronFull = new Trx(transportFull);
-      const resultFull = await tronFull.signTIP712Message("44'/195'/0'/0/0", messageFull);
+      const resultFull = await tronFull.signTIP712Message(
+        "44'/195'/0'/0/0",
+        messageFull,
+        false,
+        true,
+      );
 
       expect(resultShorthand).toEqual(resultFull);
       expect(resultShorthand).toEqual(
