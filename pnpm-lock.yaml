@@ -11706,6 +11706,52 @@ importers:
         specifier: ^10.4.0
         version: 10.9.2(@swc/core@1.15.11)(@types/node@24.12.0)(typescript@6.0.2)
 
+  libs/live-signer-tron:
+    dependencies:
+      '@ledgerhq/device-management-kit':
+        specifier: 'catalog:'
+        version: 1.7.1(rxjs@7.8.2)
+      '@ledgerhq/device-signer-kit-tron':
+        specifier: link:../../../device-sdk-ts/packages/signer/signer-tron
+        version: link:../../../device-sdk-ts/packages/signer/signer-tron
+      '@ledgerhq/errors':
+        specifier: workspace:^
+        version: link:../ledgerjs/packages/errors
+      '@ledgerhq/hw-app-trx':
+        specifier: workspace:^
+        version: link:../ledgerjs/packages/hw-app-trx
+      '@ledgerhq/hw-transport':
+        specifier: workspace:*
+        version: link:../ledgerjs/packages/hw-transport
+      rxjs:
+        specifier: 'catalog:'
+        version: 7.8.2
+    devDependencies:
+      '@ledgerhq/disable-network-setup':
+        specifier: workspace:^
+        version: link:../disable-network-setup
+      '@swc/core':
+        specifier: 'catalog:'
+        version: 1.15.11
+      '@swc/jest':
+        specifier: 'catalog:'
+        version: 0.2.39(@swc/core@1.15.11)
+      '@types/jest':
+        specifier: 'catalog:'
+        version: 30.0.0
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.12.0
+      jest:
+        specifier: 'catalog:'
+        version: 30.2.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.11)(@types/node@24.12.0)(typescript@6.0.2))
+      rimraf:
+        specifier: ^4.4.1
+        version: 4.4.1
+      ts-node:
+        specifier: ^10.4.0
+        version: 10.9.2(@swc/core@1.15.11)(@types/node@24.12.0)(typescript@6.0.2)
+
   libs/live-signer-zcash:
     dependencies:
       '@ledgerhq/device-management-kit':

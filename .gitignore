@@ -29,3 +29,4 @@ libs/ui/packages/react/rsbuild.config.js.map
 .nx/key
 nx.cache-config.json
 rsdoctor/
+.claude
