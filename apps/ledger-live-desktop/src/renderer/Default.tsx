@@ -63,6 +63,7 @@ import { AppGeoBlocker } from "LLD/features/AppBlockers/components/AppGeoBlocker
 import { AppVersionBlocker } from "LLD/features/AppBlockers/components/AppVersionBlocker";
 import { setSolanaLdmkEnabled } from "@ledgerhq/live-common/families/solana/setup";
 import { setCosmosLdmkEnabled } from "@ledgerhq/live-common/families/cosmos/setup";
+import { setTronLdmkEnabled } from "@ledgerhq/live-common/families/tron/setup";
 import { setSuiGraphqlEnabled } from "@ledgerhq/live-common/families/sui/setup";
 import { themeSelector } from "./actions/general";
 import useCheckAccountWithFunds from "./components/PostOnboardingHub/logic/useCheckAccountWithFunds";
@@ -433,6 +434,7 @@ export default function Default() {
   const providerNumber = useEnv("FORCE_PROVIDER");
   const ldmkSolanaSignerFeatureFlag = useFeature("ldmkSolanaSigner");
   const ldmkCosmosSignerFeatureFlag = useFeature("ldmkCosmosSigner");
+  const ldmkTronSignerFeatureFlag = useFeature("ldmkTronSigner");
   const suiGraphqlTransportFeatureFlag = useFeature("suiGraphqlTransport");
 
   const dmk = useDeviceManagementKit();
@@ -459,6 +461,12 @@ export default function Default() {
       setCosmosLdmkEnabled(ldmkCosmosSignerFeatureFlag.enabled);
     }
   }, [ldmkCosmosSignerFeatureFlag]);
+
+  useEffect(() => {
+    if (typeof ldmkTronSignerFeatureFlag?.enabled === "boolean") {
+      setTronLdmkEnabled(ldmkTronSignerFeatureFlag.enabled);
+    }
+  }, [ldmkTronSignerFeatureFlag]);
 
   useEffect(() => {
     setSuiGraphqlEnabled(suiGraphqlTransportFeatureFlag?.enabled === true);

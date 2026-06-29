@@ -96,6 +96,7 @@ import { ConfigureDBSaveEffects } from "./components/DBSave";
 import HookDevTools from "./devTools/useDevTools";
 import { setSolanaLdmkEnabled } from "@ledgerhq/live-common/families/solana/setup";
 import { setCosmosLdmkEnabled } from "@ledgerhq/live-common/families/cosmos/setup";
+import { setTronLdmkEnabled } from "@ledgerhq/live-common/families/tron/setup";
 import { setSuiGraphqlEnabled } from "@ledgerhq/live-common/families/sui/setup";
 import useCheckAccountWithFunds from "./logic/postOnboarding/useCheckAccountWithFunds";
 logStartupEvent("After js imports");
@@ -142,6 +143,7 @@ function App() {
   const datadogId = useSelector(datadogIdSelector);
   const ldmkSolanaSignerFeatureFlag = useFeature("ldmkSolanaSigner");
   const ldmkCosmosSignerFeatureFlag = useFeature("ldmkCosmosSigner");
+  const ldmkTronSignerFeatureFlag = useFeature("ldmkTronSigner");
   const suiGraphqlTransportFeatureFlag = useFeature("suiGraphqlTransport");
   const datadogAutoInstrumentation: AutoInstrumentationConfiguration = useMemo(
     () => ({
@@ -172,6 +174,12 @@ function App() {
       setCosmosLdmkEnabled(ldmkCosmosSignerFeatureFlag.enabled);
     }
   }, [ldmkCosmosSignerFeatureFlag]);
+
+  useEffect(() => {
+    if (typeof ldmkTronSignerFeatureFlag?.enabled === "boolean") {
+      setTronLdmkEnabled(ldmkTronSignerFeatureFlag.enabled);
+    }
+  }, [ldmkTronSignerFeatureFlag]);
 
   useEffect(() => {
     setSuiGraphqlEnabled(suiGraphqlTransportFeatureFlag?.enabled === true);

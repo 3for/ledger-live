@@ -13,8 +13,14 @@ import { getCurrencyConfiguration } from "../../config";
 import { isDmkTransport } from "../../hw/dmkUtils";
 import { Resolver } from "../../hw/getAddress/types";
 
-const createSigner: CreateSigner<TronSigner> = (transport: Transport) => {
-  if (isDmkTransport(transport)) {
+let _tronLdmkFFEnabled: boolean = false;
+
+export const setTronLdmkEnabled = (enabled: boolean): void => {
+  _tronLdmkFFEnabled = enabled;
+};
+
+export const getTronSignerInstance: CreateSigner<TronSigner> = (transport: Transport) => {
+  if (isDmkTransport(transport) && _tronLdmkFFEnabled) {
     return new DmkSignerTron(transport.dmk, transport.sessionId);
   }
 
@@ -24,11 +30,11 @@ const createSigner: CreateSigner<TronSigner> = (transport: Transport) => {
 const getCurrencyConfig = (): TronCoinConfig => getCurrencyConfiguration<TronCoinConfig>("tron");
 
 const bridge: Bridge<Transaction, TronAccount> = createBridges(
-  executeWithSigner(createSigner),
+  executeWithSigner(getTronSignerInstance),
   getCurrencyConfig,
 );
 
-const resolver: Resolver = createResolver(createSigner, tronResolver);
+const resolver: Resolver = createResolver(getTronSignerInstance, tronResolver);
 
 const cliTools: CliTools = makeCliTools();
 

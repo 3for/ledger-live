@@ -278,6 +278,7 @@ export type Features = CurrencyFeatures & {
   llNftEntryPoint: Feature_LlNftEntryPoint;
   ldmkSolanaSigner: DefaultFeature;
   ldmkCosmosSigner: DefaultFeature;
+  ldmkTronSigner: DefaultFeature;
   suiGraphqlTransport: DefaultFeature;
   ldmkConnectApp: DefaultFeature;
   lldNetworkBasedAddAccount: DefaultFeature;
