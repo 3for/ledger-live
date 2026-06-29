@@ -22,7 +22,7 @@ setEnv("LEDGER_CLIENT_VERSION", ledgerClientVersion);
 process.env.LEDGER_CLIENT_VERSION = ledgerClientVersion;
 
 /**
- * Wallet-cli-specific coin-module loaders (bitcoin, evm, solana only).
+ * Wallet-cli-specific coin-module loaders.
  *
  * We define these inline instead of importing the shared coinModuleLoaders from live-common
  * because Bun's --compile bundler statically resolves every import — pulling in the shared
@@ -82,12 +82,25 @@ const walletCliLoaders: CoinModuleLoader[] = [
         m => m.default,
       ),
   },
+  {
+    family: "tron",
+    supportedCoins: ["tron"],
+    loadSetup: () =>
+      import("@ledgerhq/live-common/families/tron/setup").then(setup => {
+        setup.setTronLdmkEnabled(true);
+        return setup;
+      }),
+    loadTransaction: () => import("@ledgerhq/coin-tron/transaction").then(m => m.default),
+    loadDeviceTxConfig: () =>
+      import("@ledgerhq/coin-tron/deviceTransactionConfig").then(m => m.default),
+  },
 ];
 
 export const WALLET_CLI_SUPPORTED_CRYPTO_CURRENCY_IDS: readonly CryptoCurrencyId[] = [
   "bitcoin",
   "ethereum",
   "solana",
+  "tron",
 ];
 
 setWalletAPIVersion(WALLET_API_VERSION);

@@ -2362,6 +2362,9 @@ importers:
       '@ledgerhq/coin-solana':
         specifier: workspace:^
         version: link:../../libs/coin-modules/coin-solana
+      '@ledgerhq/coin-tron':
+        specifier: workspace:^
+        version: link:../../libs/coin-modules/coin-tron
       '@ledgerhq/cryptoassets':
         specifier: workspace:^
         version: link:../../libs/ledgerjs/packages/cryptoassets
