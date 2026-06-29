@@ -18,6 +18,7 @@ import BalancesCommand from "./commands/balances";
 import OperationsCommand from "./commands/operations";
 import ReceiveCommand from "./commands/receive";
 import SendCommand from "./commands/send";
+import SignerGroup from "./commands/signer/index";
 import SwapGroup from "./commands/swap/index";
 import GenuineCheckCommand from "./commands/genuine-check";
 
@@ -39,6 +40,7 @@ export async function runMain(argv: string[] = process.argv.slice(2)): Promise<n
   cli.command(OperationsCommand);
   cli.command(ReceiveCommand);
   cli.command(SendCommand);
+  cli.command(SignerGroup);
   cli.command(SwapGroup);
   cli.command(GenuineCheckCommand);
   const code = await cli.run(normalizeNegatedFlags(argv), { noExit: true });

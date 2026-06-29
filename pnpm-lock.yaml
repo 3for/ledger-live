@@ -2395,6 +2395,9 @@ importers:
       '@ledgerhq/live-env':
         specifier: workspace:^
         version: link:../../libs/env
+      '@ledgerhq/live-signer-tron':
+        specifier: workspace:^
+        version: link:../../libs/live-signer-tron
       '@ledgerhq/live-wallet':
         specifier: workspace:^
         version: link:../../libs/live-wallet
