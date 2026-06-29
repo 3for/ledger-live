@@ -5,21 +5,20 @@ import tronResolver from "@ledgerhq/coin-tron/signer";
 import type { CliTools } from "@ledgerhq/coin-tron/test/cli";
 import makeCliTools from "@ledgerhq/coin-tron/test/cli";
 import type { Transaction, TronAccount, TronSigner } from "@ledgerhq/coin-tron/types/index";
-import Trx from "@ledgerhq/hw-app-trx";
 import Transport from "@ledgerhq/hw-transport";
+import { DmkSignerTron, LegacySignerTron } from "@ledgerhq/live-signer-tron";
 import type { Bridge } from "@ledgerhq/types-live";
 import { CreateSigner, createResolver, executeWithSigner } from "../../bridge/setup";
 import { getCurrencyConfiguration } from "../../config";
+import { isDmkTransport } from "../../hw/dmkUtils";
 import { Resolver } from "../../hw/getAddress/types";
 
 const createSigner: CreateSigner<TronSigner> = (transport: Transport) => {
-  const trx = new Trx(transport);
+  if (isDmkTransport(transport)) {
+    return new DmkSignerTron(transport.dmk, transport.sessionId);
+  }
 
-  return {
-    getAddress: (path: string, boolDisplay?: boolean) => trx.getAddress(path, boolDisplay),
-    sign: (path: string, rawTxHex: string, tokenSignatures: string[]) =>
-      trx.signTransaction(path, rawTxHex, tokenSignatures),
-  };
+  return new LegacySignerTron(transport);
 };
 
 const getCurrencyConfig = (): TronCoinConfig => getCurrencyConfiguration<TronCoinConfig>("tron");

@@ -7960,6 +7960,9 @@ importers:
       '@ledgerhq/live-signer-solana':
         specifier: workspace:^
         version: link:../live-signer-solana
+      '@ledgerhq/live-signer-tron':
+        specifier: workspace:^
+        version: link:../live-signer-tron
       '@ledgerhq/live-wallet':
         specifier: workspace:^
         version: link:../live-wallet

@@ -250,6 +250,7 @@
     "@ledgerhq/live-signer-solana": "workspace:^",
     "@ledgerhq/live-signer-concordium": "workspace:^",
     "@ledgerhq/live-signer-cosmos": "workspace:^",
+    "@ledgerhq/live-signer-tron": "workspace:^",
     "@ledgerhq/live-wallet": "workspace:^",
     "@ledgerhq/logs": "workspace:^",
     "@ledgerhq/speculos-device-controller": "catalog:",
