@@ -2,6 +2,7 @@ import { DeviceActionStatus, type DeviceManagementKit } from "@ledgerhq/device-m
 import { LockedDeviceError, UserRefusedOnDevice } from "@ledgerhq/errors";
 import { of, throwError } from "rxjs";
 import { DmkSignerTron } from "../src/DmkSignerTron";
+import type { TronSigner, TronSignerExtended } from "../src/types";
 
 const mockSigner = {
   getAddress: jest.fn(),
@@ -32,6 +33,15 @@ describe("DmkSignerTron", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  it("keeps bridge and extended signer APIs distinct", () => {
+    const signer = new DmkSignerTron(dmk, "session-id");
+    const bridgeSigner: TronSigner = signer;
+    const extendedSigner: TronSignerExtended = signer;
+
+    expect(bridgeSigner).toBe(signer);
+    expect(extendedSigner).toBe(signer);
   });
 
   it("gets an address through signer-tron", async () => {

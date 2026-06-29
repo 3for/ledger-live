@@ -27,7 +27,7 @@ import {
 } from "@ledgerhq/device-signer-kit-tron";
 import { LockedDeviceError, UserRefusedOnDevice } from "@ledgerhq/errors";
 import { lastValueFrom, type Observable } from "rxjs";
-import type { TronAddress, TronSignature, TronSigner } from "./types";
+import type { TronAddress, TronSignature, TronSignerExtended } from "./types";
 
 type DAError =
   | GetAddressDAError
@@ -57,7 +57,7 @@ function tokenSignaturesToContexts(tokenSignatures: string[]): TronTrc10TokenCon
   }));
 }
 
-export class DmkSignerTron implements TronSigner {
+export class DmkSignerTron implements TronSignerExtended {
   private readonly signer: SignerTron;
 
   constructor(dmk: DeviceManagementKit, sessionId: string) {
