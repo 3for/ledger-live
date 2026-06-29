@@ -1,6 +1,7 @@
 import { DeviceActionStatus, type DeviceManagementKit } from "@ledgerhq/device-management-kit";
 import { LockedDeviceError, UserRefusedOnDevice } from "@ledgerhq/errors";
 import { of, throwError } from "rxjs";
+import * as publicApi from "../src";
 import { DmkSignerTron } from "../src/DmkSignerTron";
 import type { TronSigner, TronSignerExtended } from "../src/types";
 
@@ -48,6 +49,12 @@ describe("DmkSignerTron", () => {
 
     expect(bridgeSigner).toBe(signer);
     expect(extendedSigner).toBe(signer);
+  });
+
+  it("does not expose signer-tron internal commands from the public API", () => {
+    const exportedNames = Object.keys(publicApi);
+
+    expect(exportedNames.filter(name => name.includes("Command"))).toEqual([]);
   });
 
   it("uses signer-tron default context module when no override is provided", () => {
