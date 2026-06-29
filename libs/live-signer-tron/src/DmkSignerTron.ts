@@ -4,19 +4,40 @@ import {
   type DeviceManagementKit,
 } from "@ledgerhq/device-management-kit";
 import {
+  type AppConfiguration,
+  type ECDHOptions,
+  type ECDHPairKey,
+  type GetAppConfigurationDAError,
   type GetAddressDAError,
+  type GetECDHPairKeyDAError,
+  type MessageOptions,
+  type SignPersonalMessageDAError,
   type SignTransactionDAError,
+  type SignTransactionHashDAError,
   type Signature,
   SignerTronBuilder,
   TronClearSignContextType,
   type TronTrc10TokenContext,
   type SignerTron,
+  type SignTypedDataDAError,
+  type SignTypedDataHashDAError,
+  type TransactionOptions,
+  type TypedData,
+  type TypedDataOptions,
 } from "@ledgerhq/device-signer-kit-tron";
 import { LockedDeviceError, UserRefusedOnDevice } from "@ledgerhq/errors";
-import { lastValueFrom } from "rxjs";
+import { lastValueFrom, type Observable } from "rxjs";
 import type { TronAddress, TronSignature, TronSigner } from "./types";
 
-type DAError = GetAddressDAError | SignTransactionDAError;
+type DAError =
+  | GetAddressDAError
+  | GetAppConfigurationDAError
+  | GetECDHPairKeyDAError
+  | SignPersonalMessageDAError
+  | SignTransactionDAError
+  | SignTransactionHashDAError
+  | SignTypedDataDAError
+  | SignTypedDataHashDAError;
 
 function stripHexPrefix(value: string): string {
   return value.startsWith("0x") ? value.slice(2) : value;
@@ -63,7 +84,7 @@ export class DmkSignerTron implements TronSigner {
     }
   }
 
-  private _mapResult<T, E extends DAError>(actionState: DeviceActionState<T, E, unknown>): T {
+  private _mapResult<T, E extends DAError, I>(actionState: DeviceActionState<T, E, I>): T {
     switch (actionState.status) {
       case DeviceActionStatus.Completed:
         return actionState.output;
@@ -77,26 +98,94 @@ export class DmkSignerTron implements TronSigner {
     }
   }
 
+  private async _runDeviceAction<T, E extends DAError, I>(action: {
+    readonly observable: Observable<DeviceActionState<T, E, I>>;
+  }): Promise<T> {
+    return this._mapResult<T, E, I>(await lastValueFrom(action.observable));
+  }
+
   async getAddress(path: string, boolDisplay?: boolean): Promise<TronAddress> {
-    return this._mapResult(
-      await lastValueFrom(
-        this.signer.getAddress(path, {
-          checkOnDevice: !!boolDisplay,
-          skipOpenApp: true,
-        }).observable,
-      ),
+    return this._runDeviceAction(
+      this.signer.getAddress(path, {
+        checkOnDevice: !!boolDisplay,
+        skipOpenApp: true,
+      }),
     );
   }
 
-  async sign(path: string, rawTxHex: string, tokenSignatures: string[]): Promise<TronSignature> {
-    const signature = this._mapResult(
-      await lastValueFrom(
-        this.signer.signTransaction(path, Buffer.from(rawTxHex, "hex"), {
-          skipOpenApp: true,
-          contexts: tokenSignaturesToContexts(tokenSignatures),
-        }).observable,
-      ),
+  async getAppConfiguration(): Promise<AppConfiguration> {
+    return this._runDeviceAction(this.signer.getAppConfiguration());
+  }
+
+  async getECDHPairKey(
+    path: string,
+    publicKey: string | Uint8Array,
+    options?: ECDHOptions,
+  ): Promise<ECDHPairKey> {
+    return this._runDeviceAction(
+      this.signer.getECDHPairKey(path, publicKey, {
+        ...options,
+        skipOpenApp: options?.skipOpenApp ?? true,
+      }),
     );
+  }
+
+  async signTransaction(
+    path: string,
+    rawData: Uint8Array,
+    options?: TransactionOptions,
+  ): Promise<Signature> {
+    return this._runDeviceAction(
+      this.signer.signTransaction(path, rawData, {
+        ...options,
+        skipOpenApp: options?.skipOpenApp ?? true,
+      }),
+    );
+  }
+
+  async signTransactionHash(path: string, hash: Uint8Array): Promise<Signature> {
+    return this._runDeviceAction(this.signer.signTransactionHash(path, hash));
+  }
+
+  async signMessage(
+    path: string,
+    message: string | Uint8Array,
+    options?: MessageOptions,
+  ): Promise<Signature> {
+    return this._runDeviceAction(
+      this.signer.signMessage(path, message, {
+        ...options,
+        skipOpenApp: options?.skipOpenApp ?? true,
+      }),
+    );
+  }
+
+  async signTypedData(
+    path: string,
+    typedData: TypedData,
+    options?: TypedDataOptions,
+  ): Promise<Signature> {
+    return this._runDeviceAction(
+      this.signer.signTypedData(path, typedData, {
+        ...options,
+        skipOpenApp: options?.skipOpenApp ?? true,
+      }),
+    );
+  }
+
+  async signTypedDataHash(
+    path: string,
+    domainHash: Uint8Array,
+    messageHash: Uint8Array,
+  ): Promise<Signature> {
+    return this._runDeviceAction(this.signer.signTypedDataHash(path, domainHash, messageHash));
+  }
+
+  async sign(path: string, rawTxHex: string, tokenSignatures: string[]): Promise<TronSignature> {
+    const signature = await this.signTransaction(path, Buffer.from(rawTxHex, "hex"), {
+      skipOpenApp: true,
+      contexts: tokenSignaturesToContexts(tokenSignatures),
+    });
 
     return formatSignature(signature);
   }

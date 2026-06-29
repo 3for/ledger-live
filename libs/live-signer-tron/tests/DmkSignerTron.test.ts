@@ -5,7 +5,13 @@ import { DmkSignerTron } from "../src/DmkSignerTron";
 
 const mockSigner = {
   getAddress: jest.fn(),
+  getAppConfiguration: jest.fn(),
+  getECDHPairKey: jest.fn(),
+  signMessage: jest.fn(),
   signTransaction: jest.fn(),
+  signTransactionHash: jest.fn(),
+  signTypedData: jest.fn(),
+  signTypedDataHash: jest.fn(),
 };
 
 jest.mock(
@@ -50,6 +56,177 @@ describe("DmkSignerTron", () => {
       publicKey: "public-key",
       address: "address",
     });
+  });
+
+  it("gets app configuration through signer-tron", async () => {
+    const appConfiguration = {
+      version: "1.2.3",
+      allowData: true,
+      allowCustomContract: false,
+      truncateAddress: true,
+      signByHash: false,
+      verboseTip712: true,
+      displayHash: false,
+    };
+    mockSigner.getAppConfiguration.mockReturnValue({
+      observable: of({
+        status: DeviceActionStatus.Completed,
+        output: appConfiguration,
+      }),
+    });
+
+    const signer = new DmkSignerTron(dmk, "session-id");
+    const result = await signer.getAppConfiguration();
+
+    expect(mockSigner.getAppConfiguration).toHaveBeenCalledWith();
+    expect(result).toBe(appConfiguration);
+  });
+
+  it("gets an ECDH pair key through signer-tron", async () => {
+    const publicKey = new Uint8Array([1, 2, 3]);
+    const pairKey = { secret: "secret" };
+    mockSigner.getECDHPairKey.mockReturnValue({
+      observable: of({
+        status: DeviceActionStatus.Completed,
+        output: pairKey,
+      }),
+    });
+
+    const signer = new DmkSignerTron(dmk, "session-id");
+    const result = await signer.getECDHPairKey("44'/195'/0'/0/0", publicKey);
+
+    expect(mockSigner.getECDHPairKey).toHaveBeenCalledWith("44'/195'/0'/0/0", publicKey, {
+      skipOpenApp: true,
+    });
+    expect(result).toBe(pairKey);
+  });
+
+  it("signs a transaction through the signer-tron public API", async () => {
+    const rawData = new Uint8Array([1, 2, 3]);
+    const signature = {
+      r: `0x${"11".repeat(32)}`,
+      s: `0x${"22".repeat(32)}`,
+      v: 1,
+    };
+    mockSigner.signTransaction.mockReturnValue({
+      observable: of({
+        status: DeviceActionStatus.Completed,
+        output: signature,
+      }),
+    });
+
+    const signer = new DmkSignerTron(dmk, "session-id");
+    const result = await signer.signTransaction("44'/195'/0'/0/0", rawData, {
+      clearSigningMode: "blind",
+    });
+
+    expect(mockSigner.signTransaction).toHaveBeenCalledWith("44'/195'/0'/0/0", rawData, {
+      clearSigningMode: "blind",
+      skipOpenApp: true,
+    });
+    expect(result).toBe(signature);
+  });
+
+  it("signs a transaction hash through signer-tron", async () => {
+    const hash = new Uint8Array(32).fill(1);
+    const signature = {
+      r: `0x${"11".repeat(32)}`,
+      s: `0x${"22".repeat(32)}`,
+      v: 1,
+    };
+    mockSigner.signTransactionHash.mockReturnValue({
+      observable: of({
+        status: DeviceActionStatus.Completed,
+        output: signature,
+      }),
+    });
+
+    const signer = new DmkSignerTron(dmk, "session-id");
+    const result = await signer.signTransactionHash("44'/195'/0'/0/0", hash);
+
+    expect(mockSigner.signTransactionHash).toHaveBeenCalledWith("44'/195'/0'/0/0", hash);
+    expect(result).toBe(signature);
+  });
+
+  it("signs a message through signer-tron", async () => {
+    const signature = {
+      r: `0x${"11".repeat(32)}`,
+      s: `0x${"22".repeat(32)}`,
+      v: 1,
+    };
+    mockSigner.signMessage.mockReturnValue({
+      observable: of({
+        status: DeviceActionStatus.Completed,
+        output: signature,
+      }),
+    });
+
+    const signer = new DmkSignerTron(dmk, "session-id");
+    const result = await signer.signMessage("44'/195'/0'/0/0", "hello", {
+      fullDisplay: true,
+    });
+
+    expect(mockSigner.signMessage).toHaveBeenCalledWith("44'/195'/0'/0/0", "hello", {
+      fullDisplay: true,
+      skipOpenApp: true,
+    });
+    expect(result).toBe(signature);
+  });
+
+  it("signs typed data through signer-tron", async () => {
+    const typedData = {
+      domain: { name: "Ledger" },
+      types: {
+        Message: [{ name: "value", type: "string" }],
+      },
+      primaryType: "Message",
+      message: { value: "hello" },
+    };
+    const signature = {
+      r: `0x${"11".repeat(32)}`,
+      s: `0x${"22".repeat(32)}`,
+      v: 1,
+    };
+    mockSigner.signTypedData.mockReturnValue({
+      observable: of({
+        status: DeviceActionStatus.Completed,
+        output: signature,
+      }),
+    });
+
+    const signer = new DmkSignerTron(dmk, "session-id");
+    const result = await signer.signTypedData("44'/195'/0'/0/0", typedData);
+
+    expect(mockSigner.signTypedData).toHaveBeenCalledWith("44'/195'/0'/0/0", typedData, {
+      skipOpenApp: true,
+    });
+    expect(result).toBe(signature);
+  });
+
+  it("signs typed data hashes through signer-tron", async () => {
+    const domainHash = new Uint8Array(32).fill(1);
+    const messageHash = new Uint8Array(32).fill(2);
+    const signature = {
+      r: `0x${"11".repeat(32)}`,
+      s: `0x${"22".repeat(32)}`,
+      v: 1,
+    };
+    mockSigner.signTypedDataHash.mockReturnValue({
+      observable: of({
+        status: DeviceActionStatus.Completed,
+        output: signature,
+      }),
+    });
+
+    const signer = new DmkSignerTron(dmk, "session-id");
+    const result = await signer.signTypedDataHash("44'/195'/0'/0/0", domainHash, messageHash);
+
+    expect(mockSigner.signTypedDataHash).toHaveBeenCalledWith(
+      "44'/195'/0'/0/0",
+      domainHash,
+      messageHash,
+    );
+    expect(result).toBe(signature);
   });
 
   it("signs a transaction and maps TRC10 token signatures to signer-tron contexts", async () => {
