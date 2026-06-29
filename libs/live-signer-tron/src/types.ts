@@ -17,6 +17,8 @@ export type {
   TronClearSignContext,
   TronContextModule,
   TronTrc10TokenContext,
+  TypedData,
+  TypedDataOptions,
 } from "@ledgerhq/device-signer-kit-tron";
 
 export type TronAddress = {
