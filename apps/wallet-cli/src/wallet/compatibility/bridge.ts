@@ -18,6 +18,8 @@ import { parseAmountWithTicker } from "../intents/parse-amount";
 
 type SendOptions = { deviceId: string; deviceModelId: DeviceModelId };
 
+const DEFAULT_TRC20_FEES_LIMIT = 50_000_000;
+
 export class BridgeAdapter {
   private static readonly SYNC_CONFIG: { paginationConfig: object; blacklistedTokenIds: string[] } =
     { paginationConfig: {}, blacklistedTokenIds: [] };
@@ -125,6 +127,24 @@ export class BridgeAdapter {
     return { recipient, amount, fees };
   }
 
+  async prepareTronSend(
+    descriptor: AccountDescriptor,
+    intent: TransactionIntent,
+  ): Promise<{ amount: string; fees: string; recipient: string; rawDataHex: string }> {
+    if (descriptor.currencyId !== "tron" || intent.family !== "tron") {
+      throw new Error("prepareTronSend only supports Tron accounts.");
+    }
+
+    const account = await this.sync(descriptor);
+    const { recipient, amount, fees, tx, tokenAccount } = await this.buildValidatedTx(
+      account,
+      intent,
+    );
+    const rawDataHex = await this.craftTronRawDataHex(account, tx, tokenAccount);
+
+    return { recipient, amount, fees, rawDataHex };
+  }
+
   send(
     descriptor: AccountDescriptor,
     intent: TransactionIntent,
@@ -202,6 +222,78 @@ export class BridgeAdapter {
     return patch;
   }
 
+  private async craftTronRawDataHex(
+    account: Account,
+    tx: { mode: string; recipient: string; amount: BigNumber },
+    tokenAccount: TokenAccount | undefined,
+  ): Promise<string> {
+    const [{ decode58Check }, { abiEncodeTrc20Transfer }, { default: coinConfig }] =
+      await Promise.all([
+        import("@ledgerhq/coin-tron/network/format"),
+        import("@ledgerhq/coin-tron/network/utils"),
+        import("@ledgerhq/coin-tron/config"),
+      ]);
+
+    const ownerAddress = decode58Check(account.freshAddress);
+    const recipientAddress = decode58Check(tx.recipient);
+    const endpoint =
+      tokenAccount?.token.tokenType === "trc20"
+        ? "/wallet/triggersmartcontract"
+        : tokenAccount === undefined
+          ? "/wallet/createtransaction"
+          : "/wallet/transferasset";
+    const body =
+      tokenAccount?.token.tokenType === "trc20"
+        ? {
+            function_selector: "transfer(address,uint256)",
+            fee_limit: DEFAULT_TRC20_FEES_LIMIT,
+            call_value: 0,
+            contract_address: decode58Check(tokenAccount.token.contractAddress),
+            parameter: abiEncodeTrc20Transfer(recipientAddress, tx.amount),
+            owner_address: ownerAddress,
+          }
+        : {
+            to_address: recipientAddress,
+            owner_address: ownerAddress,
+            amount: Number(tx.amount),
+            asset_name:
+              tokenAccount === undefined
+                ? undefined
+                : Buffer.from(tokenAccount.token.id.split("/").at(-1) ?? "").toString("hex"),
+            extra_data: undefined,
+          };
+
+    const response = await fetch(`${coinConfig.getCoinConfig().explorer.url}${endpoint}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      throw new Error(`Tron raw transaction preparation failed: HTTP ${response.status}`);
+    }
+
+    const data = (await response.json()) as {
+      readonly Error?: unknown;
+      readonly transaction?: { readonly raw_data_hex?: unknown };
+      readonly raw_data_hex?: unknown;
+    };
+    if (data.Error !== undefined) {
+      throw new Error(`Tron raw transaction preparation failed: ${String(data.Error)}`);
+    }
+
+    const rawDataHex =
+      typeof data.raw_data_hex === "string"
+        ? data.raw_data_hex
+        : typeof data.transaction?.raw_data_hex === "string"
+          ? data.transaction.raw_data_hex
+          : undefined;
+    if (rawDataHex === undefined) {
+      throw new Error("Tron raw transaction preparation failed: raw_data_hex is missing.");
+    }
+
+    return rawDataHex;
+  }
+
   private async buildValidatedTx(account: Account, intent: TransactionIntent) {
     const bridge = await getAccountBridge(account);
     const nativeUnit = account.currency.units[0];
@@ -233,6 +325,7 @@ export class BridgeAdapter {
       // raw objects needed by send to proceed to signing
       bridge,
       tx,
+      tokenAccount,
     };
   }
 

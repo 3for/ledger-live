@@ -110,6 +110,13 @@ export class WalletAdapter {
     return (await this.getBridge()).prepareSend(descriptor, intent);
   }
 
+  async prepareTronSend(
+    descriptor: AccountDescriptor,
+    intent: TransactionIntent,
+  ): Promise<{ amount: string; fees: string; recipient: string; rawDataHex: string }> {
+    return (await this.getBridge()).prepareTronSend(descriptor, intent);
+  }
+
   send(
     descriptor: AccountDescriptor,
     intent: TransactionIntent,
