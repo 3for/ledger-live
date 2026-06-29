@@ -5,6 +5,7 @@ import {
   BitcoinTransactionIntentSchema,
   EvmTransactionIntentSchema,
   SolanaTransactionIntentSchema,
+  TronTransactionIntentSchema,
 } from "./index";
 
 describe("AmountWithTickerSchema", () => {
@@ -176,7 +177,37 @@ describe("SolanaTransactionIntentSchema", () => {
   });
 });
 
+describe("TronTransactionIntentSchema", () => {
+  it("parses a valid intent", () => {
+    const result = TronTransactionIntentSchema.safeParse({
+      family: "tron",
+      recipient: "TLCmLQggaf7pVbhKdr3r8s9oYQ67ET8fVn",
+      amount: "1 TRX",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects amount without ticker", () => {
+    expect(
+      TronTransactionIntentSchema.safeParse({
+        family: "tron",
+        recipient: "TLCmLQggaf7pVbhKdr3r8s9oYQ67ET8fVn",
+        amount: "1",
+      }).success,
+    ).toBe(false);
+  });
+});
+
 describe("TransactionIntentSchema", () => {
+  it("parses tron intent", () => {
+    const result = TransactionIntentSchema.safeParse({
+      family: "tron",
+      recipient: "TLCmLQggaf7pVbhKdr3r8s9oYQ67ET8fVn",
+      amount: "1 TRX",
+    });
+    expect(result.success).toBe(true);
+  });
+
   it("rejects unknown family", () => {
     expect(
       TransactionIntentSchema.safeParse({

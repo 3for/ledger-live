@@ -6,7 +6,7 @@ Command-line tool for Ledger Wallet flows over **USB**, built on the **Device Ma
 
 wallet-cli is the stable v1 CLI for USB-based Ledger Wallet flows. Its scope is intentionally focused: it does not aim for full Ledger Live desktop or mobile feature parity.
 
-**Supported networks** today: **bitcoin**, **ethereum**, and **solana** (aligned with `live-common-setup.ts`). Token flows are supported for tokens on those networks.
+**Supported networks** today: **bitcoin**, **ethereum**, **solana**, and **tron** (aligned with `live-common-setup.ts`). Token flows are supported for tokens on those networks.
 
 ### Commands
 
@@ -24,7 +24,7 @@ wallet-cli is the stable v1 CLI for USB-based Ledger Wallet flows. Its scope is 
 | `assets token` / `assets token-by-id` | Resolve token metadata by contract address or token id. |
 | `genuine-check` | Check whether the connected Ledger device is genuine. |
 
-Typical flow: run `account discover` with a currency id (e.g. `bitcoin`, `ethereum`), then pass the assigned **session label** (e.g. `--account ethereum-1`) to `balances`, `operations`, `send`, or `receive`. Use `session view` to see what's saved.
+Typical flow: run `account discover` with a currency id (e.g. `bitcoin`, `ethereum`, `tron`), then pass the assigned **session label** (e.g. `--account ethereum-1`) to `balances`, `operations`, `send`, or `receive`. Use `session view` to see what's saved.
 
 For exact flags and defaults (from repo root):
 

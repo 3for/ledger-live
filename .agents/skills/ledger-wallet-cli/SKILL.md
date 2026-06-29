@@ -5,7 +5,7 @@ description: Official Ledger wallet-cli - USB-based CLI for Ledger hardware wall
 
 # wallet-cli
 
-USB-based CLI for Ledger wallet flows. Networks: **bitcoin**, **ethereum**, **solana** (mainnet + testnets).
+USB-based CLI for Ledger wallet flows. Networks: **bitcoin**, **ethereum**, **solana**, **tron** (mainnet + listed testnets/devnets).
 
 Run from repo root: `pnpm --silent wallet-cli start <command> [flags]`
 
@@ -30,7 +30,7 @@ Map informal phrasings to commands. Account references use a session label (e.g.
 | User says                                                                           | Command                                                      |
 | ----------------------------------------------------------------------------------- | ------------------------------------------------------------ |
 | "show me my wallet", "what do I have", "let's get started", no specific task        | `session view` (run _immediately_, before asking anything)   |
-| "find my accounts", "scan my wallet", "import my wallet", "set up Ethereum/Bitcoin" | `account discover <network>`                                 |
+| "find my accounts", "scan my wallet", "import my wallet", "set up Ethereum/Bitcoin/Tron" | `account discover <network>`                                 |
 | "where do I send funds to", "give me my address", "deposit address"                 | `receive <account>`                                          |
 | "how much do I have", "balance", "what's my ETH balance"                            | `balances <account>`                                         |
 | "what did I send", "transaction history", "recent activity"                         | `operations <account>`                                       |
@@ -92,10 +92,11 @@ pnpm --silent wallet-cli start session reset
 ```bash
 pnpm --silent wallet-cli start account discover ethereum
 pnpm --silent wallet-cli start account discover bitcoin
+pnpm --silent wallet-cli start account discover tron
 pnpm --silent wallet-cli start account discover ethereum:sepolia
 ```
 
-Networks: `bitcoin` (mainnet), `ethereum`, `solana`, `ethereum:sepolia`, `bitcoin:testnet`, `solana:devnet`.
+Networks: `bitcoin` (mainnet), `ethereum`, `solana`, `tron`, `ethereum:sepolia`, `bitcoin:testnet`, `solana:devnet`.
 
 ### receive
 
@@ -137,6 +138,7 @@ Pagination: next cursor on stderr (human) or `nextCursor` in JSON.
 pnpm --silent wallet-cli start send ethereum-1 --to 0xDEF... --amount '0.5 ETH'
 pnpm --silent wallet-cli start send ethereum-1 --to 0xDEF... --amount '100 USDT'  # ERC-20
 pnpm --silent wallet-cli start send bitcoin-native-1 --to bc1q... --amount '0.001 BTC' --fee-per-byte 15 --rbf
+pnpm --silent wallet-cli start send tron-1 --to T... --amount '1 TRX'
 pnpm --silent wallet-cli start send ethereum-1 --to 0xDEF... --amount '0.5 ETH' --dry-run
 ```
 

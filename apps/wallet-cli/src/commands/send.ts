@@ -66,6 +66,11 @@ const INTENT_BUILDERS: Record<string, IntentBuilder> = {
     stakeAccount: flags["stake-account"],
     memo: flags.memo,
   }),
+  tron: flags => ({
+    family: "tron",
+    recipient: flags.to,
+    amount: flags.amount,
+  }),
 };
 
 function buildIntentData(currencyId: string, flags: SendFlags) {
