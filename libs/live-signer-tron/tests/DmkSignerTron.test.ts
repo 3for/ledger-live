@@ -14,13 +14,19 @@ const mockSigner = {
   signTypedData: jest.fn(),
   signTypedDataHash: jest.fn(),
 };
+const mockWithContextModule = jest.fn();
 
 jest.mock(
   "@ledgerhq/device-signer-kit-tron",
   () => ({
-    SignerTronBuilder: jest.fn().mockImplementation(() => ({
-      build: () => mockSigner,
-    })),
+    SignerTronBuilder: jest.fn().mockImplementation(() => {
+      const builder = {
+        build: () => mockSigner,
+        withContextModule: mockWithContextModule,
+      };
+      mockWithContextModule.mockReturnValue(builder);
+      return builder;
+    }),
     TronClearSignContextType: {
       TRC10_TOKEN: "tronTrc10Token",
     },
@@ -42,6 +48,22 @@ describe("DmkSignerTron", () => {
 
     expect(bridgeSigner).toBe(signer);
     expect(extendedSigner).toBe(signer);
+  });
+
+  it("uses signer-tron default context module when no override is provided", () => {
+    new DmkSignerTron(dmk, "session-id");
+
+    expect(mockWithContextModule).not.toHaveBeenCalled();
+  });
+
+  it("passes custom context modules to signer-tron builder", () => {
+    const contextModule = {
+      getContexts: jest.fn(),
+    };
+
+    new DmkSignerTron(dmk, "session-id", { contextModule });
+
+    expect(mockWithContextModule).toHaveBeenCalledWith(contextModule);
   });
 
   it("gets an address through signer-tron", async () => {
@@ -113,6 +135,13 @@ describe("DmkSignerTron", () => {
 
   it("signs a transaction through the signer-tron public API", async () => {
     const rawData = new Uint8Array([1, 2, 3]);
+    const contexts = [
+      {
+        type: "tronTrc10Token",
+        payload: "aabbcc",
+        tokenIndex: 0,
+      },
+    ];
     const signature = {
       r: `0x${"11".repeat(32)}`,
       s: `0x${"22".repeat(32)}`,
@@ -127,11 +156,11 @@ describe("DmkSignerTron", () => {
 
     const signer = new DmkSignerTron(dmk, "session-id");
     const result = await signer.signTransaction("44'/195'/0'/0/0", rawData, {
-      clearSigningMode: "blind",
+      contexts,
     });
 
     expect(mockSigner.signTransaction).toHaveBeenCalledWith("44'/195'/0'/0/0", rawData, {
-      clearSigningMode: "blind",
+      contexts,
       skipOpenApp: true,
     });
     expect(result).toBe(signature);

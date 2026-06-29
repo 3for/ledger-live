@@ -5,8 +5,18 @@ import type {
   MessageOptions,
   Signature,
   TransactionOptions,
+  TronClearSignContext,
+  TronTrc10TokenContext,
+  TronContextModule,
   TypedData,
   TypedDataOptions,
+} from "@ledgerhq/device-signer-kit-tron";
+
+export { TronClearSignContextType } from "@ledgerhq/device-signer-kit-tron";
+export type {
+  TronClearSignContext,
+  TronContextModule,
+  TronTrc10TokenContext,
 } from "@ledgerhq/device-signer-kit-tron";
 
 export type TronAddress = {
@@ -15,6 +25,10 @@ export type TronAddress = {
 };
 
 export type TronSignature = string;
+
+export type DmkSignerTronOptions = {
+  readonly contextModule?: TronContextModule;
+};
 
 // Bridge-facing API consumed by @ledgerhq/coin-tron.
 export interface TronSigner {

@@ -27,7 +27,7 @@ import {
 } from "@ledgerhq/device-signer-kit-tron";
 import { LockedDeviceError, UserRefusedOnDevice } from "@ledgerhq/errors";
 import { lastValueFrom, type Observable } from "rxjs";
-import type { TronAddress, TronSignature, TronSignerExtended } from "./types";
+import type { DmkSignerTronOptions, TronAddress, TronSignature, TronSignerExtended } from "./types";
 
 type DAError =
   | GetAddressDAError
@@ -60,12 +60,17 @@ function tokenSignaturesToContexts(tokenSignatures: string[]): TronTrc10TokenCon
 export class DmkSignerTron implements TronSignerExtended {
   private readonly signer: SignerTron;
 
-  constructor(dmk: DeviceManagementKit, sessionId: string) {
-    this.signer = new SignerTronBuilder({
+  constructor(dmk: DeviceManagementKit, sessionId: string, options: DmkSignerTronOptions = {}) {
+    const builder = new SignerTronBuilder({
       dmk,
       sessionId,
       originToken: "ledger-wallet",
-    }).build();
+    });
+
+    this.signer =
+      options.contextModule === undefined
+        ? builder.build()
+        : builder.withContextModule(options.contextModule).build();
   }
 
   private _mapError<E extends DAError>(error: E): Error {
