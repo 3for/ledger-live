@@ -181,6 +181,7 @@
       "FREEZE" : "已冻结",
       "UNFREEZE" : "已解冻",
       "UNDELEGATE_RESOURCE" : "已解除委托",
+      "CANCEL_ALL_UNFREEZE" : "已取消解冻",
       "WITHDRAW_EXPIRE_UNFREEZE" : "提取",
       "LEGACYUNFREEZE" : "已解冻",
       "REWARD" : "已申领的奖励",

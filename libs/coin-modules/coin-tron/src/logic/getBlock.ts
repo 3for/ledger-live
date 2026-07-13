@@ -209,6 +209,8 @@ function getOperationType(contractType: string): string {
       return "WITHDRAW_EXPIRE_UNFREEZE";
     case "UnDelegateResourceContract":
       return "UNDELEGATE_RESOURCE";
+    case "CancelAllUnfreezeV2Contract":
+      return "CANCEL_ALL_UNFREEZE";
     case "UnfreezeBalanceContract":
       return "LEGACY_UNFREEZE";
     default:

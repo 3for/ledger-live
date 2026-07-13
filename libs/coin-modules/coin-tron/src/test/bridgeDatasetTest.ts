@@ -20,6 +20,7 @@ import {
   TronNoFrozenForEnergy,
   TronNoReward,
   TronNoUnfrozenResource,
+  TronNoUnfreezeV2ToCancel,
   TronNotEnoughTronPower,
   TronUnexpectedFees,
   TronVoteRequired,
@@ -267,6 +268,28 @@ const tron: CurrenciesData<Transaction> = {
             amount: new BigNumber("0"),
             errors: {
               resource: new TronNoUnfrozenResource(),
+            },
+            warnings: {},
+            totalSpent: new BigNumber("0"),
+            estimatedFees: new BigNumber("0"),
+          },
+        },
+        {
+          name: "NoUnfreezeV2ToCancel",
+          transaction: fromTransactionRaw({
+            family: "tron",
+            recipient: "",
+            amount: "0",
+            networkInfo: null,
+            mode: "cancelAllUnfreezeV2",
+            duration: undefined,
+            votes: [],
+            resource: undefined,
+          }),
+          expectedStatus: {
+            amount: new BigNumber("0"),
+            errors: {
+              resource: new TronNoUnfreezeV2ToCancel(),
             },
             warnings: {},
             totalSpent: new BigNumber("0"),

@@ -21,6 +21,7 @@ const testingMap: Record<TrongridTxType, OperationType> = {
   UnfreezeBalanceV2Contract: "UNFREEZE",
   WithdrawExpireUnfreezeContract: "WITHDRAW_EXPIRE_UNFREEZE",
   UnDelegateResourceContract: "UNDELEGATE_RESOURCE",
+  CancelAllUnfreezeV2Contract: "CANCEL_ALL_UNFREEZE",
   UnfreezeBalanceContract: "LEGACY_UNFREEZE",
 };
 

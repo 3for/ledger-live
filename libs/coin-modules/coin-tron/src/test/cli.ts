@@ -24,7 +24,7 @@ const options = [
   {
     name: "mode",
     type: String,
-    desc: "mode of transaction: send, freeze, unfreeze, withdrawExpireUnfreeze, unDelegateResource, legacyUnfreeze",
+    desc: "mode of transaction: send, freeze, unfreeze, withdrawExpireUnfreeze, unDelegateResource, cancelAllUnfreezeV2, legacyUnfreeze",
   },
   {
     name: "duration",
@@ -107,6 +107,7 @@ function inferTransactions(
       "claimReward",
       "withdrawExpireUnfreeze",
       "unDelegateResource",
+      "cancelAllUnfreezeV2",
       "legacyUnfreeze",
     ].includes(mode),
     `Unexpected mode: ${mode}`,

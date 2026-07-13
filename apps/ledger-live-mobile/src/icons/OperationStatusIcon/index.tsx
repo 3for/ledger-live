@@ -18,6 +18,7 @@ const iconsComponent = {
   NONE: IconsLegacy.ArrowFromBottomMedium,
   FREEZE: IconsLegacy.FreezeMedium,
   UNFREEZE: IconsLegacy.UnfreezeMedium,
+  CANCEL_ALL_UNFREEZE: IconsLegacy.UnfreezeMedium,
   UNDELEGATE_RESOURCE: IconsLegacy.UndelegateMedium,
   WITHDRAW_EXPIRE_UNFREEZE: IconsLegacy.CoinsMedium,
   LEGACY_UNFREEZE: IconsLegacy.UnfreezeMedium,

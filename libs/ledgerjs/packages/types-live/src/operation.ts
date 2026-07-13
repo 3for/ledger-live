@@ -24,6 +24,7 @@ export type OperationType =
   | "UNFREEZE"
   | "WITHDRAW_EXPIRE_UNFREEZE"
   | "UNDELEGATE_RESOURCE"
+  | "CANCEL_ALL_UNFREEZE"
   | "LEGACY_UNFREEZE"
   // POLKADOT
   | "VOTE"

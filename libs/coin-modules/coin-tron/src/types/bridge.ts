@@ -20,6 +20,7 @@ export type TronOperationMode =
   | "claimReward"
   | "withdrawExpireUnfreeze"
   | "unDelegateResource"
+  | "cancelAllUnfreezeV2"
   | "legacyUnfreeze";
 
 export type TronResource = "BANDWIDTH" | "ENERGY";
@@ -70,7 +71,8 @@ export type TrongridTxType =
   | "FreezeBalanceV2Contract"
   | "UnfreezeBalanceV2Contract"
   | "WithdrawExpireUnfreezeContract"
-  | "UnDelegateResourceContract";
+  | "UnDelegateResourceContract"
+  | "CancelAllUnfreezeV2Contract";
 
 export type TrongridTxInfo = {
   txID: string;
@@ -159,6 +161,10 @@ export type LegacyUnfreezeTransactionData = {
 };
 
 export type WithdrawExpireUnfreezeTransactionData = {
+  owner_address: string;
+};
+
+export type CancelAllUnfreezeV2TransactionData = {
   owner_address: string;
 };
 

@@ -94,6 +94,7 @@ const iconsComponent = {
   NONE: IconSend,
   FREEZE: Freeze,
   UNFREEZE: Unfreeze,
+  CANCEL_ALL_UNFREEZE: Unfreeze,
   LEGACY_UNFREEZE: Unfreeze,
   UNDELEGATE_RESOURCE: IconUndelegate,
   WITHDRAW_EXPIRE_UNFREEZE: ClaimRewards,

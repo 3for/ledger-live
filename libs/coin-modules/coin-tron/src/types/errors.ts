@@ -17,6 +17,7 @@ export const TronNotEnoughTronPower = createCustomErrorClass("TronNotEnoughTronP
 export const TronTransactionExpired = createCustomErrorClass("TronTransactionExpired");
 export const TronNotEnoughEnergy = createCustomErrorClass("TronNotEnoughEnergy");
 export const TronNoUnfrozenResource = createCustomErrorClass("TronNoUnfrozenResource");
+export const TronNoUnfreezeV2ToCancel = createCustomErrorClass("TronNoUnfreezeV2ToCancel");
 export const TronInvalidUnDelegateResourceAmount = createCustomErrorClass(
   "TronInvalidUnDelegateResourceAmount",
 );

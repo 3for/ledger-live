@@ -25,6 +25,7 @@ const parentTx = [
   "UnfreezeBalanceV2Contract",
   "WithdrawExpireUnfreezeContract",
   "UnDelegateResourceContract",
+  "CancelAllUnfreezeV2Contract",
   "FreezeBalanceContract",
   "UnfreezeBalanceContract",
   "ContractApproval",
@@ -51,6 +52,7 @@ export const getEstimatedBlockSize = (a: Account, t: Transaction): BigNumber => 
     case "unfreeze":
     case "claimReward":
     case "withdrawExpireUnfreeze":
+    case "cancelAllUnfreezeV2":
     case "unDelegateResource":
     case "legacyUnfreeze":
       return new BigNumber(260);
@@ -82,6 +84,9 @@ export const getOperationTypefromMode = (mode: TronOperationMode): OperationType
 
     case "withdrawExpireUnfreeze":
       return "WITHDRAW_EXPIRE_UNFREEZE";
+
+    case "cancelAllUnfreezeV2":
+      return "CANCEL_ALL_UNFREEZE";
 
     case "unDelegateResource":
       return "UNDELEGATE_RESOURCE";
@@ -125,6 +130,9 @@ const getOperationType = (
 
     case "WithdrawExpireUnfreezeContract":
       return "WITHDRAW_EXPIRE_UNFREEZE";
+
+    case "CancelAllUnfreezeV2Contract":
+      return "CANCEL_ALL_UNFREEZE";
 
     case "UnDelegateResourceContract":
       return "UNDELEGATE_RESOURCE";

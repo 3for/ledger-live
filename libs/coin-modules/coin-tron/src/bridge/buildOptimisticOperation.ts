@@ -57,6 +57,9 @@ const getExtra = (
         receiverAddress: transaction.recipient,
       };
 
+    case "cancelAllUnfreezeV2":
+      return {};
+
     case "legacyUnfreeze":
       return {
         unfreezeAmount: get(
@@ -82,6 +85,8 @@ export const buildOptimisticOperation = (
   const operationType = getOperationTypefromMode(transaction.mode);
   const resource = transaction.resource || "BANDWIDTH";
   const extra = getExtra(account, transaction, resource) || {};
+  const recipients =
+    transaction.mode === "cancelAllUnfreezeV2" ? [account.freshAddress] : [transaction.recipient];
 
   /**
    * FIXME
@@ -102,7 +107,7 @@ export const buildOptimisticOperation = (
     blockHash: null,
     blockHeight: null,
     senders: [account.freshAddress],
-    recipients: [transaction.recipient],
+    recipients,
     accountId: account.id,
     date: new Date(),
     extra,

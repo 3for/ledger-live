@@ -26,6 +26,7 @@ const estimatedTxSize = (intent: TransactionIntent<TronMemo>): number => {
     case "unfreeze":
     case "claimReward":
     case "withdrawExpireUnfreeze":
+    case "cancelAllUnfreezeV2":
     case "unDelegateResource":
     case "legacyUnfreeze":
       return 260;

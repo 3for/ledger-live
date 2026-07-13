@@ -2957,6 +2957,7 @@
       "FREEZE": "Frozen",
       "UNFREEZE": "Unfrozen",
       "UNDELEGATE_RESOURCE": "Undelegated",
+      "CANCEL_ALL_UNFREEZE": "Cancelled unfreeze",
       "WITHDRAW_EXPIRE_UNFREEZE": "Withdrawal",
       "LEGACYUNFREEZE": "Unfrozen",
       "REWARD": "Claimed reward",

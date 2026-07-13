@@ -77,6 +77,14 @@ async function getDeviceTransactionConfig({
     });
   }
 
+  if (mode === "cancelAllUnfreezeV2") {
+    fields.push({
+      type: "address",
+      label: "Cancel unfreeze for",
+      address: mainAccount.freshAddress,
+    });
+  }
+
   if (mode === "unDelegateResource") {
     fields.push({
       type: "address",

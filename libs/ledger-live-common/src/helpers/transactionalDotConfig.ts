@@ -64,6 +64,7 @@ export function getTransactionalDotConfig(
       return { symbol: "PenEdit", appearance: "muted" };
     case "FREEZE":
     case "UNFREEZE":
+    case "CANCEL_ALL_UNFREEZE":
     case "LEGACY_UNFREEZE":
       return { symbol: "Snow", appearance: "muted" };
     case "VOTE":

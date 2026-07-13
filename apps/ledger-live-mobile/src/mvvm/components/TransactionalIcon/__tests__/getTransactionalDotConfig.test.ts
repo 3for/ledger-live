@@ -44,6 +44,7 @@ describe("getTransactionalDotConfig", () => {
     ["APPROVE", PenEdit, "muted"],
     ["FREEZE", Snow, "muted"],
     ["UNFREEZE", Snow, "muted"],
+    ["CANCEL_ALL_UNFREEZE", Snow, "muted"],
     ["LEGACY_UNFREEZE", Snow, "muted"],
     ["VOTE", Mailbox, "muted"],
   ] as const)(

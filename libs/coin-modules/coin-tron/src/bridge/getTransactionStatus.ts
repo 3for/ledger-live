@@ -31,6 +31,7 @@ import {
   TronNotEnoughEnergy,
   TronNotEnoughTronPower,
   TronNoUnfrozenResource,
+  TronNoUnfreezeV2ToCancel,
   TronRewardNotAvailable,
   TronSendTrc20ToNewAccountForbidden,
   TronUnexpectedFees,
@@ -137,6 +138,16 @@ const getTransactionStatus = async (
           time: closestExpireTime.expireTime.toISOString(),
         });
       }
+    }
+  }
+
+  if (mode === "cancelAllUnfreezeV2") {
+    const hasPendingUnfreezeV2 =
+      Boolean(acc.tronResources.unFrozen.bandwidth?.length) ||
+      Boolean(acc.tronResources.unFrozen.energy?.length);
+
+    if (!hasPendingUnfreezeV2) {
+      errors.resource = new TronNoUnfreezeV2ToCancel();
     }
   }
 

@@ -355,6 +355,34 @@ describe("formatTrongridTxResponse", () => {
     });
   });
 
+  it("should return correct TrongridTxInfo for CancelAllUnfreezeV2Contract", async () => {
+    const tx = baseTransactionTronApi({
+      type: "CancelAllUnfreezeV2Contract",
+      parameter: {
+        type_url: "",
+        value: {
+          owner_address: ownerHex,
+        },
+      },
+    });
+    const result = await formatTrongridTxResponse(tx, () => Promise.resolve(null));
+    expect(result).toEqual({
+      txID: "txId",
+      date: new Date(1),
+      type: "CancelAllUnfreezeV2Contract",
+      tokenId: undefined,
+      tokenType: undefined,
+      tokenAddress: undefined,
+      from: encode58Check(ownerHex),
+      to: undefined,
+      value: new BigNumber(0),
+      fee: new BigNumber(1000),
+      blockHeight: 42,
+      hasFailed: false,
+      feesPayer: encode58Check(ownerHex),
+    });
+  });
+
   it("should return undefined when the transaction payload cannot be parsed", async () => {
     const tx = { txID: "broken", block_timestamp: 1 } as TransactionTronAPI;
     const result = await formatTrongridTxResponse(tx, () => Promise.resolve(null));

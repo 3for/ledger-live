@@ -12,6 +12,7 @@ import take from "lodash/take";
 import { TronWeb, providers } from "tronweb";
 import coinConfig from "../config";
 import type {
+  CancelAllUnfreezeV2TransactionData,
   FreezeTransactionData,
   LegacyUnfreezeTransactionData,
   NetworkInfo,
@@ -138,6 +139,18 @@ export const withdrawExpireUnfreezeTronTransaction = async (
     owner_address: decode58Check(account.freshAddress),
   };
   const url = `/wallet/withdrawexpireunfreeze`;
+  const result = await post(url, txData);
+
+  return result;
+};
+
+export const cancelAllUnfreezeV2TronTransaction = async (
+  account: Account,
+): Promise<SendTransactionDataSuccess> => {
+  const txData: CancelAllUnfreezeV2TransactionData = {
+    owner_address: decode58Check(account.freshAddress),
+  };
+  const url = `/wallet/cancelallunfreezev2`;
   const result = await post(url, txData);
 
   return result;

@@ -7,6 +7,7 @@ import { TronTransactionExpired } from "../types/errors";
 import {
   broadcastHexTron,
   broadcastTron,
+  cancelAllUnfreezeV2TronTransaction,
   claimRewardTronTransaction,
   craftStandardTransaction,
   craftTrc20Transaction,
@@ -98,7 +99,7 @@ describe("post / fetch error handling", () => {
   });
 });
 
-describe("freeze / unfreeze / withdraw / unDelegate / legacyUnfreeze", () => {
+describe("freeze / unfreeze / withdraw / unDelegate / cancelAllUnfreezeV2 / legacyUnfreeze", () => {
   it("freezeTronTransaction posts to freezebalancev2", async () => {
     mockedNetwork.mockResolvedValueOnce(mockResponse({ raw_data: {} }));
     await freezeTronTransaction(
@@ -136,6 +137,17 @@ describe("freeze / unfreeze / withdraw / unDelegate / legacyUnfreeze", () => {
     );
     expect(mockedNetwork).toHaveBeenCalledWith(
       expect.objectContaining({ url: expect.stringContaining("/wallet/withdrawexpireunfreeze") }),
+    );
+  });
+
+  it("cancelAllUnfreezeV2TronTransaction posts to cancelallunfreezev2", async () => {
+    mockedNetwork.mockResolvedValueOnce(mockResponse({ raw_data: {} }));
+    await cancelAllUnfreezeV2TronTransaction({ freshAddress: senderBase58 } as Account);
+    expect(mockedNetwork).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: expect.stringContaining("/wallet/cancelallunfreezev2"),
+        data: expect.objectContaining({ owner_address: recipientHex }),
+      }),
     );
   });
 

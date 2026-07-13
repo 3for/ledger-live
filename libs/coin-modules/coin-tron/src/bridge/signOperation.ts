@@ -3,6 +3,7 @@ import { SignOperationEvent, SignOperationFnSignature, TokenAccount } from "@led
 import BigNumber from "bignumber.js";
 import { Observable } from "rxjs";
 import {
+  cancelAllUnfreezeV2TronTransaction,
   claimRewardTronTransaction,
   createTronTransaction,
   freezeTronTransaction,
@@ -107,6 +108,9 @@ const prepareTransactionForSignature = (
 
     case "withdrawExpireUnfreeze":
       return withdrawExpireUnfreezeTronTransaction(account, transaction);
+
+    case "cancelAllUnfreezeV2":
+      return cancelAllUnfreezeV2TronTransaction(account);
 
     case "unDelegateResource":
       return unDelegateResourceTransaction(account, transaction);
