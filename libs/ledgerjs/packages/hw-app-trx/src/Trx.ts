@@ -15,7 +15,7 @@
  *  limitations under the License.
  ********************************************************************************/
 // FIXME drop:
-import { splitPath, foreach, decodeVarint } from "./utils";
+import { splitPath, foreach, decodeVarintBigInt } from "./utils";
 import type Transport from "@ledgerhq/hw-transport";
 import { signTIP712HashedMessage } from "./TIP712";
 
@@ -113,10 +113,16 @@ export default class Trx {
   }
 
   getNextLength(tx: Buffer): number {
-    const field = decodeVarint(tx, 0);
-    const data = decodeVarint(tx, field.pos);
-    if ((field.value & 0x07) === 0) return data.pos;
-    return data.value + data.pos;
+    const field = decodeVarintBigInt(tx, 0);
+    const data = decodeVarintBigInt(tx, field.pos);
+    const nextLength =
+      (field.value & 0x07n) === 0n ? data.pos : Number(data.value + BigInt(data.pos));
+
+    if (!Number.isSafeInteger(nextLength) || nextLength <= 0 || nextLength > tx.length) {
+      throw new Error("Invalid transaction field length.");
+    }
+
+    return nextLength;
   }
 
   /**
@@ -145,12 +151,14 @@ export default class Trx {
     while (rawTx.length > 0) {
       // get next message field
       const newpos = this.getNextLength(rawTx);
+      if (!Number.isSafeInteger(newpos) || newpos <= 0 || newpos > rawTx.length) {
+        throw new Error("Invalid transaction field length.");
+      }
       if (newpos > CHUNK_SIZE) throw new Error("Too many bytes to encode.");
 
       if (data.length + newpos > CHUNK_SIZE) {
         toSend.push(data);
         data = Buffer.alloc(0);
-        continue;
       }
 
       // append data

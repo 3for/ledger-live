@@ -100,29 +100,52 @@ interface DecodeResult {
   value: number;
   pos: number;
 }
-export function decodeVarint(stream: Buffer, index: number): DecodeResult {
-  let result = 0;
-  let shift = 0;
+interface BigIntDecodeResult {
+  value: bigint;
+  pos: number;
+}
+
+export function decodeVarintBigInt(stream: Buffer, index: number): BigIntDecodeResult {
+  if (!Number.isSafeInteger(index) || index < 0 || index >= stream.length) {
+    throw new Error("Invalid varint index.");
+  }
+
+  let result = 0n;
   let pos = index;
 
-  // eslint-disable-next-line no-constant-condition
-  while (shift < 64) {
+  for (let byteIndex = 0; byteIndex < 10; byteIndex += 1) {
+    if (pos >= stream.length) {
+      throw new Error("Unexpected end of buffer when decoding varint.");
+    }
+
     const b = stream[pos];
-    result |= (b & 0x7f) << shift;
+    if (byteIndex === 9 && (b & 0xfe) !== 0) {
+      throw new Error("Too many bytes when decoding varint.");
+    }
+
+    result |= BigInt(b & 0x7f) << BigInt(byteIndex * 7);
     pos += 1;
 
     if (!(b & 0x80)) {
-      result &= 0xffffffff;
       return {
         value: result,
         pos,
       };
     }
-
-    shift += 7;
   }
 
   throw new Error("Too many bytes when decoding varint.");
+}
+
+export function decodeVarint(stream: Buffer, index: number): DecodeResult {
+  const decoded = decodeVarintBigInt(stream, index);
+  const value = Number(decoded.value);
+
+  if (!Number.isSafeInteger(value)) {
+    throw new Error("Varint exceeds JavaScript safe integer range.");
+  }
+
+  return { value, pos: decoded.pos };
 }
 
 export const padHexString = (str: string) => {
