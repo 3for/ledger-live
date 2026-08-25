@@ -139,6 +139,112 @@ it("should reject a transaction field that exceeds the remaining bytes", async (
   ).rejects.toThrow("Invalid transaction field length.");
 });
 
+it("should reject an oversized raw transaction without sending to the device", async () => {
+  const transport = await openTransportReplayer(RecordStore.fromString(""));
+  const trx = new Trx(transport);
+  const oversizedRawTxHex = "00".repeat(500 * 1024 + 1);
+
+  await expect(
+    Promise.resolve().then(() =>
+      trx.signTransaction("44'/195'/0'/0/0", oversizedRawTxHex, []),
+    ),
+  ).rejects.toThrow("Raw transaction exceeds maximum size of 512000 bytes.");
+});
+
+it("should reject too many transaction fields without sending to the device", async () => {
+  const transport = await openTransportReplayer(RecordStore.fromString(""));
+  const trx = new Trx(transport);
+  const rawTxHex = "0800".repeat(4097);
+
+  await expect(
+    Promise.resolve().then(() => trx.signTransaction("44'/195'/0'/0/0", rawTxHex, [])),
+  ).rejects.toThrow("Too many transaction fields.");
+});
+
+it.each(["080", "0800zz"])(
+  "should reject malformed transaction hex %s without sending to the device",
+  async rawTxHex => {
+    const transport = await openTransportReplayer(RecordStore.fromString(""));
+    const trx = new Trx(transport);
+
+    await expect(
+      Promise.resolve().then(() => trx.signTransaction("44'/195'/0'/0/0", rawTxHex, [])),
+    ).rejects.toThrow("Invalid raw transaction hex.");
+  },
+);
+
+it("should preserve token signature APDUs at the supported count and total-size limits", async () => {
+  const pathData = "058000002c800000c3800000000000000000000000";
+  const signature = "00".repeat(65);
+  const firstTokenSignature = "aa".repeat(113);
+  const secondTokenSignature = "bb".repeat(113);
+  const transport = await openTransportReplayer(
+    RecordStore.fromString(`
+    => e004000017${pathData}0800
+    <= 9000
+    => e004a00071${firstTokenSignature}
+    <= 9000
+    => e004a90071${secondTokenSignature}
+    <= ${signature}9000
+    `),
+  );
+  const trx = new Trx(transport);
+
+  await expect(
+    trx.signTransaction("44'/195'/0'/0/0", "0800", [firstTokenSignature, secondTokenSignature]),
+  ).resolves.toBe(signature);
+});
+
+it("should reject too many token signatures without sending to the device", async () => {
+  const transport = await openTransportReplayer(RecordStore.fromString(""));
+  const trx = new Trx(transport);
+
+  await expect(
+    Promise.resolve().then(() =>
+      trx.signTransaction("44'/195'/0'/0/0", "0800", ["00", "00", "00"]),
+    ),
+  ).rejects.toThrow("Too many token signatures.");
+});
+
+it("should reject an oversized token signature without sending to the device", async () => {
+  const transport = await openTransportReplayer(RecordStore.fromString(""));
+  const trx = new Trx(transport);
+
+  await expect(
+    Promise.resolve().then(() =>
+      trx.signTransaction("44'/195'/0'/0/0", "0800", ["00".repeat(251)]),
+    ),
+  ).rejects.toThrow("Token signature exceeds maximum size of 250 bytes.");
+});
+
+it("should reject oversized aggregate token signatures without sending to the device", async () => {
+  const transport = await openTransportReplayer(RecordStore.fromString(""));
+  const trx = new Trx(transport);
+
+  await expect(
+    Promise.resolve().then(() =>
+      trx.signTransaction("44'/195'/0'/0/0", "0800", [
+        "00".repeat(114),
+        "00".repeat(114),
+      ]),
+    ),
+  ).rejects.toThrow("Token signatures exceed maximum total size of 226 bytes.");
+});
+
+it.each(["0", "zz"])(
+  "should reject malformed token signature hex %s without sending to the device",
+  async tokenSignature => {
+    const transport = await openTransportReplayer(RecordStore.fromString(""));
+    const trx = new Trx(transport);
+
+    await expect(
+      Promise.resolve().then(() =>
+        trx.signTransaction("44'/195'/0'/0/0", "0800", [tokenSignature]),
+      ),
+    ).rejects.toThrow("Invalid token signature hex.");
+  },
+);
+
 it("should preserve the encoded length of a maximum uint64 varint field", async () => {
   const transport = await openTransportReplayer(RecordStore.fromString(""));
   const trx = new Trx(transport);

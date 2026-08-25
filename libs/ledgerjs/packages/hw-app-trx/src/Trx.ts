@@ -37,6 +37,37 @@ const SIGN_MESSAGE = 0x08;
 const ECDH_SECRET = 0x0a;
 const VERSION = 0x06;
 const CHUNK_SIZE = 250;
+// Matches java-tron's consensus-level serialized transaction limit.
+const MAX_TRANSACTION_RAW_DATA_SIZE = 500 * 1024;
+const MAX_TRANSACTION_FIELDS = 4096;
+// app-tron accepts either two 113-byte TokenDetails messages or one 205-byte ExchangeDetails.
+const MAX_TOKEN_SIGNATURES = 2;
+const MAX_TOKEN_DETAILS_SIZE = 113;
+const MAX_TOKEN_SIGNATURE_SIZE = CHUNK_SIZE;
+const MAX_TOKEN_SIGNATURES_TOTAL_SIZE = MAX_TOKEN_SIGNATURES * MAX_TOKEN_DETAILS_SIZE;
+const HEX_REGEX = /^[0-9a-fA-F]+$/;
+
+const decodeBoundedHex = (value: string, label: string, maxSize: number): Buffer => {
+  if (value.length > maxSize * 2) {
+    throw new Error(`${label} exceeds maximum size of ${maxSize} bytes.`);
+  }
+  if (value.length === 0 || value.length % 2 !== 0 || !HEX_REGEX.test(value)) {
+    throw new Error(`Invalid ${label.toLowerCase()} hex.`);
+  }
+
+  return Buffer.from(value, "hex");
+};
+
+const getTransactionP1 = (
+  chunkIndex: number,
+  transactionChunkCount: number,
+  tokenSignatureCount: number,
+): number => {
+  if (transactionChunkCount === 1 && tokenSignatureCount === 0) return 0x10;
+  if (chunkIndex === 0) return 0x00;
+  if (chunkIndex === transactionChunkCount - 1 && tokenSignatureCount === 0) return 0x90;
+  return 0x80;
+};
 /**
  * Tron API
  *
@@ -125,6 +156,33 @@ export default class Trx {
     return nextLength;
   }
 
+  private getTransactionChunkCount(tx: Buffer, firstChunkSize: number): number {
+    let offset = 0;
+    let chunkSize = firstChunkSize;
+    let chunkCount = 1;
+    let fieldCount = 0;
+
+    while (offset < tx.length) {
+      const fieldLength = this.getNextLength(tx.subarray(offset));
+      if (fieldLength > CHUNK_SIZE) throw new Error("Too many bytes to encode.");
+
+      fieldCount += 1;
+      if (fieldCount > MAX_TRANSACTION_FIELDS) {
+        throw new Error("Too many transaction fields.");
+      }
+
+      if (chunkSize + fieldLength > CHUNK_SIZE) {
+        chunkCount += 1;
+        chunkSize = 0;
+      }
+
+      chunkSize += fieldLength;
+      offset += fieldLength;
+    }
+
+    return chunkCount;
+  }
+
   /**
    * sign a Tron transaction with a given BIP 32 path and Token Names
    *
@@ -139,78 +197,82 @@ export default class Trx {
    */
   signTransaction(path: string, rawTxHex: string, tokenSignatures: string[]): Promise<string> {
     const paths = splitPath(path);
-    let rawTx = Buffer.from(rawTxHex, "hex");
-    const toSend: Buffer[] = [];
-    let data = Buffer.alloc(PATHS_LENGTH_SIZE + paths.length * PATH_SIZE);
-    // write path for first chuck only
-    data[0] = paths.length;
-    paths.forEach((element, index) => {
-      data.writeUInt32BE(element, 1 + 4 * index);
+    const rawTx = decodeBoundedHex(rawTxHex, "Raw transaction", MAX_TRANSACTION_RAW_DATA_SIZE);
+    const signatures = tokenSignatures ?? [];
+    if (signatures.length > MAX_TOKEN_SIGNATURES) {
+      throw new Error("Too many token signatures.");
+    }
+
+    let tokenSignaturesTotalSize = 0;
+    const tokenSignatureBuffers = signatures.map(signature => {
+      const buffer = decodeBoundedHex(signature, "Token signature", MAX_TOKEN_SIGNATURE_SIZE);
+      tokenSignaturesTotalSize += buffer.length;
+      if (tokenSignaturesTotalSize > MAX_TOKEN_SIGNATURES_TOTAL_SIZE) {
+        throw new Error(
+          `Token signatures exceed maximum total size of ${MAX_TOKEN_SIGNATURES_TOTAL_SIZE} bytes.`,
+        );
+      }
+      return buffer;
     });
 
-    while (rawTx.length > 0) {
-      // get next message field
-      const newpos = this.getNextLength(rawTx);
-      if (!Number.isSafeInteger(newpos) || newpos <= 0 || newpos > rawTx.length) {
-        throw new Error("Invalid transaction field length.");
-      }
-      if (newpos > CHUNK_SIZE) throw new Error("Too many bytes to encode.");
+    const pathData = Buffer.alloc(PATHS_LENGTH_SIZE + paths.length * PATH_SIZE);
+    // write path for first chunk only
+    pathData[0] = paths.length;
+    paths.forEach((element, index) => {
+      pathData.writeUInt32BE(element, 1 + 4 * index);
+    });
+    const transactionChunkCount = this.getTransactionChunkCount(rawTx, pathData.length);
 
-      if (data.length + newpos > CHUNK_SIZE) {
-        toSend.push(data);
-        data = Buffer.alloc(0);
-      }
+    const send = async (): Promise<string> => {
+      let response: Buffer = Buffer.alloc(0);
+      let offset = 0;
+      let chunkIndex = 0;
+      let data: Buffer = pathData;
 
-      // append data
-      data = Buffer.concat([data, rawTx.slice(0, newpos)]);
-      rawTx = rawTx.slice(newpos, rawTx.length);
-    }
-
-    toSend.push(data);
-    const startBytes: number[] = [];
-    let response;
-    const tokenPos = toSend.length;
-
-    if (tokenSignatures !== undefined) {
-      for (let i = 0; i < tokenSignatures.length; i += 1) {
-        const buffer = Buffer.from(tokenSignatures[i], "hex");
-        toSend.push(buffer);
-      }
-    }
-
-    // get startBytes
-    if (toSend.length === 1) {
-      startBytes.push(0x10);
-    } else {
-      startBytes.push(0x00);
-
-      for (let i = 1; i < toSend.length - 1; i += 1) {
-        if (i >= tokenPos) {
-          startBytes.push(0xa0 | 0x00 | (i - tokenPos)); // eslint-disable-line no-bitwise
-        } else {
-          startBytes.push(0x80);
+      while (offset < rawTx.length) {
+        const fieldLength = this.getNextLength(rawTx.subarray(offset));
+        if (data.length + fieldLength > CHUNK_SIZE) {
+          response = await this.transport.send(
+            CLA,
+            SIGN,
+            getTransactionP1(chunkIndex, transactionChunkCount, tokenSignatureBuffers.length),
+            0x00,
+            data,
+          );
+          chunkIndex += 1;
+          data = Buffer.alloc(0);
         }
+
+        data = Buffer.concat([data, rawTx.subarray(offset, offset + fieldLength)]);
+        offset += fieldLength;
       }
 
-      if (tokenSignatures !== undefined && tokenSignatures.length) {
-        startBytes.push(0xa0 | 0x08 | (tokenSignatures.length - 1)); // eslint-disable-line no-bitwise
-      } else {
-        startBytes.push(0x90);
-      }
-    }
+      response = await this.transport.send(
+        CLA,
+        SIGN,
+        getTransactionP1(chunkIndex, transactionChunkCount, tokenSignatureBuffers.length),
+        0x00,
+        data,
+      );
 
-    return foreach(toSend, (data, i) => {
-      return this.transport.send(CLA, SIGN, startBytes[i], 0x00, data).then(apduResponse => {
-        response = apduResponse;
-      });
-    }).then(
-      () => {
-        return response.slice(0, 65).toString("hex");
-      },
-      e => {
-        throw remapTransactionRelatedErrors(e);
-      },
-    );
+      for (let index = 0; index < tokenSignatureBuffers.length; index += 1) {
+        const isLast = index === tokenSignatureBuffers.length - 1;
+        const p1 = 0xa0 | index | (isLast ? 0x08 : 0x00); // eslint-disable-line no-bitwise
+        response = await this.transport.send(
+          CLA,
+          SIGN,
+          p1,
+          0x00,
+          tokenSignatureBuffers[index],
+        );
+      }
+
+      return response.subarray(0, 65).toString("hex");
+    };
+
+    return send().catch(e => {
+      throw remapTransactionRelatedErrors(e);
+    });
   }
 
   /**
