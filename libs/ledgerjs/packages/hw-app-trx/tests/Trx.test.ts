@@ -286,6 +286,104 @@ test("signPersonalMessage", async () => {
   );
 });
 
+it.each(["0", "zz", "0x00", "00zz"])(
+  "should reject invalid personal message hex %s before sending to the device",
+  async messageHex => {
+    const transport = await openTransportReplayer(RecordStore.fromString(""));
+    const trx = new Trx(transport);
+
+    await expect(
+      Promise.resolve().then(() =>
+        trx.signPersonalMessage("44'/195'/0'/0/0", messageHex),
+      ),
+    ).rejects.toThrow("Invalid personal message hex.");
+  },
+);
+
+it("should reject an oversized personal message before sending to the device", async () => {
+  const transport = await openTransportReplayer(RecordStore.fromString(""));
+  const trx = new Trx(transport);
+  const messageHex = "00".repeat(500 * 1024 + 1);
+
+  await expect(
+    Promise.resolve().then(() =>
+      trx.signPersonalMessage("44'/195'/0'/0/0", messageHex),
+    ),
+  ).rejects.toThrow("Personal message exceeds maximum size of 512000 bytes.");
+});
+
+it("should preserve the maximum supported personal message size", async () => {
+  const transport = await openTransportReplayer(RecordStore.fromString(""));
+  const sendMock = jest.spyOn(transport, "send").mockResolvedValue(Buffer.alloc(67));
+  const trx = new Trx(transport);
+
+  await trx.signPersonalMessage("44'/195'/0'/0/0", "00".repeat(500 * 1024));
+
+  expect(sendMock).toHaveBeenCalledTimes(2049);
+  expect(sendMock.mock.calls[0][4].readUInt32BE(21)).toBe(500 * 1024);
+});
+
+it.each(["", "0/1/2/3/4/5/6/7/8/9/10"])(
+  "should reject unsupported BIP32 path depth before signing a personal message",
+  async path => {
+    const transport = await openTransportReplayer(RecordStore.fromString(""));
+    const trx = new Trx(transport);
+
+    await expect(
+      Promise.resolve().then(() => trx.signPersonalMessage(path, "00")),
+    ).rejects.toThrow("BIP32 path must contain between 1 and 10 elements.");
+  },
+);
+
+it("should reject an oversized BIP32 path before parsing its components", async () => {
+  const transport = await openTransportReplayer(RecordStore.fromString(""));
+  const trx = new Trx(transport);
+
+  await expect(
+    Promise.resolve().then(() =>
+      trx.signPersonalMessage(`${"x/".repeat(61)}0`, "00"),
+    ),
+  ).rejects.toThrow("BIP32 path exceeds maximum length of 121.");
+});
+
+it("should allocate and send personal message chunks on demand", async () => {
+  const transport = await openTransportReplayer(RecordStore.fromString(""));
+  let resolveSend!: (response: Buffer) => void;
+  const sendResponse = new Promise<Buffer>(resolve => {
+    resolveSend = resolve;
+  });
+  const sendMock = jest.spyOn(transport, "send").mockReturnValue(sendResponse);
+  const trx = new Trx(transport);
+  const allocSpy = jest.spyOn(Buffer, "alloc");
+
+  const resultPromise = trx.signPersonalMessage("44'/195'/0'/0/0", "ab".repeat(600));
+  const allocationsBeforeFirstResponse = allocSpy.mock.calls.length;
+  allocSpy.mockRestore();
+
+  expect(sendMock).toHaveBeenCalledTimes(1);
+  expect(allocationsBeforeFirstResponse).toBe(1);
+
+  resolveSend(Buffer.alloc(67));
+  await resultPromise;
+
+  expect(sendMock).toHaveBeenCalledTimes(3);
+  expect(sendMock.mock.calls.map(call => call[2])).toEqual([0x00, 0x80, 0x80]);
+  expect(sendMock.mock.calls.map(call => call[4].length)).toEqual([250, 250, 125]);
+  expect(sendMock.mock.calls[0][4].readUInt32BE(21)).toBe(600);
+});
+
+it("should preserve empty personal message signing", async () => {
+  const transport = await openTransportReplayer(RecordStore.fromString(""));
+  const sendMock = jest.spyOn(transport, "send").mockResolvedValue(Buffer.alloc(67));
+  const trx = new Trx(transport);
+
+  await trx.signPersonalMessage("44'/195'/0'/0/0", "");
+
+  expect(sendMock).toHaveBeenCalledTimes(1);
+  expect(sendMock.mock.calls[0][4].length).toBe(25);
+  expect(sendMock.mock.calls[0][4].readUInt32BE(21)).toBe(0);
+});
+
 test("getSharedKey", async () => {
   const transport = await openTransportReplayer(
     RecordStore.fromString(`

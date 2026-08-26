@@ -15,7 +15,7 @@
  *  limitations under the License.
  ********************************************************************************/
 // FIXME drop:
-import { splitPath, foreach, decodeVarintBigInt } from "./utils";
+import { splitPath, decodeVarintBigInt } from "./utils";
 import type Transport from "@ledgerhq/hw-transport";
 import { signTIP712HashedMessage } from "./TIP712";
 
@@ -37,8 +37,16 @@ const SIGN_MESSAGE = 0x08;
 const ECDH_SECRET = 0x0a;
 const VERSION = 0x06;
 const CHUNK_SIZE = 250;
+const MAX_BIP32_PATH_LENGTH = 10;
+const MAX_BIP32_PATH_COMPONENT_LENGTH = 11;
+const MAX_BIP32_PATH_STRING_LENGTH =
+  2 +
+  MAX_BIP32_PATH_LENGTH * MAX_BIP32_PATH_COMPONENT_LENGTH +
+  (MAX_BIP32_PATH_LENGTH - 1);
+const MAX_UINT32 = 0xffffffff;
 // Matches java-tron's consensus-level serialized transaction limit.
 const MAX_TRANSACTION_RAW_DATA_SIZE = 500 * 1024;
+const MAX_PERSONAL_MESSAGE_SIZE = Math.min(MAX_TRANSACTION_RAW_DATA_SIZE, MAX_UINT32);
 const MAX_TRANSACTION_FIELDS = 4096;
 // app-tron accepts either two 113-byte TokenDetails messages or one 205-byte ExchangeDetails.
 const MAX_TOKEN_SIGNATURES = 2;
@@ -56,6 +64,25 @@ const decodeBoundedHex = (value: string, label: string, maxSize: number): Buffer
   }
 
   return Buffer.from(value, "hex");
+};
+
+const getPersonalMessageSize = (messageHex: string): number => {
+  if (messageHex.length > MAX_UINT32 * 2) {
+    throw new Error("Personal message exceeds firmware uint32 length.");
+  }
+  if (messageHex.length > MAX_PERSONAL_MESSAGE_SIZE * 2) {
+    throw new Error(
+      `Personal message exceeds maximum size of ${MAX_PERSONAL_MESSAGE_SIZE} bytes.`,
+    );
+  }
+  if (
+    messageHex.length % 2 !== 0 ||
+    (messageHex.length > 0 && !HEX_REGEX.test(messageHex))
+  ) {
+    throw new Error("Invalid personal message hex.");
+  }
+
+  return messageHex.length / 2;
 };
 
 const getTransactionP1 = (
@@ -361,45 +388,56 @@ export default class Trx {
    * const signature = await tron.signPersonalMessage("44'/195'/0'/0/0", "43727970746f436861696e2d54726f6e5352204c6564676572205472616e73616374696f6e73205465737473");
    */
   signPersonalMessage(path: string, messageHex: string): Promise<string> {
+    if (path.length > MAX_BIP32_PATH_STRING_LENGTH) {
+      throw new Error(`BIP32 path exceeds maximum length of ${MAX_BIP32_PATH_STRING_LENGTH}.`);
+    }
     const paths = splitPath(path);
-    const message = Buffer.from(messageHex, "hex");
-    let offset = 0;
-    const toSend: Buffer[] = [];
-    const size = message.length.toString(16);
-    const sizePack = "00000000".substr(size.length) + size;
-    const packed = Buffer.concat([Buffer.from(sizePack, "hex"), message]);
+    if (paths.length < 1 || paths.length > MAX_BIP32_PATH_LENGTH) {
+      throw new Error(
+        `BIP32 path must contain between 1 and ${MAX_BIP32_PATH_LENGTH} elements.`,
+      );
+    }
+    const messageSize = getPersonalMessageSize(messageHex);
 
-    while (offset < packed.length) {
-      // Use small buffer to be compatible with old and new protocol
-      const maxChunkSize = offset === 0 ? CHUNK_SIZE - 1 - paths.length * 4 : CHUNK_SIZE;
-      const chunkSize =
-        offset + maxChunkSize > packed.length ? packed.length - offset : maxChunkSize;
-      const buffer = Buffer.alloc(offset === 0 ? 1 + paths.length * 4 + chunkSize : chunkSize);
+    const send = async (): Promise<string> => {
+      const pathDataSize = PATHS_LENGTH_SIZE + paths.length * PATH_SIZE;
+      const firstChunkCapacity = CHUNK_SIZE - pathDataSize - 4;
+      const firstChunkSize = Math.min(messageSize, firstChunkCapacity);
+      const firstChunk = Buffer.alloc(pathDataSize + 4 + firstChunkSize);
 
-      if (offset === 0) {
-        buffer[0] = paths.length;
-        paths.forEach((element, index) => {
-          buffer.writeUInt32BE(element, 1 + 4 * index);
-        });
-        packed.copy(buffer, 1 + 4 * paths.length, offset, offset + chunkSize);
-      } else {
-        packed.copy(buffer, 0, offset, offset + chunkSize);
+      firstChunk[0] = paths.length;
+      paths.forEach((element, index) => {
+        firstChunk.writeUInt32BE(element, PATHS_LENGTH_SIZE + PATH_SIZE * index);
+      });
+      firstChunk.writeUInt32BE(messageSize, pathDataSize);
+      firstChunk.write(
+        messageHex.slice(0, firstChunkSize * 2),
+        pathDataSize + 4,
+        firstChunkSize,
+        "hex",
+      );
+
+      let response = await this.transport.send(CLA, SIGN_MESSAGE, 0x00, 0x00, firstChunk);
+      let offset = firstChunkSize;
+
+      while (offset < messageSize) {
+        const chunkSize = Math.min(CHUNK_SIZE, messageSize - offset);
+        const chunk = Buffer.alloc(chunkSize);
+        chunk.write(
+          messageHex.slice(offset * 2, (offset + chunkSize) * 2),
+          0,
+          chunkSize,
+          "hex",
+        );
+
+        response = await this.transport.send(CLA, SIGN_MESSAGE, 0x80, 0x00, chunk);
+        offset += chunkSize;
       }
 
-      toSend.push(buffer);
-      offset += chunkSize;
-    }
-
-    let response;
-    return foreach(toSend, (data, i) => {
-      return this.transport
-        .send(CLA, SIGN_MESSAGE, i === 0 ? 0x00 : 0x80, 0x00, data)
-        .then(apduResponse => {
-          response = apduResponse;
-        });
-    }).then(() => {
       return response.slice(0, 65).toString("hex");
-    });
+    };
+
+    return send();
   }
 
   /**
