@@ -313,14 +313,33 @@ test("signTIP712HashedMessage", async () => {
   const trx = new Trx(transport);
   const result = await trx.signTIP712HashedMessage(
     "44'/195'/0'/0/0",
-    Buffer.from("0101010101010101010101010101010101010101010101010101010101010101", "hex").toString(
-      "hex",
-    ),
-    Buffer.from("0202020202020202020202020202020202020202020202020202020202020202", "hex").toString(
-      "hex",
-    ),
+    `0x${"01".repeat(32)}`,
+    "02".repeat(32).toUpperCase(),
   );
   expect(result).toEqual(
     "1c9b03dd6de5285ac5a648d7288f111e8aafc6ae36338e000130011f1eb68fbbe9760513d08cb2a582d96af3559e5c1185235e3a35b14f223751254659108a5f1a",
   );
 });
+
+it.each([
+  ["domain separator", "01", "02".repeat(32)],
+  ["domain separator", "01".repeat(33), "02".repeat(32)],
+  ["domain separator", `${"01".repeat(32)}zz`, "02".repeat(32)],
+  ["message hash", "01".repeat(32), "02"],
+  ["message hash", "01".repeat(32), "02".repeat(33)],
+  ["message hash", "01".repeat(32), `${"02".repeat(32)}zz`],
+])(
+  "should reject an invalid TIP-712 %s before sending to the device",
+  async (label, domainSeparatorHex, hashStructMessageHex) => {
+    const transport = await openTransportReplayer(RecordStore.fromString(""));
+    const trx = new Trx(transport);
+
+    await expect(
+      trx.signTIP712HashedMessage(
+        "44'/195'/0'/0/0",
+        domainSeparatorHex,
+        hashStructMessageHex,
+      ),
+    ).rejects.toThrow(`Invalid TIP-712 ${label}: expected a 32-byte hexadecimal string.`);
+  },
+);
