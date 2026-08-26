@@ -37,6 +37,9 @@ const SIGN_MESSAGE = 0x08;
 const ECDH_SECRET = 0x0a;
 const VERSION = 0x06;
 const CHUNK_SIZE = 250;
+const TRANSACTION_HASH_SIZE = 32;
+const ECDH_PUBLIC_KEY_SIZE = 65;
+const UNCOMPRESSED_PUBLIC_KEY_PREFIX = "04";
 const MAX_UINT32 = 0xffffffff;
 // Matches java-tron's consensus-level serialized transaction limit.
 const MAX_TRANSACTION_RAW_DATA_SIZE = 500 * 1024;
@@ -48,6 +51,31 @@ const MAX_TOKEN_DETAILS_SIZE = 113;
 const MAX_TOKEN_SIGNATURE_SIZE = CHUNK_SIZE;
 const MAX_TOKEN_SIGNATURES_TOTAL_SIZE = MAX_TOKEN_SIGNATURES * MAX_TOKEN_DETAILS_SIZE;
 const HEX_REGEX = /^[0-9a-fA-F]+$/;
+
+const decodeExactHex = (
+  value: string,
+  label: string,
+  size: number,
+  expectedPrefix?: string,
+): Buffer => {
+  const prefixRequirement = expectedPrefix ? ` starting with ${expectedPrefix}` : "";
+  const errorMessage = `Invalid ${label}: expected an unprefixed ${size}-byte hexadecimal string${prefixRequirement}.`;
+
+  if (
+    value.length !== size * 2 ||
+    !HEX_REGEX.test(value) ||
+    (expectedPrefix !== undefined && !value.startsWith(expectedPrefix))
+  ) {
+    throw new Error(errorMessage);
+  }
+
+  const buffer = Buffer.from(value, "hex");
+  if (buffer.length !== size) {
+    throw new Error(errorMessage);
+  }
+
+  return buffer;
+};
 
 const decodeBoundedHex = (value: string, label: string, maxSize: number): Buffer => {
   if (value.length > maxSize * 2) {
@@ -300,19 +328,24 @@ export default class Trx {
    * sign a Tron transaction hash with a given BIP 32 path
    *
    * @param path a path in BIP 32 format
-   * @param rawTxHex a raw transaction hex string
+   * @param rawTxHashHex an unprefixed 32-byte transaction hash hex string
    * @return a signature as hex string
    * @example
    * const signature = await tron.signTransactionHash("44'/195'/0'/0/0", "25b18a55f86afb10e7aca38d0073d04c80397c6636069193953fdefaea0b8369");
    */
   signTransactionHash(path: string, rawTxHashHex: string): Promise<string> {
     const paths = splitPath(path);
+    const transactionHash = decodeExactHex(
+      rawTxHashHex,
+      "transaction hash",
+      TRANSACTION_HASH_SIZE,
+    );
     let data = Buffer.alloc(PATHS_LENGTH_SIZE + paths.length * PATH_SIZE);
     data[0] = paths.length;
     paths.forEach((element, index) => {
       data.writeUInt32BE(element, 1 + 4 * index);
     });
-    data = Buffer.concat([data, Buffer.from(rawTxHashHex, "hex")]);
+    data = Buffer.concat([data, transactionHash]);
     return this.transport.send(CLA, SIGN_HASH, 0x00, 0x00, data).then(response => {
       return response.slice(0, 65).toString("hex");
     });
@@ -438,14 +471,19 @@ export default class Trx {
   /**
    * get Tron address for a given BIP 32 path.
    * @param path a path in BIP 32 format
-   * @param publicKey address public key to generate pair key
+   * @param publicKey an unprefixed 65-byte uncompressed public key hex string
    * @return shared key hex string,
    * @example
    * const signature = await tron.getECDHPairKey("44'/195'/0'/0/0", "04ff21f8e64d3a3c0198edfbb7afdc79be959432e92e2f8a1984bb436a414b8edcec0345aad0c1bf7da04fd036dd7f9f617e30669224283d950fab9dd84831dc83");
    */
   getECDHPairKey(path: string, publicKey: string): Promise<string> {
     const paths = splitPath(path);
-    const data = Buffer.from(publicKey, "hex");
+    const data = decodeExactHex(
+      publicKey,
+      "ECDH public key",
+      ECDH_PUBLIC_KEY_SIZE,
+      UNCOMPRESSED_PUBLIC_KEY_PREFIX,
+    );
     const buffer = Buffer.alloc(1 + paths.length * 4 + data.length);
     buffer[0] = paths.length;
     paths.forEach((element, index) => {

@@ -334,11 +334,49 @@ test("signTransactionHash", async () => {
   const trx = new Trx(transport);
   const result = await trx.signTransactionHash(
     "44'/195'/0'/0/0",
-    "abfcd07e44a6bfc18efb18062c8e588c34f187e3d2b286d4411781acdf6692eb",
+    "abfcd07e44a6bfc18efb18062c8e588c34f187e3d2b286d4411781acdf6692eb".toUpperCase(),
   );
   expect(result).toEqual(
     "37a3cce70ebf7d792222d93509475a28ef1c7709d9ba032bf01dff3e52bca98c5a6cf64b73428a3f412b7dab1504afe4ac11995049c27ecdf1b46493292e4c6801",
   );
+});
+
+it.each([
+  "00".repeat(31),
+  "00".repeat(33),
+  `0x${"00".repeat(32)}`,
+  `${"00".repeat(31)}zz`,
+  `${"00".repeat(32)}0`,
+  `${"00".repeat(32)}zz`,
+])("should reject invalid transaction hash %s before sending to the device", async rawTxHashHex => {
+  const transport = await openTransportReplayer(RecordStore.fromString(""));
+  const sendMock = jest.spyOn(transport, "send");
+  const trx = new Trx(transport);
+
+  await expect(
+    Promise.resolve().then(() => trx.signTransactionHash("44'/195'/0'/0/0", rawTxHashHex)),
+  ).rejects.toThrow(
+    "Invalid transaction hash: expected an unprefixed 32-byte hexadecimal string.",
+  );
+  expect(sendMock).not.toHaveBeenCalled();
+});
+
+it("should reject an oversized transaction hash before hex decoding", async () => {
+  const transport = await openTransportReplayer(RecordStore.fromString(""));
+  const trx = new Trx(transport);
+  const oversizedHash = "00".repeat(128 * 1024);
+  const bufferFromMock = jest.spyOn(Buffer, "from");
+
+  try {
+    await expect(
+      Promise.resolve().then(() => trx.signTransactionHash("44'/195'/0'/0/0", oversizedHash)),
+    ).rejects.toThrow(
+      "Invalid transaction hash: expected an unprefixed 32-byte hexadecimal string.",
+    );
+    expect(bufferFromMock.mock.calls.some(([value]) => value === oversizedHash)).toBe(false);
+  } finally {
+    bufferFromMock.mockRestore();
+  }
 });
 
 test("signPersonalMessage", async () => {
@@ -456,6 +494,9 @@ it("should preserve empty personal message signing", async () => {
   expect(sendMock.mock.calls[0][4].readUInt32BE(21)).toBe(0);
 });
 
+const validECDHPublicKey =
+  "04e4e24db26e316049743d9149dc6878905d3e8633fb8c36e2cc63299e123d8a6b8fe5ada8c2c6364d94059c23afc8972de9d692b09674f677909bd5ff6d8d320b";
+
 test("getSharedKey", async () => {
   const transport = await openTransportReplayer(
     RecordStore.fromString(`
@@ -466,11 +507,50 @@ test("getSharedKey", async () => {
   const trx = new Trx(transport);
   const result = await trx.getECDHPairKey(
     "44'/195'/0'/0/0",
-    "04e4e24db26e316049743d9149dc6878905d3e8633fb8c36e2cc63299e123d8a6b8fe5ada8c2c6364d94059c23afc8972de9d692b09674f677909bd5ff6d8d320b",
+    validECDHPublicKey.toUpperCase(),
   );
   expect(result).toEqual(
     "04f3087b3d8f99fff119458a5e66f47a391af594e06e4f23e7849347125648a4c93369c0e4a5cce4aabec92f0abf90c94ca33cdeef905d848dfba5e12a8d77137a",
   );
+});
+
+it.each([
+  `04${"00".repeat(63)}`,
+  `04${"00".repeat(65)}`,
+  `0x04${"00".repeat(64)}`,
+  `04${"00".repeat(63)}zz`,
+  `02${"00".repeat(64)}`,
+  `${validECDHPublicKey}0`,
+  `${validECDHPublicKey}zz`,
+])("should reject invalid ECDH public key %s before sending to the device", async publicKey => {
+  const transport = await openTransportReplayer(RecordStore.fromString(""));
+  const sendMock = jest.spyOn(transport, "send");
+  const trx = new Trx(transport);
+
+  await expect(
+    Promise.resolve().then(() => trx.getECDHPairKey("44'/195'/0'/0/0", publicKey)),
+  ).rejects.toThrow(
+    "Invalid ECDH public key: expected an unprefixed 65-byte hexadecimal string starting with 04.",
+  );
+  expect(sendMock).not.toHaveBeenCalled();
+});
+
+it("should reject an oversized ECDH public key before hex decoding", async () => {
+  const transport = await openTransportReplayer(RecordStore.fromString(""));
+  const trx = new Trx(transport);
+  const oversizedPublicKey = `04${"00".repeat(128 * 1024)}`;
+  const bufferFromMock = jest.spyOn(Buffer, "from");
+
+  try {
+    await expect(
+      Promise.resolve().then(() => trx.getECDHPairKey("44'/195'/0'/0/0", oversizedPublicKey)),
+    ).rejects.toThrow(
+      "Invalid ECDH public key: expected an unprefixed 65-byte hexadecimal string starting with 04.",
+    );
+    expect(bufferFromMock.mock.calls.some(([value]) => value === oversizedPublicKey)).toBe(false);
+  } finally {
+    bufferFromMock.mockRestore();
+  }
 });
 
 test("signTIP712HashedMessage", async () => {
