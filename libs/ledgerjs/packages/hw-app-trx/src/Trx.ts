@@ -37,12 +37,6 @@ const SIGN_MESSAGE = 0x08;
 const ECDH_SECRET = 0x0a;
 const VERSION = 0x06;
 const CHUNK_SIZE = 250;
-const MAX_BIP32_PATH_LENGTH = 10;
-const MAX_BIP32_PATH_COMPONENT_LENGTH = 11;
-const MAX_BIP32_PATH_STRING_LENGTH =
-  2 +
-  MAX_BIP32_PATH_LENGTH * MAX_BIP32_PATH_COMPONENT_LENGTH +
-  (MAX_BIP32_PATH_LENGTH - 1);
 const MAX_UINT32 = 0xffffffff;
 // Matches java-tron's consensus-level serialized transaction limit.
 const MAX_TRANSACTION_RAW_DATA_SIZE = 500 * 1024;
@@ -388,15 +382,7 @@ export default class Trx {
    * const signature = await tron.signPersonalMessage("44'/195'/0'/0/0", "43727970746f436861696e2d54726f6e5352204c6564676572205472616e73616374696f6e73205465737473");
    */
   signPersonalMessage(path: string, messageHex: string): Promise<string> {
-    if (path.length > MAX_BIP32_PATH_STRING_LENGTH) {
-      throw new Error(`BIP32 path exceeds maximum length of ${MAX_BIP32_PATH_STRING_LENGTH}.`);
-    }
     const paths = splitPath(path);
-    if (paths.length < 1 || paths.length > MAX_BIP32_PATH_LENGTH) {
-      throw new Error(
-        `BIP32 path must contain between 1 and ${MAX_BIP32_PATH_LENGTH} elements.`,
-      );
-    }
     const messageSize = getPersonalMessageSize(messageHex);
 
     const send = async (): Promise<string> => {

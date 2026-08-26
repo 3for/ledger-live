@@ -33,24 +33,42 @@ export function defer<T>(): Defer<T> {
     reject,
   };
 }
-// TODO use bip32-path library
+const MAX_BIP32_PATH_LENGTH = 10;
+const MAX_BIP32_PATH_COMPONENT_LENGTH = 11;
+const MAX_BIP32_PATH_STRING_LENGTH =
+  2 +
+  MAX_BIP32_PATH_LENGTH * MAX_BIP32_PATH_COMPONENT_LENGTH +
+  (MAX_BIP32_PATH_LENGTH - 1);
+const MAX_BIP32_CHILD_INDEX = 0x7fffffff;
+const HARDENED_BIP32_OFFSET = 0x80000000;
+const BIP32_PATH_COMPONENT_REGEX = /^(\d+)('?)$/;
+
 export function splitPath(path: string): number[] {
-  const result: number[] = [];
-  const components = path.split("/");
-  components.forEach(element => {
-    let number = parseInt(element, 10);
+  if (path.length > MAX_BIP32_PATH_STRING_LENGTH) {
+    throw new Error(`BIP32 path exceeds maximum length of ${MAX_BIP32_PATH_STRING_LENGTH}.`);
+  }
 
-    if (isNaN(number)) {
-      return; // FIXME shouldn't it throws instead?
+  const pathWithoutRoot = path.startsWith("m/") || path.startsWith("M/") ? path.slice(2) : path;
+  const components = pathWithoutRoot.length === 0 ? [] : pathWithoutRoot.split("/");
+  if (components.length < 1 || components.length > MAX_BIP32_PATH_LENGTH) {
+    throw new Error(
+      `BIP32 path must contain between 1 and ${MAX_BIP32_PATH_LENGTH} elements.`,
+    );
+  }
+
+  return components.map(component => {
+    const match = BIP32_PATH_COMPONENT_REGEX.exec(component);
+    if (!match) {
+      throw new Error(`Invalid BIP32 path component: ${component}.`);
     }
 
-    if (element.length > 1 && element[element.length - 1] === "'") {
-      number += 0x80000000;
+    const index = Number(match[1]);
+    if (!Number.isSafeInteger(index) || index > MAX_BIP32_CHILD_INDEX) {
+      throw new Error(`BIP32 path component is out of range: ${component}.`);
     }
 
-    result.push(number);
+    return match[2] === "'" ? index + HARDENED_BIP32_OFFSET : index;
   });
-  return result;
 }
 // TODO use async await
 export function eachSeries<A>(arr: A[], fun: (arg0: A) => Promise<any>): Promise<any> {

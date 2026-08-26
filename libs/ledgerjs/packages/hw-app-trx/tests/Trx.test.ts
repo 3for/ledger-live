@@ -1,6 +1,78 @@
 import { openTransportReplayer, RecordStore } from "@ledgerhq/hw-transport-mocker";
 import Trx from "../src/Trx";
-import { decodeVarint } from "../src/utils";
+import { decodeVarint, splitPath } from "../src/utils";
+
+describe("splitPath", () => {
+  const supportedPaths: [string, number[]][] = [
+    ["44'/195'/0'/0/0", [0x8000002c, 0x800000c3, 0x80000000, 0, 0]],
+    ["m/44'/195'/0'/0/0", [0x8000002c, 0x800000c3, 0x80000000, 0, 0]],
+    ["M/44'/195'/0'/0/0", [0x8000002c, 0x800000c3, 0x80000000, 0, 0]],
+    ["0/1/2/3/4/5/6/7/8/9", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]],
+    ["2147483647/2147483647'", [0x7fffffff, 0xffffffff]],
+  ];
+
+  it.each(supportedPaths)("should preserve supported BIP32 path %s", (path, expected) => {
+    expect(splitPath(path)).toEqual(expected);
+  });
+
+  it("should preserve a maximum-length valid BIP32 path", () => {
+    const path = `m/${Array(10).fill("2147483647'").join("/")}`;
+
+    expect(path).toHaveLength(121);
+    expect(splitPath(path)).toEqual(Array(10).fill(0xffffffff));
+  });
+
+  it.each(["", "m/", "0/1/2/3/4/5/6/7/8/9/10"])(
+    "should reject unsupported BIP32 path depth for %s",
+    path => {
+      expect(() => splitPath(path)).toThrow(
+        "BIP32 path must contain between 1 and 10 elements.",
+      );
+    },
+  );
+
+  it.each(["44'/195'/x/0/0", "44'/195'/0x1/0/0", "44'/195'//0/0", "44''/195'/0/0/0"])(
+    "should reject malformed BIP32 path component in %s",
+    path => {
+      expect(() => splitPath(path)).toThrow("Invalid BIP32 path component:");
+    },
+  );
+
+  it.each(["2147483648", "2147483648'", "9999999999"])(
+    "should reject out-of-range BIP32 path component %s",
+    path => {
+      expect(() => splitPath(path)).toThrow("BIP32 path component is out of range:");
+    },
+  );
+});
+
+describe("public BIP32 path boundaries", () => {
+  const hash = "00".repeat(32);
+  const publicKey = `04${"00".repeat(64)}`;
+  const operations: [string, (trx: Trx, path: string) => Promise<unknown>][] = [
+    ["getAddress", (trx, path) => trx.getAddress(path)],
+    ["signTransaction", (trx, path) => trx.signTransaction(path, "0800", [])],
+    ["signTransactionHash", (trx, path) => trx.signTransactionHash(path, hash)],
+    ["signPersonalMessage", (trx, path) => trx.signPersonalMessage(path, "00")],
+    [
+      "signTIP712HashedMessage",
+      (trx, path) => trx.signTIP712HashedMessage(path, hash, hash),
+    ],
+    ["getECDHPairKey", (trx, path) => trx.getECDHPairKey(path, publicKey)],
+  ];
+
+  it.each(operations)("should reject an oversized path in %s before transport.send", async (_, run) => {
+    const transport = await openTransportReplayer(RecordStore.fromString(""));
+    const sendMock = jest.spyOn(transport, "send");
+    const trx = new Trx(transport);
+    const oversizedPath = `${"0/".repeat(61)}0`;
+
+    await expect(Promise.resolve().then(() => run(trx, oversizedPath))).rejects.toThrow(
+      "BIP32 path exceeds maximum length of 121.",
+    );
+    expect(sendMock).not.toHaveBeenCalled();
+  });
+});
 
 test("getAppConfiguration", async () => {
   const transport = await openTransportReplayer(
